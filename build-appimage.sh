@@ -16,6 +16,7 @@ if [ -z "$VERSION" ]; then
   VERSION="$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')"
 fi
 VERSION="${VERSION:-0.0.0-dev}"
+VERSION="${VERSION#v}"
 ARTIFACT="${NAME}-${VERSION}-${ARCH}.AppImage"
 # Formato canônico com pipes (a forma gh-releases-zsync:// é rejeitada
 # pelo appimagetool atual). O * cobre o número da versão no nome.
