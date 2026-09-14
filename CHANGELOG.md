@@ -1,8 +1,31 @@
-# Unreleased
+# v0.5.0
 
-- Distribuição passa a ser só AppImage: removidos `.deb`, `.rpm` e scripts `build-binary/deb/rpm.sh`.
-- AppImage com número da versão no nome (`protoncommand-X.Y.Z-x86_64.AppImage`) e update info embutida (zsync) para atualização delta via AppImageUpdate/Gear Lever.
-- GitHub Actions publica o Release automaticamente a cada tag `v*` (AppImage + `.zsync`).
+Catálogo auditado, AppImage como formato único (com atualização delta) e releases automáticos pelo GitHub.
+
+## 📚 Catálogo / Catalog (78 comandos / commands)
+
+- **Removidos 18**: variáveis obsoletas, renomeadas ou sem efeito nas versões atuais — `DXVK_ASYNC`, `PROTON_USE_NTSYNC`, `PROTON_ENABLE_NVAPI`, `PROTON_VKREFLEX`, `PROTON_VKD3D_HEAP`, `PROTON_NO_D3D9`, `PROTON_ENABLE_HDR`, `PROTON_DUMP_DEBUG_COMMANDS`, `WINE_AUDIO_DRIVER`, `WINE_BLOCK_HOSTS`, `WINE_VIRTUAL_DESKTOP`, `WINE_ESYNC`, `WINEFSYNC`, `FNA3D_FORCE_DRIVER`, `DRI_CONFIG` — e as 3 entradas de cracks (Online-Fix/SteamFix).
+- **Novos 4**: `PROTON_FFX3_UPGRADE` (nome atual do FSR 3.1 no CachyOS 11+), `PROTON_VKD3D_LOWLATENCY` (D3D12), `DXVK_FRAME_RATE=60` (limite de FPS sem overlay), `PROTON_D7VK_DDRAW` (jogos DX7 ou anteriores).
+- **Correções**: `DXVK_HUD` (`gpu` → `gpuload`); escopo explícito DX8–11 vs DX12 no low-latency; compatibilidades revisadas (RDNA3, indicadores FSR4/DLSS, LSFG).
+- Removida a duplicata `PROTON_XESS_UPGRADE`.
+
+## 📦 Distribuição / Distribution
+
+- Só AppImage: removidos `.deb`, `.rpm` e scripts por formato.
+- Nome com versão (`protoncommand-0.5.0-x86_64.AppImage`) e update info embutida (zsync) — atualize por delta com AppImageUpdate ou Gear Lever.
+- Release publicado automaticamente pelo GitHub a cada tag `v*`.
+
+## 🛠️ Por baixo do pano / Under the hood
+
+- Combinação gera wrappers antes das env vars (igual ao README); detector de conflitos respeita aspas e compara nomes exatos.
+- CI em todo push/PR (`gofmt`, `vet`, `test`, `build`) com retry de download e fallback de proxy; testes anti-regressão do catálogo e i18n.
+- README revisado (78 comandos, guia AppImage, como lançar versão).
+
+## 🛠️ Instalação rápida / Quick install
+
+```bash
+chmod +x protoncommand-0.5.0-x86_64.AppImage && ./protoncommand-0.5.0-x86_64.AppImage
+```
 
 # v0.4.0
 
