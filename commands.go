@@ -323,8 +323,8 @@ func commands() []Command {
 		{
 			Command: "PROTON_DXVK_LOWLATENCY=1 %command%",
 			Title: Localized{
-				PT: "DXVK de baixa latência",
-				EN: "Low latency DXVK",
+				PT: "DXVK de baixa latência (DX8/9/10/11)",
+				EN: "Low latency DXVK (DX8/9/10/11)",
 			},
 			Category: Localized{
 				PT: "Renderização",
@@ -335,8 +335,8 @@ func commands() []Command {
 				EN: "CachyOS",
 			},
 			Description: Localized{
-				PT: "Usa o fork dxvk-low-latency, que adiciona frame pacing de baixa latência: melhora a responsividade do jogo (input lag) e a estabilidade da latência ao longo do tempo.",
-				EN: "Uses the dxvk-low-latency fork, adding low-latency frame pacing: improves game responsiveness (input lag) and latency stability over time.",
+				PT: "Usa o fork dxvk-low-latency nos jogos Direct3D 8/9/10/11: adiciona frame pacing de baixa latência, melhorando a responsividade (input lag) e a estabilidade da latência. Para jogos Direct3D 12 use PROTON_VKD3D_LOWLATENCY.",
+				EN: "Uses the dxvk-low-latency fork in Direct3D 8/9/10/11 games: adds low-latency frame pacing, improving responsiveness (input lag) and latency stability. For Direct3D 12 games use PROTON_VKD3D_LOWLATENCY.",
 			},
 		},
 		{
@@ -354,8 +354,8 @@ func commands() []Command {
 				EN: "CachyOS",
 			},
 			Description: Localized{
-				PT: "Usa o fork vkd3d-low-latency nos jogos Direct3D 12: o equivalente do dxvk-low-latency para D3D12, com frame pacing de menor latência. Combine com a layer LOW_LATENCY_LAYER para Anti-Lag/Reflex.",
-				EN: "Uses the vkd3d-low-latency fork in Direct3D 12 games: the D3D12 equivalent of dxvk-low-latency, with lower-latency frame pacing. Combine with the LOW_LATENCY_LAYER layer for Anti-Lag/Reflex.",
+				PT: "Usa o fork vkd3d-low-latency nos jogos Direct3D 12: o equivalente do dxvk-low-latency para D3D12, com frame pacing de menor latência. Para jogos Direct3D 8/9/10/11 use PROTON_DXVK_LOWLATENCY. Combine com a layer LOW_LATENCY_LAYER para Anti-Lag/Reflex.",
+				EN: "Uses the vkd3d-low-latency fork in Direct3D 12 games: the D3D12 equivalent of dxvk-low-latency, with lower-latency frame pacing. For Direct3D 8/9/10/11 games use PROTON_DXVK_LOWLATENCY. Combine with the LOW_LATENCY_LAYER layer for Anti-Lag/Reflex.",
 			},
 		},
 		{
