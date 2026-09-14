@@ -640,8 +640,8 @@ func commands() []Command {
 				EN: "All",
 			},
 			Description: Localized{
-				PT: "Controla de onde cada DLL do jogo vem: n = nativa (a do próprio jogo, usada por mods/wrappers como dinput8 em jogos antigos), b = builtin (a do Proton). Ex.: WINEDLLOVERRIDES=\"dinput8=n,b\" força a DLL nativa do jogo antes da builtin. Separe várias DLLs com ponto-e-vírgula. Útil para aplicar cracks, fixar controles ou contornar bibliotecas quebradas.",
-				EN: "Controls where each game DLL comes from: n = native (the game's own, used by mods/wrappers like dinput8 in old games), b = builtin (Proton's). E.g.: WINEDLLOVERRIDES=\"dinput8=n,b\" forces the game's native DLL before the builtin. Separate multiple DLLs with semicolons. Useful to apply cracks, fix controllers, or bypass broken libraries.",
+				PT: "Controla de onde cada DLL do jogo vem: n = nativa (a do próprio jogo, usada por mods/wrappers como dinput8 em jogos antigos), b = builtin (a do Proton). Ex.: WINEDLLOVERRIDES=\"dinput8=n,b\" força a DLL nativa do jogo antes da builtin. Separe várias DLLs com ponto-e-vírgula. Útil para fixar controles ou contornar bibliotecas quebradas.",
+				EN: "Controls where each game DLL comes from: n = native (the game's own, used by mods/wrappers like dinput8 in old games), b = builtin (Proton's). E.g.: WINEDLLOVERRIDES=\"dinput8=n,b\" forces the game's native DLL before the builtin. Separate multiple DLLs with semicolons. Useful to fix controllers or bypass broken libraries.",
 			},
 		},
 		{
@@ -776,66 +776,6 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Ativa a layer de frame generation do lsfg-vk usando o profile \"steam\". Crie o profile e ajuste multiplicador, modo de desempenho, HDR etc. na interface gráfica do lsfg-vk (comando lsfg-vk-ui). Requer lsfg-vk instalado e Lossless Scaling na Steam.",
 				EN: "Enables the lsfg-vk frame generation layer using the \"steam\" profile. Create the profile and tune multiplier, performance mode, HDR etc. in the lsfg-vk GUI (lsfg-vk-ui command). Requires lsfg-vk installed and Lossless Scaling on Steam.",
-			},
-		},
-		{
-			Command:   "WINEDLLOVERRIDES=\"OnlineFix64=n;SteamOverlay64=n;winmm=n,b;dnet=n;steam_api64=n;winhttp=n,b\" %command%",
-			CommandEN: "WINEDLLOVERRIDES=\"OnlineFix64=n;SteamOverlay64=n;winmm=n,b;dnet=n;steam_api64=n;winhttp=n,b\" %command%",
-			Title: Localized{
-				PT: "Online-Fix (crack online)",
-				EN: "Online-Fix (online crack)",
-			},
-			Category: Localized{
-				PT: "Outros",
-				EN: "Other",
-			},
-			Compat: Localized{
-				PT: "Proton (GE recomendado)",
-				EN: "Proton (GE recommended)",
-			},
-			Description: Localized{
-				PT: "Para jogos com o Online-Fix (modo multiplayer online) da Online-Fix.me. Sobrescreve as DLLs para usar as do crack (OnlineFix64, SteamOverlay64, steam_api64) mantendo winmm/winhttp como builtin. Adicione o executável do jogo ao Steam com Proton (GE recomendado). Se o jogo não abrir, adicione as DLLs faltantes ao overrides com \"n\" e, se preciso, crie um arquivo steam_appid.txt com o conteúdo 480 na pasta do jogo.",
-				EN: "For Online-Fix (online multiplayer) cracked games from Online-Fix.me. Overrides DLLs to use the crack's (OnlineFix64, SteamOverlay64, steam_api64) while keeping winmm/winhttp as builtin. Add the game's executable to Steam with Proton (GE recommended). If the game doesn't run, add missing DLLs to the overrides with \"n\" and, if needed, create a steam_appid.txt containing 480 in the game folder.",
-			},
-		},
-		{
-			Command:   "WINEDLLOVERRIDES=\"winmm,dnet,steam_api64,steam_api,winhttp=n,b\" %command%",
-			CommandEN: "WINEDLLOVERRIDES=\"winmm,dnet,steam_api64,steam_api,winhttp=n,b\" %command%",
-			Title: Localized{
-				PT: "Online-Fix (versão limpa)",
-				EN: "Online-Fix (clean version)",
-			},
-			Category: Localized{
-				PT: "Outros",
-				EN: "Other",
-			},
-			Compat: Localized{
-				PT: "Proton (GE recomendado)",
-				EN: "Proton (GE recommended)",
-			},
-			Description: Localized{
-				PT: "Versão simplificada do override do Online-Fix: agrupa as DLLs em um só valor, inclui steam_api (usada por jogos 32-bit) e dispensa OnlineFix64, que não existe nativamente. Mais curto e mais fácil de ler; mesma função do override completo.",
-				EN: "Simplified Online-Fix override: groups DLLs into a single value, includes steam_api (used by 32-bit games) and drops OnlineFix64, which doesn't exist natively. Shorter and easier to read; same effect as the full override.",
-			},
-		},
-		{
-			Command:   "WINEDLLOVERRIDES=\"SteamFix64=n;EpicFix64=n;winmm=n,b;dnet=n;steam_api64=n;winhttp=n,b\" %command%",
-			CommandEN: "WINEDLLOVERRIDES=\"SteamFix64=n;EpicFix64=n;winmm=n,b;dnet=n;steam_api64=n;winhttp=n,b\" %command%",
-			Title: Localized{
-				PT: "SteamFix / EpicFix",
-				EN: "SteamFix / EpicFix",
-			},
-			Category: Localized{
-				PT: "Outros",
-				EN: "Other",
-			},
-			Compat: Localized{
-				PT: "Proton (GE recomendado)",
-				EN: "Proton (GE recommended)",
-			},
-			Description: Localized{
-				PT: "Para jogos cujo fix usa as DLLs SteamFix64 ou EpicFix64 (de Steam/Epic). Confira o nome real da DLL do fix na pasta do jogo (OnlineFix64, SteamFix64 ou EpicFix64) e mantenha apenas a que existe, além das demais DLLs. No Lutris: use o prefix do Spacewar (~/.steam/Steam/steamapps/compatdata/480) e as DLLs como variáveis de ambiente.",
-				EN: "For games whose fix uses the SteamFix64 or EpicFix64 DLLs (from Steam/Epic). Check the actual fix DLL name in the game folder (OnlineFix64, SteamFix64 or EpicFix64) and keep only the one that exists, plus the other DLLs. On Lutris: use the Spacewar prefix (~/.steam/Steam/steamapps/compatdata/480) and the DLLs as environment variables.",
 			},
 		},
 		{
