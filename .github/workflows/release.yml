@@ -13,6 +13,8 @@ permissions:
 jobs:
   appimage:
     runs-on: ubuntu-latest
+    env:
+      GOPROXY: https://proxy.golang.org,direct
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,6 +25,15 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+
+      - name: Download modules (com retry)
+        run: |
+          for i in 1 2 3 4 5; do
+            go mod download ./... && break
+            echo "download falhou (tentativa $i/5)"
+            [ "$i" = 5 ] && exit 1
+            sleep $((i * 15))
+          done
 
       - name: Install build dependencies
         run: |
