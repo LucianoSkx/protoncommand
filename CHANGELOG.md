@@ -1,3 +1,9 @@
+# Unreleased
+
+- Distribuição passa a ser só AppImage: removidos `.deb`, `.rpm` e scripts `build-binary/deb/rpm.sh`.
+- AppImage com número da versão no nome (`protoncommand-X.Y.Z-x86_64.AppImage`) e update info embutida (zsync) para atualização delta via AppImageUpdate/Gear Lever.
+- GitHub Actions publica o Release automaticamente a cada tag `v*` (AppImage + `.zsync`).
+
 # v0.4.0
 
 Correções de nomenclatura e internacionalização do rótulo de idioma.
