@@ -302,25 +302,6 @@ func commands() []Command {
 			},
 		},
 		{
-			Command: "PROTON_XESS_UPGRADE=1 %command%",
-			Title: Localized{
-				PT: "Upgrade XeSS (Intel, versão customizável)",
-				EN: "XeSS upgrade (Intel, custom version)",
-			},
-			Category: Localized{
-				PT: "Upscaling",
-				EN: "Upscaling",
-			},
-			Compat: Localized{
-				PT: "GE e CachyOS (GPU Intel)",
-				EN: "GE and CachyOS (Intel GPU)",
-			},
-			Description: Localized{
-				PT: "Baixa automaticamente a DLL do XeSS (Intel) e atualiza jogos para a versão mais recente. Versão customizável: PROTON_XESS_UPGRADE=\"versão\".",
-				EN: "Automatically downloads the XeSS (Intel) DLL and upgrades games to the latest version. Custom version: PROTON_XESS_UPGRADE=\"version\".",
-			},
-		},
-		{
 			Command: "PROTON_USE_WINED3D=1 %command%",
 			Title: Localized{
 				PT: "Forçar OpenGL (wined3d)",
