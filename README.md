@@ -24,21 +24,18 @@ Gerencie e combine comandos úteis do Proton (Proton padrão, Proton-GE e Proton
 - **Seletor de launcher**: Steam, Faugus Launcher, Heroic, Lutris e Bottles — a linha gerada se adapta (Steam/Faugus usam `%command%`; os demais só variáveis de ambiente)
 - **Avisos de conflito**: detecta variáveis definidas mais de uma vez com valores diferentes e opções mutuamente exclusivas (ex.: Anti-Lag 2 vs Reflex)
 - **Favoritos**: marque comandos com estrela e filtre só os favoritos
-- Filtro por categoria, busca por comando, título, categoria e compatibilidade
+- Filtro por categoria e favoritos; busca por comando, título, descrição, categoria e compatibilidade
 - Tema claro / escuro / sistema
 - Opção "copiar ao clicar"
 - Seletor de idioma (PT/EN) no topo
 
 ## Como rodar
 
-```bash
-./protoncommand
-```
-
-Ou compile do código-fonte:
+Com o AppImage (ver Instalação abaixo) ou compilando do código-fonte:
 
 ```bash
 go build -o protoncommand .
+./protoncommand
 ```
 
 ## Dependências de compilação
@@ -51,40 +48,41 @@ Precisa de Go + `gcc` + bibliotecas do GLFW:
 | **Debian / Ubuntu** | `sudo apt install golang gcc libgl1-mesa-dev xorg-dev libwayland-dev` |
 | **Fedora** | `sudo dnf install golang gcc mesa-libGL-devel libX11-devel libwayland-devel libXcursor-devel libXrandr-devel libXi-devel` |
 
-O binário + AppImage sempre são gerados; o `.deb` precisa de `dpkg-dev` e o `.rpm` de `rpm-build`.
+O binário é sempre gerado dentro do AppImage; não é preciso mais nada.
 
 ## Instalação
 
-Escolha um dos pacotes na página de [Releases](https://github.com/LucianoSkx/protoncommand/releases):
-
-| Formato | Uso |
-|---|---|
-| **AppImage** | Qualquer distro: `chmod +x protoncommand-0.4.0.x86_64.AppImage && ./protoncommand-0.4.0.x86_64.AppImage` |
-| **.deb** | Debian/Ubuntu: `sudo dpkg -i protoncommand-0.4.0.x86_64.deb` |
-| **.rpm** | Fedora/openSUSE: `sudo rpm -i protoncommand-0.4.0.x86_64.rpm` |
-| **Binário** | Compile com `./build-binary.sh` |
-
-## Compilando os pacotes
-
-Builds separados por formato:
+Baixe o `.AppImage` mais recente na página de [Releases](https://github.com/LucianoSkx/protoncommand/releases):
 
 ```bash
-./build-binary.sh     # binário
-./build-appimage.sh   # AppImage (qualquer distro)
-./build-deb.sh        # .deb (precisa dpkg-dev)
-./build-rpm.sh        # .rpm (precisa rpm-build)
+chmod +x protoncommand-*.x86_64.AppImage
+./protoncommand-*.x86_64.AppImage
 ```
 
-Artefatos em `dist/`. Rode o script do formato desejado — cada um compila o binário e gera seu pacote.
+### Atualizações
+
+O AppImage traz informação de atualização embutida: use [AppImageUpdate](https://github.com/AppImageCommunity/AppImageUpdate), `appimageupdatetool` ou Gear Lever para atualizar só o que mudou (delta) direto dos Releases do GitHub, sem baixar tudo de novo.
+
+## Compilando o AppImage
+
+```bash
+./build-appimage.sh         # usa a tag git mais recente (vX.Y.Z)
+./build-appimage.sh 0.5.0   # ou informe a versão
+```
+
+O AppImage + `.zsync` saem em `dist/`.
 
 ## Contribuindo
 
 ```bash
 go test ./...   # testes (catálogo, combinação, conflitos, i18n)
+go vet ./...    # análise estática
 gofmt -l .      # deve sair vazio
 ```
 
-Todo comando novo em `commands.go` precisa de título, categoria, compatibilidade e descrição em PT e EN, e terminar com `%command%`. O CI valida unicidade e paridade de idiomas.
+Todo comando novo em `commands.go` precisa de título, categoria, compatibilidade e descrição em PT e EN, e terminar com `%command%`. O CI valida unicidade, paridade de idiomas e a lista de variáveis obsoletas (`TestNoObsoleteCommands`).
+
+Para lançar uma versão: `git tag vX.Y.Z && git push origin vX.Y.Z` — o GitHub gera o AppImage e publica o Release sozinho.
 
 ## Licença
 
@@ -104,21 +102,18 @@ Manage and combine useful Proton launch commands (standard Proton, Proton-GE and
 - **Launcher selector**: Steam, Faugus Launcher, Heroic, Lutris and Bottles — the generated line adapts (Steam/Faugus use `%command%`; the rest get environment variables only)
 - **Conflict warnings**: detects variables set more than once with different values and mutually exclusive options (e.g.: Anti-Lag 2 vs Reflex)
 - **Favorites**: star commands and filter favorites only
-- Category filter, search by command, title, category and compatibility
+- Category and favorites filter; search by command, title, description, category and compatibility
 - Light / dark / system theme
 - Optional "copy on click"
 - Language selector (PT/EN) at the top
 
 ## Running
 
-```bash
-./protoncommand
-```
-
-Or build from source:
+With the AppImage (see Installation below) or building from source:
 
 ```bash
 go build -o protoncommand .
+./protoncommand
 ```
 
 ## Build dependencies
@@ -131,40 +126,41 @@ You need Go + `gcc` + the GLFW libraries:
 | **Debian / Ubuntu** | `sudo apt install golang gcc libgl1-mesa-dev xorg-dev libwayland-dev` |
 | **Fedora** | `sudo dnf install golang gcc mesa-libGL-devel libX11-devel libwayland-devel libXcursor-devel libXrandr-devel libXi-devel` |
 
-The binary + AppImage are always produced; `.deb` additionally needs `dpkg-dev` and `.rpm` needs `rpm-build`.
+The binary is always built inside the AppImage; nothing else is needed.
 
 ## Installation
 
-Pick a package from the [Releases](https://github.com/LucianoSkx/protoncommand/releases) page:
-
-| Format | Usage |
-|---|---|
-| **AppImage** | Any distro: `chmod +x protoncommand-0.4.0.x86_64.AppImage && ./protoncommand-0.4.0.x86_64.AppImage` |
-| **.deb** | Debian/Ubuntu: `sudo dpkg -i protoncommand-0.4.0.x86_64.deb` |
-| **.rpm** | Fedora/openSUSE: `sudo rpm -i protoncommand-0.4.0.x86_64.rpm` |
-| **Binary** | Build with `./build-binary.sh` |
-
-## Building packages
-
-Separate scripts per format:
+Download the latest `.AppImage` from the [Releases](https://github.com/LucianoSkx/protoncommand/releases) page:
 
 ```bash
-./build-binary.sh     # binary
-./build-appimage.sh   # AppImage (any distro)
-./build-deb.sh        # .deb (needs dpkg-dev)
-./build-rpm.sh        # .rpm (needs rpm-build)
+chmod +x protoncommand-*.x86_64.AppImage
+./protoncommand-*.x86_64.AppImage
 ```
 
-Artifacts land in `dist/`. Run the script of the format you want — each one compiles the binary and builds its package.
+### Updates
+
+The AppImage ships embedded update information: use [AppImageUpdate](https://github.com/AppImageCommunity/AppImageUpdate), `appimageupdatetool` or Gear Lever to apply delta updates straight from the GitHub Releases, without downloading everything again.
+
+## Building the AppImage
+
+```bash
+./build-appimage.sh         # uses the latest git tag (vX.Y.Z)
+./build-appimage.sh 0.5.0   # or pass the version
+```
+
+The AppImage + `.zsync` land in `dist/`.
 
 ## Contributing
 
 ```bash
 go test ./...   # tests (catalog, combination, conflicts, i18n)
+go vet ./...    # static analysis
 gofmt -l .      # must print nothing
 ```
 
-Every new command in `commands.go` needs title, category, compatibility and description in both EN and PT, and must end with `%command%`. CI checks uniqueness and language parity.
+Every new command in `commands.go` needs title, category, compatibility and description in both EN and PT, and must end with `%command%`. CI checks uniqueness, language parity and the obsolete-variable list (`TestNoObsoleteCommands`).
+
+To cut a release: `git tag vX.Y.Z && git push origin vX.Y.Z` — GitHub builds the AppImage and publishes the Release on its own.
 
 ## License
 

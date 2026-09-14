@@ -1,11 +1,30 @@
 #!/bin/bash
+# Gera o AppImage (único formato distribuído).
+# Versão: ./build-appimage.sh [versão] | VERSION=x.y.z ./build-appimage.sh
+# Sem argumento, usa a tag git mais recente (vX.Y.Z).
 cd "$(dirname "$0")" || exit 1
 set -euo pipefail
-source packaging/common.sh
 
-build_binary
+NAME="protoncommand"
+ARCH="x86_64"
+DESKTOP="assets/protoncommand.desktop"
+ICON="assets/icon.png"
+DIST="dist"
 
-echo "==> Montando AppDir (AppImage)..."
+VERSION="${VERSION:-${1:-}}"
+if [ -z "$VERSION" ]; then
+  VERSION="$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')"
+fi
+VERSION="${VERSION:-0.0.0-dev}"
+ARTIFACT="${NAME}-${VERSION}-${ARCH}.AppImage"
+# Formato canônico com pipes (a forma gh-releases-zsync:// é rejeitada
+# pelo appimagetool atual). O * cobre o número da versão no nome.
+UPDATE="gh-releases-zsync|LucianoSkx|protoncommand|latest|${NAME}-*-${ARCH}.AppImage.zsync"
+
+echo "==> Compilando ($VERSION)..."
+go build -trimpath -ldflags "-s -w" -o "$NAME" .
+
+echo "==> Montando AppDir..."
 rm -rf AppDir
 mkdir -p AppDir/usr/bin
 mkdir -p AppDir/usr/share/applications
@@ -37,5 +56,8 @@ else
 fi
 
 mkdir -p "$DIST"
-echo "==> Gerando AppImage..."
-APPIMAGE_EXTRACT_AND_RUN=1 "$TOOL" AppDir "$DIST/${ARTIFACT}.AppImage"
+echo "==> Gerando AppImage com update info (zsync)..."
+APPIMAGE_EXTRACT_AND_RUN=1 "$TOOL" -u "$UPDATE" AppDir "$DIST/$ARTIFACT"
+# O .zsync sai no diretório atual com o nome-base do AppImage; move para dist/.
+mv -f "${ARTIFACT}.zsync" "$DIST/" 2>/dev/null || true
+echo "==> Pronto: $DIST/$ARTIFACT (+ .zsync para atualizações delta)"

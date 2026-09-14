@@ -1,5 +1,7 @@
-name: Build Release Artifacts
+name: Release AppImage
 
+# Criar e enviar uma tag v* (ex.: git tag v0.5.0 && git push origin v0.5.0)
+# gera o AppImage e publica o GitHub Release automaticamente.
 on:
   push:
     tags:
@@ -9,8 +11,10 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  appimage:
     runs-on: ubuntu-latest
+    env:
+      GOPROXY: https://proxy.golang.org,direct
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,8 +24,16 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.26'
-          check-latest: true
+          go-version-file: go.mod
+
+      - name: Download modules (com retry)
+        run: |
+          for i in 1 2 3 4 5; do
+            go mod download all && break
+            echo "download falhou (tentativa $i/5)"
+            [ "$i" = 5 ] && exit 1
+            sleep $((i * 15))
+          done
 
       - name: Install build dependencies
         run: |
@@ -30,27 +42,20 @@ jobs:
             gcc pkg-config \
             libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev \
             libx11-dev libxext-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxxf86vm-dev \
-            libxkbcommon-dev libwayland-dev wayland-protocols \
-            libfuse2 dpkg-dev rpm
-
-      - name: Build .deb
-        run: bash build-deb.sh
-
-      - name: Init rpm db and build .rpm
-        run: |
-          sudo rpmdb --initdb --dbpath /var/lib/rpm
-          bash build-rpm.sh
+            libxkbcommon-dev libwayland-dev wayland-protocols
 
       - name: Build AppImage
         env:
           APPIMAGE_EXTRACT_AND_RUN: "1"
-        run: bash build-appimage.sh
+          VERSION: ${{ github.ref_name }}
+        run: |
+          bash build-appimage.sh "${VERSION#v}"
 
       - name: Prepare release notes from CHANGELOG
         id: notes
         run: |
           python3 - <<'PY'
-          import re, subprocess, sys
+          import re, subprocess
           tag = "${{ github.ref_name }}"
           body = ""
           try:
@@ -86,7 +91,6 @@ jobs:
           body_path: release_body.md
           files: |
             dist/protoncommand-*.AppImage
-            dist/protoncommand-*.deb
-            dist/protoncommand-*.rpm
+            dist/protoncommand-*.AppImage.zsync
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
