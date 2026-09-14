@@ -74,25 +74,6 @@ func commands() []Command {
 			},
 		},
 		{
-			Command: "PROTON_DUMP_DEBUG_COMMANDS=1 %command%",
-			Title: Localized{
-				PT: "Scripts de depuração",
-				EN: "Debug scripts",
-			},
-			Category: Localized{
-				PT: "Diagnóstico",
-				EN: "Diagnostics",
-			},
-			Compat: Localized{
-				PT: "GE e CachyOS",
-				EN: "GE and CachyOS",
-			},
-			Description: Localized{
-				PT: "Ao rodar o jogo, o Proton grava scripts de depuração (os mesmos comandos usados para iniciá-lo) em $PROTON_DEBUG_DIR/proton_$USER (padrão: /tmp). Use para entender exatamente como o jogo foi lançado e reproduzir o comando manualmente no terminal, útil para debugar launchers personalizados.",
-				EN: "When running the game, Proton writes debug scripts (the same commands used to launch it) to $PROTON_DEBUG_DIR/proton_$USER (default: /tmp). Use to see exactly how the game was launched and reproduce the command manually in a terminal — handy for debugging custom launchers.",
-			},
-		},
-		{
 			Command: "PROTON_CRASH_REPORT_DIR=~/crash-reports %command%",
 			Title: Localized{
 				PT: "Relatórios de crash",
@@ -131,7 +112,7 @@ func commands() []Command {
 			},
 		},
 		{
-			Command: "DXVK_HUD=fps,gpu,api,devinfo %command%",
+			Command: "DXVK_HUD=fps,gpuload,api,devinfo %command%",
 			Title: Localized{
 				PT: "HUD completo (DXVK)",
 				EN: "Full HUD (DXVK)",
@@ -145,8 +126,8 @@ func commands() []Command {
 				EN: "All",
 			},
 			Description: Localized{
-				PT: "Painel detalhado com FPS, uso da GPU, API gráfica em uso (Vulkan/D3D) e informações do driver. Combina as métricas: fps, gpu, api, devinfo, version, drawcalls, memory. Separe os itens com vírgula.",
-				EN: "Detailed panel with FPS, GPU usage, graphics API in use (Vulkan/D3D) and driver info. Combine metrics: fps, gpu, api, devinfo, version, drawcalls, memory. Separate items with commas.",
+				PT: "Painel detalhado com FPS, carga da GPU, API gráfica em uso (Vulkan/D3D) e informações do driver. Combina as métricas: fps, gpuload, api, devinfo, version, drawcalls, memory. Separe os itens com vírgula.",
+				EN: "Detailed panel with FPS, GPU load, graphics API in use (Vulkan/D3D) and driver info. Combine metrics: fps, gpuload, api, devinfo, version, drawcalls, memory. Separate items with commas.",
 			},
 		},
 		{
@@ -240,8 +221,8 @@ func commands() []Command {
 				EN: "All (Vulkan via DXVK)",
 			},
 			Description: Localized{
-				PT: "Ativa o upscaling FSR da AMD no modo fullscreen: o jogo renderiza em resolução menor e o FSR sobe a imagem, ganhando FPS em placas mais fracas. Combine com WINE_FULLSCREEN_FSR_STRENGTH=2 para ajustar a nitidez (0 = máxima, 5 = mínima). Só funciona em jogos Vulkan (não em D3D11).",
-				EN: "Enables AMD FSR upscaling in fullscreen: the game renders at a lower resolution and FSR upscales the image, gaining FPS on weaker GPUs. Combine with WINE_FULLSCREEN_FSR_STRENGTH=2 for sharpness (0 = max, 5 = min). Only works in Vulkan games (not D3D11).",
+				PT: "Ativa o upscaling FSR 1 da AMD no modo fullscreen: o jogo renderiza em resolução menor e o FSR sobe a imagem, ganhando FPS em placas mais fracas. Combine com WINE_FULLSCREEN_FSR_STRENGTH=2 para ajustar a nitidez (0 = máxima, 5 = mínima). Funciona nos jogos renderizados via Vulkan — inclui títulos D3D11/D3D12 traduzidos pelo DXVK/VKD3D; não funciona em OpenGL (wined3d). Recurso legado: prefira o Gamescope (-F fsr) ou o upgrade FSR 4.",
+				EN: "Enables AMD FSR 1 upscaling in fullscreen: the game renders at a lower resolution and FSR upscales the image, gaining FPS on weaker GPUs. Combine with WINE_FULLSCREEN_FSR_STRENGTH=2 for sharpness (0 = max, 5 = min). Works in games rendered through Vulkan — including D3D11/D3D12 titles translated by DXVK/VKD3D; does not work in OpenGL (wined3d). Legacy feature: prefer Gamescope (-F fsr) or the FSR 4 upgrade.",
 			},
 		},
 		{
@@ -255,8 +236,8 @@ func commands() []Command {
 				EN: "Upscaling",
 			},
 			Compat: Localized{
-				PT: "Proton padrão, GE e CachyOS",
-				EN: "Standard Proton, GE and CachyOS",
+				PT: "Proton padrão",
+				EN: "Standard Proton",
 			},
 			Description: Localized{
 				PT: "Ativa a escala inteira em fullscreen: pixels nítidos e quadradinhos ao subir a resolução, sem blur. Útil em jogos antigos ou pixel art.",
@@ -359,6 +340,25 @@ func commands() []Command {
 			},
 		},
 		{
+			Command: "PROTON_VKD3D_LOWLATENCY=1 %command%",
+			Title: Localized{
+				PT: "VKD3D de baixa latência (D3D12)",
+				EN: "Low latency VKD3D (D3D12)",
+			},
+			Category: Localized{
+				PT: "Renderização",
+				EN: "Rendering",
+			},
+			Compat: Localized{
+				PT: "CachyOS",
+				EN: "CachyOS",
+			},
+			Description: Localized{
+				PT: "Usa o fork vkd3d-low-latency nos jogos Direct3D 12: o equivalente do dxvk-low-latency para D3D12, com frame pacing de menor latência. Combine com a layer LOW_LATENCY_LAYER para Anti-Lag/Reflex.",
+				EN: "Uses the vkd3d-low-latency fork in Direct3D 12 games: the D3D12 equivalent of dxvk-low-latency, with lower-latency frame pacing. Combine with the LOW_LATENCY_LAYER layer for Anti-Lag/Reflex.",
+			},
+		},
+		{
 			Command: "DXVK_HDR=1 %command%",
 			Title: Localized{
 				PT: "HDR via DXVK",
@@ -373,8 +373,8 @@ func commands() []Command {
 				EN: "CachyOS (requires HDR monitor and compositor)",
 			},
 			Description: Localized{
-				PT: "Ativa HDR nos jogos via DXVK. Use quando o jogo tem opção de HDR mas não acende sozinho. Em NVIDIA com drivers mais antigos, combine com ENABLE_HDR_WSI=1. Se o HDR automático (CachyOS 11+) estiver causando problemas, desative com DXVK_NO_HDR=1.",
-				EN: "Enables HDR in games via DXVK. Use when the game has an HDR option but won't turn on by itself. On NVIDIA with older drivers, combine with ENABLE_HDR_WSI=1. If automatic HDR (CachyOS 11+) causes issues, disable with DXVK_NO_HDR=1.",
+				PT: "Ativa HDR nos jogos via DXVK. Use quando o jogo tem opção de HDR mas não acende sozinho. Em NVIDIA com drivers mais antigos, combine com ENABLE_HDR_WSI=1.",
+				EN: "Enables HDR in games via DXVK. Use when the game has an HDR option but won't turn on by itself. On NVIDIA with older drivers, combine with ENABLE_HDR_WSI=1.",
 			},
 		},
 		{
@@ -435,25 +435,6 @@ func commands() []Command {
 			},
 		},
 		{
-			Command: "PROTON_ENABLE_NVAPI=1 %command%",
-			Title: Localized{
-				PT: "NVAPI da NVIDIA",
-				EN: "NVIDIA NVAPI",
-			},
-			Category: Localized{
-				PT: "GPU",
-				EN: "GPU",
-			},
-			Compat: Localized{
-				PT: "GE (GPU NVIDIA)",
-				EN: "GE (NVIDIA GPU)",
-			},
-			Description: Localized{
-				PT: "Habilita a biblioteca NVAPI da NVIDIA dentro do Proton, ativando funcionalidades proprietárias (como DLSS em alguns jogos e recursos específicos do driver). Desative com PROTON_DISABLE_NVAPI=1 se causar problemas.",
-				EN: "Enables NVIDIA's NVAPI library inside Proton, activating proprietary features (like DLSS in some games and driver-specific features). Disable with PROTON_DISABLE_NVAPI=1 if it causes issues.",
-			},
-		},
-		{
 			Command: "DRI_PRIME=1 %command%",
 			Title: Localized{
 				PT: "Forçar GPU dedicada",
@@ -506,27 +487,8 @@ func commands() []Command {
 				EN: "CachyOS",
 			},
 			Description: Localized{
-				PT: "Desativa o driver de áudio winepipewire (ligado por padrão no proton-cachyos) e volta para o winepulse. Útil quando o jogo tem áudio estalando ou cortando. Também dá para escolher o driver com WINE_AUDIO_DRIVER.",
-				EN: "Disables the winepipewire audio driver (default in proton-cachyos) and falls back to winepulse. Useful when a game's audio crackles or cuts out. You can also pick the driver with WINE_AUDIO_DRIVER.",
-			},
-		},
-		{
-			Command: "WINE_AUDIO_DRIVER=pulse %command%",
-			Title: Localized{
-				PT: "Escolher driver de áudio",
-				EN: "Choose audio driver",
-			},
-			Category: Localized{
-				PT: "Áudio",
-				EN: "Audio",
-			},
-			Compat: Localized{
-				PT: "Todos",
-				EN: "All",
-			},
-			Description: Localized{
-				PT: "Define qual driver de áudio o Wine usa, na ordem de preferência. Padrão: pipewire,pulse,alsa. Exemplo: WINE_AUDIO_DRIVER=pulse força só o winepulse.drv. Use para isolar problemas de áudio — se um driver falha, tente o próximo da lista.",
-				EN: "Sets which audio driver Wine uses, in order of preference. Default: pipewire,pulse,alsa. Example: WINE_AUDIO_DRIVER=pulse forces winepulse.drv only. Use to isolate audio problems — if one driver fails, try the next in the list.",
+				PT: "Desativa o driver de áudio winepipewire (ligado por padrão no proton-cachyos) e volta para o winepulse. Útil quando o jogo tem áudio estalando ou cortando.",
+				EN: "Disables the winepipewire audio driver (default in proton-cachyos) and falls back to winepulse. Useful when a game's audio crackles or cuts out.",
 			},
 		},
 		{
@@ -702,25 +664,6 @@ func commands() []Command {
 			},
 		},
 		{
-			Command: "PROTON_NO_D3D9=1 %command%",
-			Title: Localized{
-				PT: "Desabilitar D3D9",
-				EN: "Disable D3D9",
-			},
-			Category: Localized{
-				PT: "Renderização",
-				EN: "Rendering",
-			},
-			Compat: Localized{
-				PT: "GE e CachyOS",
-				EN: "GE and CachyOS",
-			},
-			Description: Localized{
-				PT: "Desativa a d3d9.dll. Raro de precisar; útil quando o D3D9 via DXVK causa problemas e o jogo tem outro caminho de renderização.",
-				EN: "Disables d3d9.dll. Rarely needed; useful when D3D9 via DXVK causes issues and the game has another rendering path.",
-			},
-		},
-		{
 			Command: "RADV_DEBUG=nofastclears %command%",
 			Title: Localized{
 				PT: "RADV: corrigir artefatos (nofastclears)",
@@ -737,25 +680,6 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Desativa os fast clears no driver RADV, corrigindo artefatos visuais (tela piscando, linhas estranhas) em alguns jogos AMD. Se o jogo sumir no HUD, é sintoma de fast clear.",
 				EN: "Disables fast clears in the RADV driver, fixing visual artifacts (flickering, weird lines) in some AMD games. If a game disappears from the HUD, it's a fast clear symptom.",
-			},
-		},
-		{
-			Command: "DRI_CONFIG=\"radv_invariant_geom=true\" %command%",
-			Title: Localized{
-				PT: "RADV: geometria invariante (driconf)",
-				EN: "RADV: invariant geometry (driconf)",
-			},
-			Category: Localized{
-				PT: "GPU",
-				EN: "GPU",
-			},
-			Compat: Localized{
-				PT: "Todos (GPU AMD / Mesa RADV)",
-				EN: "All (AMD GPU / Mesa RADV)",
-			},
-			Description: Localized{
-				PT: "Ativa a geometria invariante do RADV via driconf (substitui a antiga RADV_DEBUG=invariantgeom, removida no Mesa 26). Corrige cintilação/sumindo de objetos em jogos mal otimizados.",
-				EN: "Enables RADV invariant geometry via driconf (replaces the old RADV_DEBUG=invariantgeom, removed in Mesa 26). Fixes flickering/disappearing objects in poorly optimized games.",
 			},
 		},
 		{
@@ -846,8 +770,8 @@ func commands() []Command {
 				EN: "Rendering",
 			},
 			Compat: Localized{
-				PT: "Vulkan (Proton/GE)",
-				EN: "Vulkan (Proton/GE)",
+				PT: "Todos (exige lsfg-vk instalado)",
+				EN: "All (requires lsfg-vk)",
 			},
 			Description: Localized{
 				PT: "Ativa a layer de frame generation do lsfg-vk usando o profile \"steam\". Crie o profile e ajuste multiplicador, modo de desempenho, HDR etc. na interface gráfica do lsfg-vk (comando lsfg-vk-ui). Requer lsfg-vk instalado e Lossless Scaling na Steam.",
@@ -926,8 +850,8 @@ func commands() []Command {
 				EN: "Diagnostics",
 			},
 			Compat: Localized{
-				PT: "Proton padrão, GE e CachyOS",
-				EN: "Standard Proton, GE and CachyOS",
+				PT: "Proton padrão",
+				EN: "Standard Proton",
 			},
 			Description: Localized{
 				PT: "Espera um depurador anexar ao steam.exe antes de iniciar o processo do jogo. Para anexar ao jogo no início, configure o depurador para seguir processos filhos.",
@@ -955,6 +879,26 @@ func commands() []Command {
 			},
 		},
 		{
+			Command:   "PROTON_D7VK_DDRAW=1 %command%",
+			CommandEN: "PROTON_D7VK_DDRAW=1 %command%",
+			Title: Localized{
+				PT: "D7VK para jogos DX7 ou anteriores",
+				EN: "D7VK for DX7 and older games",
+			},
+			Category: Localized{
+				PT: "Renderização",
+				EN: "Rendering",
+			},
+			Compat: Localized{
+				PT: "CachyOS",
+				EN: "CachyOS",
+			},
+			Description: Localized{
+				PT: "Usa o ddraw.dll do D7VK nos jogos DirectDraw/Direct3D 7 ou anteriores, em vez da implementação do Wine. Use quando um clássico trava, pisca ou não renderiza.",
+				EN: "Uses D7VK's ddraw.dll in DirectDraw/Direct3D 7 and older games instead of Wine's implementation. Use when a classic crashes, flickers or fails to render.",
+			},
+		},
+		{
 			Command:   "PROTON_NO_NTSYNC=1 %command%",
 			CommandEN: "PROTON_NO_NTSYNC=1 %command%",
 			Title: Localized{
@@ -972,26 +916,6 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Desativa o ntsync (sincronização no estilo Windows NT). Use se algum jogo apresentar problema com o ntsync ativo. O ntsync agora é o padrão no Proton 11+.",
 				EN: "Disables ntsync (Windows NT style synchronization). Use it if a game misbehaves with ntsync enabled. ntsync is now the default in Proton 11+.",
-			},
-		},
-		{
-			Command:   "PROTON_USE_NTSYNC=1 %command%",
-			CommandEN: "PROTON_USE_NTSYNC=1 %command%",
-			Title: Localized{
-				PT: "Habilitar ntsync (OBSOLETO)",
-				EN: "Enable ntsync (DEPRECATED)",
-			},
-			Category: Localized{
-				PT: "Sincronização",
-				EN: "Synchronization",
-			},
-			Compat: Localized{
-				PT: "Obsoleto (Proton 11+ usa ntsync por padrão)",
-				EN: "Deprecated (Proton 11+ uses ntsync by default)",
-			},
-			Description: Localized{
-				PT: "OBSOLETO: o ntsync agora é ativado por padrão no Proton 11+. Esta variável não faz mais nada. Use PROTON_NO_NTSYNC=1 para desativar se necessário.",
-				EN: "DEPRECATED: ntsync is now enabled by default in Proton 11+. This variable does nothing. Use PROTON_NO_NTSYNC=1 to disable if needed.",
 			},
 		},
 		{
@@ -1146,8 +1070,8 @@ func commands() []Command {
 				EN: "Wayland",
 			},
 			Compat: Localized{
-				PT: "KDE (Wayland/X11)",
-				EN: "KDE (Wayland/X11)",
+				PT: "Proton padrão (KDE)",
+				EN: "Standard Proton (KDE)",
 			},
 			Description: Localized{
 				PT: "Ativa hacks específicos do KDE que melhoram a experiência com KDE mais antigo que 6.4 no Wayland e 6.6 no X11.",
@@ -1172,46 +1096,6 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Ativa o Xalia, que adiciona UI de gamepad para algumas interfaces de teclado/mouse. Por padrão o Proton decide dinamicamente; use 0 para desativar.",
 				EN: "Enables Xalia, which adds a gamepad UI for some keyboard/mouse interfaces. The default is dynamic; set to 0 to disable.",
-			},
-		},
-		{
-			Command:   "FNA3D_FORCE_DRIVER=D3D11 %command%",
-			CommandEN: "FNA3D_FORCE_DRIVER=D3D11 %command%",
-			Title: Localized{
-				PT: "FNA: forçar D3D11",
-				EN: "FNA: force D3D11",
-			},
-			Category: Localized{
-				PT: "Renderização",
-				EN: "Rendering",
-			},
-			Compat: Localized{
-				PT: "Jogos FNA/XNA (ex.: Celeste)",
-				EN: "FNA/XNA games (e.g. Celeste)",
-			},
-			Description: Localized{
-				PT: "Força o FNA (framework de jogos estilo XNA, usado em indies como Celeste) a usar D3D11 para renderização. Use quando o jogo FNA abre com tela preta ou trava na inicialização — trocar o driver de renderização às vezes contorna o bug.",
-				EN: "Forces FNA (XNA-style game framework, used in indies like Celeste) to use D3D11 for rendering. Use when an FNA game shows a black screen or crashes on launch — switching the render driver sometimes bypasses the bug.",
-			},
-		},
-		{
-			Command:   "DXVK_ASYNC=1 %command%",
-			CommandEN: "DXVK_ASYNC=1 %command%",
-			Title: Localized{
-				PT: "DXVK async (compilação em segundo plano)",
-				EN: "Async DXVK (background compilation)",
-			},
-			Category: Localized{
-				PT: "Renderização",
-				EN: "Rendering",
-			},
-			Compat: Localized{
-				PT: "GE e CachyOS",
-				EN: "GE and CachyOS",
-			},
-			Description: Localized{
-				PT: "Ativa a compilação assíncrona de shaders do DXVK: o jogo inicia sem travar compilando shaders. Elimina grande parte do stutter nas primeiras execuções. Apenas em versões do Proton com o patch async (GE e CachyOS).",
-				EN: "Enables DXVK's asynchronous shader compilation: the game starts without stalling to compile shaders. Removes most of the stutter on first runs. Only in Proton builds with the async patch (GE and CachyOS).",
 			},
 		},
 		{
@@ -1335,6 +1219,26 @@ func commands() []Command {
 			},
 		},
 		{
+			Command:   "DXVK_FRAME_RATE=60 %command%",
+			CommandEN: "DXVK_FRAME_RATE=60 %command%",
+			Title: Localized{
+				PT: "Limite de FPS (DXVK)",
+				EN: "FPS cap (DXVK)",
+			},
+			Category: Localized{
+				PT: "Overlay e desempenho",
+				EN: "Overlay & Performance",
+			},
+			Compat: Localized{
+				PT: "Todos",
+				EN: "All",
+			},
+			Description: Localized{
+				PT: "Limita o FPS dos jogos D3D11/D3D10/D3D9 (via DXVK) direto no driver, sem overlay. Troque 60 pelo limite desejado (ex.: 120, 144); -1 desativa. Útil em telas 60 Hz ou para reduzir consumo/ruído quando o jogo passa folgado do refresh.",
+				EN: "Caps FPS in D3D11/D3D10/D3D9 games (via DXVK) right in the driver, with no overlay. Replace 60 with the desired cap (e.g.: 120, 144); -1 disables. Useful on 60 Hz displays or to cut power/noise when the game runs well past refresh.",
+			},
+		},
+		{
 			Command:   "gamescope -e -f -F fsr -- %command%",
 			CommandEN: "gamescope -e -f -F fsr -- %command%",
 			Title: Localized{
@@ -1352,66 +1256,6 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Roda o jogo em modo exclusivo (sem compositor) dentro do gamescope com FSR integrado: o jogo renderiza na resolução interna e o FSR sobe a imagem para a resolução da tela. Ajuste a resolução com -w/-h (interna) e -W/-H (tela).",
 				EN: "Runs the game in exclusive mode (no compositor) inside gamescope with built-in FSR: the game renders at its internal resolution and FSR upscales to the screen resolution. Tune with -w/-h (internal) and -W/-H (screen).",
-			},
-		},
-		{
-			Command:   "WINE_VIRTUAL_DESKTOP=1920x1080 %command%",
-			CommandEN: "WINE_VIRTUAL_DESKTOP=1920x1080 %command%",
-			Title: Localized{
-				PT: "Desktop virtual do Wine",
-				EN: "Wine virtual desktop",
-			},
-			Category: Localized{
-				PT: "Outros",
-				EN: "Other",
-			},
-			Compat: Localized{
-				PT: "Todos (jogos que insistem na resolução errada)",
-				EN: "All (games stuck on the wrong resolution)",
-			},
-			Description: Localized{
-				PT: "Roda o jogo dentro de uma janela de desktop virtual na resolução indicada (ex.: 1920x1080). Use quando o jogo fixa resolução errada, abre em janela quebrada no multi-monitor ou ignora o fullscreen. Ajuste o valor para a resolução desejada.",
-				EN: "Runs the game inside a virtual desktop window at the given resolution (e.g.: 1920x1080). Use when a game locks onto the wrong resolution, opens a broken window on multi-monitor, or ignores fullscreen. Adjust the value to the resolution you want.",
-			},
-		},
-		{
-			Command:   "WINE_ESYNC=1 %command%",
-			CommandEN: "WINE_ESYNC=1 %command%",
-			Title: Localized{
-				PT: "ESync (Wine)",
-				EN: "ESync (Wine)",
-			},
-			Category: Localized{
-				PT: "Sincronização",
-				EN: "Synchronization",
-			},
-			Compat: Localized{
-				PT: "Wine (Lutris/Heroic/Bottles)",
-				EN: "Wine (Lutris/Heroic/Bottles)",
-			},
-			Description: Localized{
-				PT: "Ativa o ESync (eventfd) em runners de Wine puro, fora do Proton. Em geral o FSync (WINEFSYNC=1) é mais rápido; teste os dois se um jogo tiver problemas de sincronização.",
-				EN: "Enables ESync (eventfd) in plain Wine runners, outside Proton. FSync (WINEFSYNC=1) is usually faster; test both if a game has synchronization issues.",
-			},
-		},
-		{
-			Command:   "WINEFSYNC=1 %command%",
-			CommandEN: "WINEFSYNC=1 %command%",
-			Title: Localized{
-				PT: "FSync (Wine)",
-				EN: "FSync (Wine)",
-			},
-			Category: Localized{
-				PT: "Sincronização",
-				EN: "Synchronization",
-			},
-			Compat: Localized{
-				PT: "Wine (Lutris/Heroic/Bottles)",
-				EN: "Wine (Lutris/Heroic/Bottles)",
-			},
-			Description: Localized{
-				PT: "Ativa o FSync (futex) em runners de Wine puro, fora do Proton. Precisa de kernel com FUTEX_WAIT_MULTIPLE (6.6+). Se um jogo travar com FSync, teste WINE_ESYNC=1.",
-				EN: "Enables FSync (futex) in plain Wine runners, outside Proton. Requires a kernel with FUTEX_WAIT_MULTIPLE (6.6+). If a game crashes with FSync, try WINE_ESYNC=1.",
 			},
 		},
 		{
@@ -1446,8 +1290,8 @@ func commands() []Command {
 				EN: "Upscaling",
 			},
 			Compat: Localized{
-				PT: "GE (GPU AMD)",
-				EN: "GE (AMD GPU)",
+				PT: "GE e CachyOS (GPU AMD)",
+				EN: "GE and CachyOS (AMD GPU)",
 			},
 			Description: Localized{
 				PT: "Mostra um watermark no canto da tela confirmando que o FSR 4 está ativo. Útil para verificar se o PROTON_FSR4_UPGRADE funcionou.",
@@ -1466,12 +1310,12 @@ func commands() []Command {
 				EN: "Upscaling",
 			},
 			Compat: Localized{
-				PT: "CachyOS (GPU AMD RDNA 3)",
-				EN: "CachyOS (AMD RDNA 3 GPU)",
+				PT: "GE (GPU AMD RDNA 3)",
+				EN: "GE (AMD RDNA 3 GPU)",
 			},
 			Description: Localized{
-				PT: "Upgrade FSR 3.1 para FSR 4 em GPUs RDNA 3 (RX 7000). Aplica workarounds específicos RDNA 3 e usa DLL 4.0.0 por padrão. Versão customizável: PROTON_FSR4_RDNA3_UPGRADE=\"4.0.2\".",
-				EN: "FSR 3.1 to FSR 4 upgrade on RDNA 3 GPUs (RX 7000). Applies RDNA 3-specific workarounds and uses DLL 4.0.0 by default. Custom version: PROTON_FSR4_RDNA3_UPGRADE=\"4.0.2\".",
+				PT: "Upgrade FSR 3.1 para FSR 4 em GPUs RDNA 3 (RX 7000). Aplica workarounds específicos RDNA 3. Versão customizável: PROTON_FSR4_RDNA3_UPGRADE=\"4.0.2\". Removida no Proton-CachyOS 11+ (workaround não mais necessário).",
+				EN: "FSR 3.1 to FSR 4 upgrade on RDNA 3 GPUs (RX 7000). Applies RDNA 3-specific workarounds. Custom version: PROTON_FSR4_RDNA3_UPGRADE=\"4.0.2\". Removed in Proton-CachyOS 11+ (workaround no longer needed).",
 			},
 		},
 		{
@@ -1490,8 +1334,28 @@ func commands() []Command {
 				EN: "GE and CachyOS (AMD GPU)",
 			},
 			Description: Localized{
-				PT: "Baixa automaticamente a DLL do FSR 3.1 e atualiza jogos para usá-la. Versão customizável via PROTON_FSR3_UPGRADE=\"versão\".",
-				EN: "Automatically downloads the FSR 3.1 DLL and upgrades games to use it. Custom version via PROTON_FSR3_UPGRADE=\"version\".",
+				PT: "Baixa automaticamente a DLL do FSR 3.1 e atualiza jogos para usá-la. Versão customizável via PROTON_FSR3_UPGRADE=\"versão\". Renomeada para PROTON_FFX3_UPGRADE no Proton-CachyOS 11+.",
+				EN: "Automatically downloads the FSR 3.1 DLL and upgrades games to use it. Custom version via PROTON_FSR3_UPGRADE=\"version\". Renamed to PROTON_FFX3_UPGRADE in Proton-CachyOS 11+.",
+			},
+		},
+		{
+			Command:   "PROTON_FFX3_UPGRADE=1 %command%",
+			CommandEN: "PROTON_FFX3_UPGRADE=1 %command%",
+			Title: Localized{
+				PT: "Upgrade para FSR 3.1 (nome atual)",
+				EN: "FSR 3.1 upgrade (current name)",
+			},
+			Category: Localized{
+				PT: "Upscaling",
+				EN: "Upscaling",
+			},
+			Compat: Localized{
+				PT: "CachyOS 11+ (GPU AMD)",
+				EN: "CachyOS 11+ (AMD GPU)",
+			},
+			Description: Localized{
+				PT: "Nome atual do upgrade de FSR 3.1 no Proton-CachyOS 11+ (antes PROTON_FSR3_UPGRADE). Baixa automaticamente a DLL do FSR 3.1 e atualiza jogos para usá-la. Versão customizável via PROTON_FFX3_UPGRADE=\"versão\".",
+				EN: "Current name of the FSR 3.1 upgrade in Proton-CachyOS 11+ (formerly PROTON_FSR3_UPGRADE). Automatically downloads the FSR 3.1 DLL and upgrades games to use it. Custom version via PROTON_FFX3_UPGRADE=\"version\".",
 			},
 		},
 		{
@@ -1526,8 +1390,8 @@ func commands() []Command {
 				EN: "Upscaling",
 			},
 			Compat: Localized{
-				PT: "GE (GPU NVIDIA)",
-				EN: "GE (NVIDIA GPU)",
+				PT: "GE e CachyOS (GPU NVIDIA)",
+				EN: "GE and CachyOS (NVIDIA GPU)",
 			},
 			Description: Localized{
 				PT: "Mostra um overlay DLSS no canto inferior esquerdo da tela. Mesmo efeito de FSR4_WATERMARK=1. Útil para confirmar se o DLSS está ativo.",
@@ -1675,46 +1539,6 @@ func commands() []Command {
 			},
 		},
 		{
-			Command:   "PROTON_VKREFLEX=1 %command%",
-			CommandEN: "PROTON_VKREFLEX=1 %command%",
-			Title: Localized{
-				PT: "NVIDIA Reflex em Vulkan (alias Proton)",
-				EN: "NVIDIA Reflex in Vulkan (Proton alias)",
-			},
-			Category: Localized{
-				PT: "Latência",
-				EN: "Latency",
-			},
-			Compat: Localized{
-				PT: "CachyOS (GPU NVIDIA; jogos Vulkan com Reflex)",
-				EN: "CachyOS (NVIDIA GPU; Vulkan games with Reflex)",
-			},
-			Description: Localized{
-				PT: "Alias do Proton para DXVK_NVAPI_VKREFLEX. Habilita a layer Vulkan Reflex do dxvk-nvapi, necessária para Reflex funcionar em jogos Vulkan (Portal RTX, Path of Exile 1/2, Doom TDA). Mesma função da variável DXVK_NVAPI_VKREFLEX, só muda o nome.",
-				EN: "Proton alias for DXVK_NVAPI_VKREFLEX. Enables dxvk-nvapi's Vulkan Reflex layer, needed for Reflex in Vulkan games (Portal RTX, Path of Exile 1/2, Doom TDA). Same as DXVK_NVAPI_VKREFLEX, just a different name.",
-			},
-		},
-		{
-			Command:   "PROTON_ENABLE_HDR=1 %command%",
-			CommandEN: "PROTON_ENABLE_HDR=1 %command%",
-			Title: Localized{
-				PT: "HDR automático",
-				EN: "Auto HDR",
-			},
-			Category: Localized{
-				PT: "Renderização",
-				EN: "Rendering",
-			},
-			Compat: Localized{
-				PT: "GE e CachyOS (exige monitor HDR + compositor)",
-				EN: "GE and CachyOS (requires HDR monitor + compositor)",
-			},
-			Description: Localized{
-				PT: "Ativa HDR automaticamente nos jogos (seta DXVK_HDR=1). No CachyOS 11+, HDR é ativado por padrão; use DXVK_NO_HDR=1 para desativar. Em NVIDIA, combine com ENABLE_HDR_WSI=1.",
-				EN: "Enables auto HDR in games (sets DXVK_HDR=1). On CachyOS 11+, HDR is on by default; use DXVK_NO_HDR=1 to disable. On NVIDIA, combine with ENABLE_HDR_WSI=1.",
-			},
-		},
-		{
 			Command:   "PROTON_USE_WAYLAND=1 %command%",
 			CommandEN: "PROTON_USE_WAYLAND=1 %command%",
 			Title: Localized{
@@ -1772,46 +1596,6 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Desabilita completamente o Steam Input no Proton. Útil quando o Steam Input conflita com o controle nativo do jogo.",
 				EN: "Completely disables Steam Input in Proton. Useful when Steam Input conflicts with the game's native controller support.",
-			},
-		},
-		{
-			Command:   "WINE_BLOCK_HOSTS=host1.org,host2.net %command%",
-			CommandEN: "WINE_BLOCK_HOSTS=host1.org,host2.net %command%",
-			Title: Localized{
-				PT: "Bloquear hosts no Wine",
-				EN: "Block hosts in Wine",
-			},
-			Category: Localized{
-				PT: "Outros",
-				EN: "Other",
-			},
-			Compat: Localized{
-				PT: "Wine/Proton",
-				EN: "Wine/Proton",
-			},
-			Description: Localized{
-				PT: "Lista de hosts (separados por vírgula ou ponto-e-vírgula) que o Wine não deve conectar. Máximo 16 hosts, 256 chars cada. Ex.: WINE_BLOCK_HOSTS=telemetry.example.com,ads.example.net.",
-				EN: "List of hosts (comma or semicolon separated) that Wine should not connect to. Max 16 hosts, 256 chars each. E.g.: WINE_BLOCK_HOSTS=telemetry.example.com,ads.example.net.",
-			},
-		},
-		{
-			Command:   "PROTON_VKD3D_HEAP=1 %command%",
-			CommandEN: "PROTON_VKD3D_HEAP=1 %command%",
-			Title: Localized{
-				PT: "Config heap VKD3D",
-				EN: "VKD3D heap config",
-			},
-			Category: Localized{
-				PT: "Renderização",
-				EN: "Rendering",
-			},
-			Compat: Localized{
-				PT: "CachyOS",
-				EN: "CachyOS",
-			},
-			Description: Localized{
-				PT: "Habilita configuração de heap específica do VKD3D para melhor gerenciamento de memória em jogos D3D12.",
-				EN: "Enables VKD3D-specific heap configuration for better memory management in D3D12 games.",
 			},
 		},
 	}

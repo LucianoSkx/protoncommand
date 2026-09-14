@@ -187,3 +187,39 @@ func TestCommandsValid(t *testing.T) {
 		}
 	}
 }
+
+// TestNoObsoleteCommands impede o retorno de variáveis removidas por
+// auditoria (obsoletas, renomeadas ou sem evidência de existência).
+func TestNoObsoleteCommands(t *testing.T) {
+	obsolete := []string{
+		"PROTON_DUMP_DEBUG_COMMANDS",
+		"DXVK_ASYNC",
+		"PROTON_USE_NTSYNC",
+		"PROTON_ENABLE_NVAPI",
+		"WINE_AUDIO_DRIVER",
+		"WINE_BLOCK_HOSTS",
+		"WINE_VIRTUAL_DESKTOP",
+		"WINE_ESYNC",
+		"WINEFSYNC",
+		"PROTON_VKREFLEX",
+		"PROTON_VKD3D_HEAP",
+		"PROTON_NO_D3D9",
+		"FNA3D_FORCE_DRIVER",
+		"DRI_CONFIG",
+		"PROTON_ENABLE_HDR",
+	}
+	cmds := commands()
+	for _, c := range cmds {
+		for _, tok := range splitFields(c.Command) {
+			name := tok
+			if idx := strings.IndexByte(tok, '='); idx >= 0 {
+				name = tok[:idx]
+			}
+			for _, ob := range obsolete {
+				if name == ob {
+					t.Errorf("comando obsoleto de volta ao catálogo: %q contém %s", c.Command, ob)
+				}
+			}
+		}
+	}
+}
