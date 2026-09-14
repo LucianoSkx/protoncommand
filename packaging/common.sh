@@ -2,7 +2,12 @@
 set -euo pipefail
 
 NAME="protoncommand"
-VERSION="0.3.0"
+# Versão: usa $VERSION do ambiente, senão a tag git mais recente (vX.Y.Z),
+# senão o fallback abaixo. Evita artefatos com versão desatualizada.
+if [ -z "${VERSION:-}" ]; then
+  VERSION="$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')"
+fi
+VERSION="${VERSION:-0.4.0}"
 DESKTOP="packaging/protoncommand.desktop"
 ICON="assets/icon.png"
 DIST="dist"

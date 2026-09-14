@@ -28,7 +28,7 @@ Section: games
 Priority: optional
 Architecture: amd64
 Maintainer: Luciano Oliveira <lucianoskx@gmail.com>
-Depends: libc6, libgl1
+Depends: libc6, libgl1, libx11-6, libxcursor1, libxi6, libxinerama1, libxrandr2, libxxf86vm1, libxkbcommon0, libwayland-client0
 Description: Useful Proton launch commands manager
  A simple GUI to browse, copy and combine useful Proton launch
  commands (standard Proton, Proton-GE and Proton-CachyOS) for Steam.

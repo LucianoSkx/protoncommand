@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -53,7 +52,7 @@ type gui struct {
 
 	launcherSel *widget.Select
 	launchers   []Launcher
-	launcher    *Launcher
+	launcherIdx int
 	catSel      *widget.Select
 	catOptions  []string
 	catFilterPT string
@@ -81,16 +80,18 @@ func main() {
 		lang:     "pt",
 		selected: map[int]bool{},
 		favs:     map[string]bool{},
+		current:  -1,
+		selID:    -1,
 	}
 	g.launchers = launchers()
-	g.launcher = &g.launchers[0]
+	g.launcherIdx = 0
 	if l := a.Preferences().StringWithFallback("lang", "pt"); l == "en" || l == "pt" {
 		g.lang = l
 	}
 	if id := a.Preferences().StringWithFallback("launcher", "steam"); id != "" {
 		for i := range g.launchers {
 			if g.launchers[i].ID == id {
-				g.launcher = &g.launchers[i]
+				g.launcherIdx = i
 			}
 		}
 	}
@@ -126,6 +127,18 @@ func (g *gui) cmd(c Command) string {
 		return c.CommandEN
 	}
 	return c.Command
+}
+
+// launcher devolve o launcher atual sem guardar ponteiro para dentro
+// do slice (o índice sobrevive a realocações e cópias da struct).
+func (g *gui) launcher() *Launcher {
+	if len(g.launchers) == 0 {
+		return nil
+	}
+	if g.launcherIdx < 0 || g.launcherIdx >= len(g.launchers) {
+		g.launcherIdx = 0
+	}
+	return &g.launchers[g.launcherIdx]
 }
 
 func (g *gui) build() {
@@ -437,8 +450,8 @@ func (g *gui) applyLang() {
 		names[i] = g.t(g.launchers[i].Name)
 	}
 	g.launcherSel.Options = names
-	if g.launcher != nil {
-		g.launcherSel.SetSelected(g.t(g.launcher.Name))
+	if l := g.launcher(); l != nil {
+		g.launcherSel.SetSelected(g.t(l.Name))
 	}
 
 	cats := map[string]bool{}
@@ -519,108 +532,15 @@ func (g *gui) toggle(idx int, v bool) {
 	g.updateCombination()
 }
 
-func (g *gui) isWrapper(c Command) bool {
-	for _, w := range []string{"mangohud", "gamemoderun", "gamescope", "game-performance"} {
-		if strings.HasPrefix(c.Command, w) {
-			return true
-		}
-	}
-	return false
-}
-
-func (g *gui) buildCombination() string {
-	var wrappers, envs []string
-	for i := range g.all {
-		if !g.selected[i] {
-			continue
-		}
-		c := g.all[i]
-		base := strings.TrimSpace(strings.TrimSuffix(g.cmd(c), "%command%"))
-		if !g.launcher.HasCmd {
-			base = strings.TrimSpace(strings.TrimSuffix(base, "--"))
-		}
-		if g.isWrapper(c) {
-			wrappers = append(wrappers, base)
-		} else {
-			envs = append(envs, base)
-		}
-	}
-	var parts []string
-	parts = append(parts, envs...)
-	parts = append(parts, wrappers...)
-	if len(parts) == 0 {
-		return ""
-	}
-	line := strings.Join(parts, " ")
-	if g.launcher.HasCmd {
-		line += " %command%"
-	}
-	return line
-}
-
-// displayCmd adapta o comando ao launcher escolhido, removendo o
-// placeholder %command% quando o launcher não o usa.
-func (g *gui) displayCmd(c Command) string {
-	s := g.cmd(c)
-	if !g.launcher.HasCmd {
-		s = strings.TrimSpace(strings.TrimSuffix(s, "%command%"))
-	}
-	return s
-}
-
-// conflicts detecta variáveis duplicadas com valores diferentes e
-// opções mutuamente exclusivas entre os comandos selecionados.
-func (g *gui) conflicts() []string {
-	var out []string
-	vals := map[string]map[string]bool{}
-	var keys []string
-	hasAntiLag, hasReflex := false, false
-	for i := range g.all {
-		if !g.selected[i] {
-			continue
-		}
-		s := g.cmd(g.all[i])
-		for _, tok := range strings.Fields(s) {
-			k, v, ok := strings.Cut(tok, "=")
-			if !ok {
-				continue
-			}
-			if vals[k] == nil {
-				vals[k] = map[string]bool{}
-				keys = append(keys, k)
-			}
-			vals[k][v] = true
-		}
-		if strings.Contains(s, "LOW_LATENCY_LAYER_REFLEX") {
-			hasReflex = true
-		} else if strings.Contains(s, "LOW_LATENCY_LAYER") {
-			hasAntiLag = true
-		}
-	}
-	for _, k := range keys {
-		if len(vals[k]) > 1 {
-			vs := make([]string, 0, len(vals[k]))
-			for v := range vals[k] {
-				vs = append(vs, v)
-			}
-			sort.Strings(vs)
-			out = append(out, fmt.Sprintf(g.tr("conflictDuplicate"), k, strings.Join(vs, ", ")))
-		}
-	}
-	if hasAntiLag && hasReflex {
-		out = append(out, g.tr("conflictAntiLagReflex"))
-	}
-	return out
-}
-
 func (g *gui) updateCombination() {
 	n := len(g.selected)
 	comb := g.buildCombination()
-	g.combHint.SetText(g.t(g.launcher.Hint))
+	g.combHint.SetText(g.t(g.launcher().Hint))
 	if n == 0 {
 		g.combLabel.SetText(g.tr("noCommandSelected"))
 		g.combCount.SetText("")
 		g.combWarn.Text = ""
+		g.combWarn.Refresh()
 		g.combCopyBtn.Disable()
 		return
 	}
@@ -648,11 +568,11 @@ func (g *gui) copyCombination() {
 func (g *gui) setLauncher(id string) {
 	for i := range g.launchers {
 		if g.launchers[i].ID == id {
-			g.launcher = &g.launchers[i]
+			g.launcherIdx = i
 			break
 		}
 	}
-	g.app.Preferences().SetString("launcher", g.launcher.ID)
+	g.app.Preferences().SetString("launcher", g.launcher().ID)
 	g.updateCombination()
 	g.refreshDetail()
 }

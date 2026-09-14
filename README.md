@@ -2,6 +2,14 @@
   <img src="assets/logo.png" alt="Proton Command" width="400">
 </div>
 
+<div align="center">
+
+[![Release](https://img.shields.io/github/v/release/LucianoSkx/protoncommand)](https://github.com/LucianoSkx/protoncommand/releases)
+[![CI](https://github.com/LucianoSkx/protoncommand/actions/workflows/ci.yml/badge.svg)](https://github.com/LucianoSkx/protoncommand/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+</div>
+
 ---
 
 # Português 🇧🇷
@@ -10,7 +18,7 @@ Gerencie e combine comandos úteis do Proton (Proton padrão, Proton-GE e Proton
 
 ## Funcionalidades
 
-- **93 comandos** com descrição em Português e Inglês
+- **92 comandos** com descrição em Português e Inglês
 - **Combinação múltipla**: marque vários comandos e gere uma única linha pronta, por exemplo:
   `mangohud gamemoderun PROTON_LOG=1 %command%`
 - **Seletor de launcher**: Steam, Faugus Launcher, Heroic, Lutris e Bottles — a linha gerada se adapta (Steam/Faugus usam `%command%`; os demais só variáveis de ambiente)
@@ -51,9 +59,9 @@ Escolha um dos pacotes na página de [Releases](https://github.com/LucianoSkx/pr
 
 | Formato | Uso |
 |---|---|
-| **AppImage** | Qualquer distro: `chmod +x protoncommand-0.3.0.x86_64.AppImage && ./protoncommand-0.3.0.x86_64.AppImage` |
-| **.deb** | Debian/Ubuntu: `sudo dpkg -i protoncommand-0.3.0.x86_64.deb` |
-| **.rpm** | Fedora/openSUSE: `sudo rpm -i protoncommand-0.3.0.x86_64.rpm` |
+| **AppImage** | Qualquer distro: `chmod +x protoncommand-0.4.0.x86_64.AppImage && ./protoncommand-0.4.0.x86_64.AppImage` |
+| **.deb** | Debian/Ubuntu: `sudo dpkg -i protoncommand-0.4.0.x86_64.deb` |
+| **.rpm** | Fedora/openSUSE: `sudo rpm -i protoncommand-0.4.0.x86_64.rpm` |
 | **Binário** | Compile com `./build-binary.sh` |
 
 ## Compilando os pacotes
@@ -69,6 +77,15 @@ Builds separados por formato:
 
 Artefatos em `dist/`. Rode o script do formato desejado — cada um compila o binário e gera seu pacote.
 
+## Contribuindo
+
+```bash
+go test ./...   # testes (catálogo, combinação, conflitos, i18n)
+gofmt -l .      # deve sair vazio
+```
+
+Todo comando novo em `commands.go` precisa de título, categoria, compatibilidade e descrição em PT e EN, e terminar com `%command%`. O CI valida unicidade e paridade de idiomas.
+
 ## Licença
 
 MIT — veja [LICENSE](LICENSE).
@@ -81,7 +98,7 @@ Manage and combine useful Proton launch commands (standard Proton, Proton-GE and
 
 ## Features
 
-- **93 commands** with descriptions in English and Portuguese
+- **92 commands** with descriptions in English and Portuguese
 - **Multiple combination**: check several commands and generate a single ready-to-paste line, e.g.:
   `mangohud gamemoderun PROTON_LOG=1 %command%`
 - **Launcher selector**: Steam, Faugus Launcher, Heroic, Lutris and Bottles — the generated line adapts (Steam/Faugus use `%command%`; the rest get environment variables only)
@@ -122,9 +139,9 @@ Pick a package from the [Releases](https://github.com/LucianoSkx/protoncommand/r
 
 | Format | Usage |
 |---|---|
-| **AppImage** | Any distro: `chmod +x protoncommand-0.3.0.x86_64.AppImage && ./protoncommand-0.3.0.x86_64.AppImage` |
-| **.deb** | Debian/Ubuntu: `sudo dpkg -i protoncommand-0.3.0.x86_64.deb` |
-| **.rpm** | Fedora/openSUSE: `sudo rpm -i protoncommand-0.3.0.x86_64.rpm` |
+| **AppImage** | Any distro: `chmod +x protoncommand-0.4.0.x86_64.AppImage && ./protoncommand-0.4.0.x86_64.AppImage` |
+| **.deb** | Debian/Ubuntu: `sudo dpkg -i protoncommand-0.4.0.x86_64.deb` |
+| **.rpm** | Fedora/openSUSE: `sudo rpm -i protoncommand-0.4.0.x86_64.rpm` |
 | **Binary** | Build with `./build-binary.sh` |
 
 ## Building packages
@@ -140,7 +157,14 @@ Separate scripts per format:
 
 Artifacts land in `dist/`. Run the script of the format you want — each one compiles the binary and builds its package.
 
-Artifacts land in `dist/`. `build.sh` runs all four — if a tool is missing it warns and continues with the rest.
+## Contributing
+
+```bash
+go test ./...   # tests (catalog, combination, conflicts, i18n)
+gofmt -l .      # must print nothing
+```
+
+Every new command in `commands.go` needs title, category, compatibility and description in both EN and PT, and must end with `%command%`. CI checks uniqueness and language parity.
 
 ## License
 
