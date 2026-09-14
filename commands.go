@@ -1219,6 +1219,26 @@ func commands() []Command {
 			},
 		},
 		{
+			Command:   "LSFGVK_PROFILE=steam %command%",
+			CommandEN: "LSFGVK_PROFILE=steam %command%",
+			Title: Localized{
+				PT: "lsfg-vk: perfil Steam (v2.0.0+)",
+				EN: "lsfg-vk: Steam profile (v2.0.0+)",
+			},
+			Category: Localized{
+				PT: "Overlay e desempenho",
+				EN: "Overlay & Performance",
+			},
+			Compat: Localized{
+				PT: "Todos (exige lsfg-vk 2.0+ instalado)",
+				EN: "All (requires lsfg-vk 2.0+)",
+			},
+			Description: Localized{
+				PT: "Seleciona o perfil \"steam\" do lsfg-vk (v2.0.0+), ativando o frame generation para jogos lançados pelo Steam. Variável oficial do lsfg-vk: LSFGVK_PROFILE substitui a detecção automática de processo. Prefira LSFGVK_PROFILE sobre a variante antiga LSFG_PROCESS, removida no v2.0.0. Requer Lossless Scaling ativado no Steam e lsfg-vk 2.0+ instalado.",
+				EN: "Selects the lsfg-vk \"steam\" profile (v2.0.0+), enabling frame generation for Steam-launched games. Official lsfg-vk variable: LSFGVK_PROFILE overrides automatic process detection. Use LSFGVK_PROFILE instead of the removed LSFG_PROCESS (deprecated in v2.0.0). Requires Lossless Scaling enabled in Steam and lsfg-vk 2.0+ installed.",
+			},
+		},
+		{
 			Command:   "PROTON_FSR4_INDICATOR=1 %command%",
 			CommandEN: "PROTON_FSR4_INDICATOR=1 %command%",
 			Title: Localized{
