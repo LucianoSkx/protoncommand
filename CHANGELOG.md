@@ -1,17 +1,19 @@
 # v0.5.4
 
-Quebra de linha de verdade nos textos longos, sem barra de rolagem.
+Detalhe acompanha a lista ao pesquisar e ao trocar de idioma.
 
 ## 🐛 Correções / Fixes
 
 - Novo `maxWidthLabel`: combinação, status e detalhes quebram linha dentro da janela em vez de esticá-la além da tela.
 - Removida a rolagem (`VScroll`) da barra de combinação.
+- Pesquisa: painel de detalhes agora acompanha a lista mesmo quando a linha 0 já estava selecionada.
+- Idioma: detalhe atualiza o texto ao trocar PT/EN (mesmo bug do search).
 
 # v0.5.3
 
 Aparece só na aba Jogos do menu do sistema.
 
-## 🖥️ Menu / Menu
+## 🖥️ Menu
 
 - `Categories=Game;` no `.desktop` (removido `Utility`) — o app não aparece mais em Utilitários.
 
@@ -19,11 +21,11 @@ Aparece só na aba Jogos do menu do sistema.
 
 lsfg-vk atualizado para v2.0.0+ e barra de combinação com rolagem.
 
-## 📚 Catálogo / Catalog (78 comandos / commands)
+## 📚 Catálogo (78 comandos)
 
 - **Removido**: `LSFG_PROCESS=steam` (variável removida no lsfg-vk v2.0.0).
 
-## 🐛 Correções / Fixes
+## 🐛 Correções
 
 - Barra de combinação com rolagem (`NewVScroll`) — não expande mais a janela além da tela com muitos comandos.
 - README com exemplo de combinação e versão atualizados.
@@ -32,39 +34,39 @@ lsfg-vk atualizado para v2.0.0+ e barra de combinação com rolagem.
 
 Ordem correta dos wrappers na combinação e lsfg-vk v2.0.0+.
 
-## 📚 Catálogo / Catalog
+## 📚 Catálogo
 
 - **Novo**: `LSFGVK_PROFILE=steam` (variável oficial do lsfg-vk v2.0.0+ para selecionar o perfil).
 
-## 🐛 Correções / Fixes
+## 🐛 Correções
 
 - Wrappers (`game-performance`, `mangohud`, `gamemoderun`, `gamescope`) agora vão por último, antes do `%command%`: `PROTON_LOG=1 mangohud gamemoderun %command%`.
-- Label da combinação contido (`NewMax`) para não esticar a janela.
+- Label da combinação contido (`maxWidthLabel`) para não esticar a janela.
 
 # v0.5.0
 
 Catálogo auditado, AppImage como formato único (com atualização delta) e releases automáticos pelo GitHub.
 
-## 📚 Catálogo / Catalog (78 comandos / commands)
+## 📚 Catálogo (78 comandos)
 
 - **Removidos 18**: variáveis obsoletas, renomeadas ou sem efeito nas versões atuais — `DXVK_ASYNC`, `PROTON_USE_NTSYNC`, `PROTON_ENABLE_NVAPI`, `PROTON_VKREFLEX`, `PROTON_VKD3D_HEAP`, `PROTON_NO_D3D9`, `PROTON_ENABLE_HDR`, `PROTON_DUMP_DEBUG_COMMANDS`, `WINE_AUDIO_DRIVER`, `WINE_BLOCK_HOSTS`, `WINE_VIRTUAL_DESKTOP`, `WINE_ESYNC`, `WINEFSYNC`, `FNA3D_FORCE_DRIVER`, `DRI_CONFIG` — e as 3 entradas de cracks (Online-Fix/SteamFix).
 - **Novos 4**: `PROTON_FFX3_UPGRADE` (nome atual do FSR 3.1 no CachyOS 11+), `PROTON_VKD3D_LOWLATENCY` (D3D12), `DXVK_FRAME_RATE=60` (limite de FPS sem overlay), `PROTON_D7VK_DDRAW` (jogos DX7 ou anteriores).
 - **Correções**: `DXVK_HUD` (`gpu` → `gpuload`); escopo explícito DX8–11 vs DX12 no low-latency; compatibilidades revisadas (RDNA3, indicadores FSR4/DLSS, LSFG).
 - Removida a duplicata `PROTON_XESS_UPGRADE`.
 
-## 📦 Distribuição / Distribution
+## 📦 Distribuição
 
 - Só AppImage: removidos `.deb`, `.rpm` e scripts por formato.
 - Nome com versão (`protoncommand-0.5.0-x86_64.AppImage`) e update info embutida (zsync) — atualize por delta com AppImageUpdate ou Gear Lever.
 - Release publicado automaticamente pelo GitHub a cada tag `v*`.
 
-## 🛠️ Por baixo do pano / Under the hood
+## 🛠️ Por baixo do pano
 
-- Combinação gera wrappers antes das env vars (igual ao README); detector de conflitos respeita aspas e compara nomes exatos.
+- Combinação: wrappers vão por último, antes de `%command%` (ordem correta: env vars → wrappers → %command%).
+- Detector de conflitos respeita aspas e compara nomes exatos.
 - CI em todo push/PR (`gofmt`, `vet`, `test`, `build`) com retry de download e fallback de proxy; testes anti-regressão do catálogo e i18n.
-- README revisado (78 comandos, guia AppImage, como lançar versão).
 
-## 🛠️ Instalação rápida / Quick install
+## 🛠️ Instalação rápida
 
 ```bash
 chmod +x protoncommand-0.5.0-x86_64.AppImage && ./protoncommand-0.5.0-x86_64.AppImage
@@ -74,13 +76,13 @@ chmod +x protoncommand-0.5.0-x86_64.AppImage && ./protoncommand-0.5.0-x86_64.App
 
 Correções de nomenclatura e internacionalização do rótulo de idioma.
 
-## 🐛 Correções / Fixes
+## 🐛 Correções
 
 - **Licença**: copyright atualizado de `ProtonBox contributors` para `protoncommand contributors` no `LICENSE`.
 - **README**: seção em Português agora diz "descrição em Português e Inglês" (antes "English").
 - **App**: o seletor de idioma e o menu de configurações passam a exibir **Inglês** em vez de "English" (PT e EN).
 
-## 📦 Pacotes / Packages
+## 📦 Pacotes
 
 | Formato | Arquivo | Uso |
 |---|---|---|
@@ -88,7 +90,7 @@ Correções de nomenclatura e internacionalização do rótulo de idioma.
 | Debian/Ubuntu | `protoncommand-0.4.0.x86_64.deb` | `sudo dpkg -i` |
 | Fedora/openSUSE | `protoncommand-0.4.0.x86_64.rpm` | `sudo rpm -i` |
 
-## 🛠️ Instalação rápida / Quick install
+## 🛠️ Instalação rápida
 
 ```bash
 # AppImage
@@ -103,9 +105,9 @@ sudo rpm -i protoncommand-0.4.0.x86_64.rpm
 
 # v0.3.0
 
-Catálogo expandido de **73 para 93 comandos** e descrições reescritas com foco prático (sintoma → solução, exemplos de valores e consistência PT/EN).
+Catálogo expandido e descrições reescritas com foco prático (sintoma → solução, exemplos de valores e consistência PT/EN).
 
-## ✨ Novos comandos / New commands
+## ✨ Novos comandos
 
 ### Upscalers e upgrades
 - `PROTON_FSR4_INDICATOR=1`, `PROTON_FSR4_RDNA3_UPGRADE=1`, `PROTON_FSR3_UPGRADE=1` — indicador e upgrades FSR4/FSR3
@@ -121,15 +123,15 @@ Catálogo expandido de **73 para 93 comandos** e descrições reescritas com foc
 ### Display e input
 - `PROTON_USE_WAYLAND=1`, `PROTON_PREFER_SDL=1`, `PROTON_NO_STEAMINPUT=1`
 
-### Diversos / Misc
+### Diversos
 - `PROTON_ADD_CONFIG=config1,config2` — aplica configs do Proton sem editar arquivos
 - `PROTON_LOCAL_SHADER_CACHE=1` — cache local de shaders
 - `PROTON_MEDIA_FORCE_GST=1`, `PROTON_GST_VIDEO_ORIENTATION=90`, `WINE_BLOCK_HOSTS=...`
 
-### Obsoleto / Deprecated
+### Obsoleto
 - `PROTON_USE_NTSYNC=1` — marcado como obsoleto (ntsync é o padrão no Proton 11+; use `PROTON_NO_NTSYNC=1` para desativar)
 
-## 📦 Pacotes / Packages
+## 📦 Pacotes
 
 | Formato | Arquivo | Uso |
 |---|---|---|
@@ -137,7 +139,7 @@ Catálogo expandido de **73 para 93 comandos** e descrições reescritas com foc
 | Debian/Ubuntu | `protoncommand-0.3.0.x86_64.deb` | `sudo dpkg -i` |
 | Fedora/openSUSE | `protoncommand-0.3.0.x86_64.rpm` | `sudo rpm -i` |
 
-## 🛠️ Instalação rápida / Quick install
+## 🛠️ Instalação rápida
 
 ```bash
 # AppImage
