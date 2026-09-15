@@ -1,3 +1,12 @@
+# v0.5.4
+
+Quebra de linha de verdade nos textos longos, sem barra de rolagem.
+
+## 🐛 Correções / Fixes
+
+- Novo `maxWidthLabel`: combinação, status e detalhes quebram linha dentro da janela em vez de esticá-la além da tela.
+- Removida a rolagem (`VScroll`) da barra de combinação.
+
 # v0.5.3
 
 Aparece só na aba Jogos do menu do sistema.
