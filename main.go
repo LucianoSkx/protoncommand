@@ -346,7 +346,7 @@ func (g *gui) build() {
 		nil, nil, nil,
 		container.NewVBox(
 			g.combWarn,
-			g.combLabel,
+			container.NewMax(g.combLabel),
 			g.combHint,
 			g.combCopyBtn,
 		),
