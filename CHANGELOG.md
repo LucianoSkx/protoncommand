@@ -1,3 +1,37 @@
+# v0.5.3
+
+Aparece só na aba Jogos do menu do sistema.
+
+## 🖥️ Menu / Menu
+
+- `Categories=Game;` no `.desktop` (removido `Utility`) — o app não aparece mais em Utilitários.
+
+# v0.5.2
+
+lsfg-vk atualizado para v2.0.0+ e barra de combinação com rolagem.
+
+## 📚 Catálogo / Catalog (78 comandos / commands)
+
+- **Removido**: `LSFG_PROCESS=steam` (variável removida no lsfg-vk v2.0.0).
+
+## 🐛 Correções / Fixes
+
+- Barra de combinação com rolagem (`NewVScroll`) — não expande mais a janela além da tela com muitos comandos.
+- README com exemplo de combinação e versão atualizados.
+
+# v0.5.1
+
+Ordem correta dos wrappers na combinação e lsfg-vk v2.0.0+.
+
+## 📚 Catálogo / Catalog
+
+- **Novo**: `LSFGVK_PROFILE=steam` (variável oficial do lsfg-vk v2.0.0+ para selecionar o perfil).
+
+## 🐛 Correções / Fixes
+
+- Wrappers (`game-performance`, `mangohud`, `gamemoderun`, `gamescope`) agora vão por último, antes do `%command%`: `PROTON_LOG=1 mangohud gamemoderun %command%`.
+- Label da combinação contido (`NewMax`) para não esticar a janela.
+
 # v0.5.0
 
 Catálogo auditado, AppImage como formato único (com atualização delta) e releases automáticos pelo GitHub.
