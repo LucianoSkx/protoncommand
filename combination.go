@@ -67,7 +67,7 @@ func (g *gui) buildCombination() string {
 			envs = append(envs, base)
 		}
 	}
-	parts := append(wrappers, envs...)
+	parts := append(envs, wrappers...)
 	if len(parts) == 0 {
 		return ""
 	}

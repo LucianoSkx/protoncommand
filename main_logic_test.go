@@ -31,7 +31,7 @@ func TestCombinationSteam(t *testing.T) {
 	g.selected[idxOf("mangohud %command%")] = true
 	g.selected[idxOf("PROTON_LOG=1 %command%")] = true
 	got := g.buildCombination()
-	want := "mangohud PROTON_LOG=1 %command%"
+	want := "PROTON_LOG=1 mangohud %command%"
 	if got != want {
 		t.Fatalf("steam: got %q want %q", got, want)
 	}
@@ -42,7 +42,7 @@ func TestCombinationNoCmd(t *testing.T) {
 	g.selected[idxOf("mangohud %command%")] = true
 	g.selected[idxOf("PROTON_LOG=1 %command%")] = true
 	got := g.buildCombination()
-	want := "mangohud PROTON_LOG=1"
+	want := "PROTON_LOG=1 mangohud"
 	if got != want {
 		t.Fatalf("heroic: got %q want %q", got, want)
 	}
@@ -56,7 +56,7 @@ func TestGamescopeNoCmdDropsTrailingDashDash(t *testing.T) {
 	if strings.HasSuffix(got, "--") || strings.Contains(got, " -- ") {
 		t.Fatalf("heroic gamescope: linha quebrada com --: %q", got)
 	}
-	want := "gamescope -e -f -F fsr PROTON_LOG=1"
+	want := "PROTON_LOG=1 gamescope -e -f -F fsr"
 	if got != want {
 		t.Fatalf("heroic gamescope: got %q want %q", got, want)
 	}
