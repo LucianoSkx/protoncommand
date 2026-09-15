@@ -15,6 +15,60 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// maxWidthLabel é um Label com quebra por palavra e largura máxima.
+// Sem isso, o MinSize do Label mede o texto sem quebra e textos longos
+// de uma linha só esticam o container (e a janela) além da tela.
+type maxWidthLabel struct {
+	widget.Label
+	maxWidth float32
+}
+
+func newMaxWidthLabel(maxWidth float32) *maxWidthLabel {
+	l := &maxWidthLabel{maxWidth: maxWidth}
+	l.ExtendBaseWidget(l)
+	l.Wrapping = fyne.TextWrapWord
+	return l
+}
+
+// MinSize limita a largura e estima a altura com quebra por palavra,
+// para o texto todo ficar visível sem esticar a janela.
+func (l *maxWidthLabel) MinSize() fyne.Size {
+	full := fyne.MeasureText(l.Text, theme.TextSize(), l.TextStyle)
+	pad := theme.Padding()
+	if l.maxWidth <= 0 || full.Width <= l.maxWidth {
+		return fyne.NewSize(full.Width+pad, full.Height+pad)
+	}
+	lineH := fyne.MeasureText("Ag", theme.TextSize(), l.TextStyle).Height
+	if lineH <= 0 {
+		return fyne.NewSize(l.maxWidth, full.Height+pad)
+	}
+	spaceW := fyne.MeasureText(" ", theme.TextSize(), l.TextStyle).Width
+	lines := 0
+	for _, para := range strings.Split(l.Text, "\n") {
+		n := 0
+		w := float32(0)
+		for _, word := range strings.Fields(para) {
+			ww := fyne.MeasureText(word, theme.TextSize(), l.TextStyle).Width
+			if n == 0 {
+				w, n = ww, 1
+				continue
+			}
+			if w+spaceW+ww > l.maxWidth {
+				lines++
+				w, n = ww, 1
+				continue
+			}
+			w += spaceW + ww
+		}
+		lines++
+	}
+	lines++ // margem: a quebra do Fyne pode usar uma linha a mais
+	if lines < 1 {
+		lines = 1
+	}
+	return fyne.NewSize(l.maxWidth, float32(lines)*lineH+pad)
+}
+
 type gui struct {
 	app  fyne.App
 	win  fyne.Window
@@ -29,11 +83,11 @@ type gui struct {
 	detailTitle  *widget.Label
 	detailCat    *widget.Label
 	detailCompat *widget.Label
-	detailDesc   *widget.Label
-	detailCmd    *widget.Label
+	detailDesc   *maxWidthLabel
+	detailCmd    *maxWidthLabel
 	copyBtn      *widget.Button
 	favToggleBtn *widget.Button
-	status       *widget.Label
+	status       *maxWidthLabel
 
 	langHeader  *fyne.MenuItem
 	langPT      *fyne.MenuItem
@@ -43,7 +97,7 @@ type gui struct {
 	themeDark   *fyne.MenuItem
 	copyOnClick *fyne.MenuItem
 
-	combLabel   *widget.Label
+	combLabel   *maxWidthLabel
 	combCount   *widget.Label
 	combCopyBtn *widget.Button
 	clearBtn    *widget.Button
@@ -214,12 +268,10 @@ func (g *gui) build() {
 	g.detailCompat.TextStyle = fyne.TextStyle{Italic: true}
 	g.detailCompat.Wrapping = fyne.TextWrapWord
 
-	g.detailCmd = widget.NewLabel("")
+	g.detailCmd = newMaxWidthLabel(500)
 	g.detailCmd.TextStyle = fyne.TextStyle{Monospace: true, Bold: true}
-	g.detailCmd.Wrapping = fyne.TextWrapWord
 
-	g.detailDesc = widget.NewLabel("")
-	g.detailDesc.Wrapping = fyne.TextWrapWord
+	g.detailDesc = newMaxWidthLabel(500)
 
 	g.copyBtn = widget.NewButtonWithIcon("", theme.ContentCopyIcon(), func() {
 		if g.current < 0 {
@@ -236,7 +288,7 @@ func (g *gui) build() {
 		g.toggleFav(g.current)
 	})
 
-	g.status = widget.NewLabel("")
+	g.status = newMaxWidthLabel(500)
 	g.status.TextStyle = fyne.TextStyle{Italic: true}
 
 	detail := container.NewBorder(
@@ -314,8 +366,7 @@ func (g *gui) build() {
 		container.NewCenter(g.langRadio),
 	)
 
-	g.combLabel = widget.NewLabel("")
-	g.combLabel.Wrapping = fyne.TextWrapWord
+	g.combLabel = newMaxWidthLabel(940)
 
 	g.combCount = widget.NewLabel("")
 	g.combCount.TextStyle = fyne.TextStyle{Italic: true}
@@ -346,7 +397,7 @@ func (g *gui) build() {
 		nil, nil, nil,
 		container.NewVBox(
 			g.combWarn,
-			container.NewMax(g.combLabel),
+			g.combLabel,
 			g.combHint,
 			g.combCopyBtn,
 		),
