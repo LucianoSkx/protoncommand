@@ -344,11 +344,13 @@ func (g *gui) build() {
 			g.clearBtn,
 		),
 		nil, nil, nil,
-		container.NewVBox(
-			g.combWarn,
-			container.NewMax(g.combLabel),
-			g.combHint,
-			g.combCopyBtn,
+		container.NewVScroll(
+			container.NewVBox(
+				g.combWarn,
+				container.NewMax(g.combLabel),
+				g.combHint,
+				g.combCopyBtn,
+			),
 		),
 	)
 
