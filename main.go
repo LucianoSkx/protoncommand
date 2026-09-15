@@ -460,12 +460,15 @@ func (g *gui) setLang(lang string, persist bool) {
 		g.app.Preferences().SetString("lang", g.lang)
 	}
 	g.applyLang()
+	// Limpa antes: Select não dispara OnSelected quando o id já
+	// estava selecionado, e o detalhe ficaria com o texto antigo.
+	g.list.UnselectAll()
+	g.list.Refresh()
 	if g.selID >= 0 && g.selID < len(g.filtered) {
 		g.list.Select(g.selID)
 	} else if len(g.filtered) > 0 {
 		g.list.Select(0)
 	}
-	g.list.Refresh()
 }
 
 func (g *gui) applyLang() {

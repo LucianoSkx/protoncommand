@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/test"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -275,5 +277,69 @@ func TestFilterKeepsDetailInSync(t *testing.T) {
 	if g.current != g.filtered[0] {
 		t.Fatalf("detalhe fora de sincronia: mostra %q, lista mostra %q",
 			g.all[g.current].Command, g.all[g.filtered[0]].Command)
+	}
+}
+
+// TestSetLangKeepsDetailInSync garante que trocar de idioma não deixa
+// o detalhe mostrando texto do idioma antigo.
+func TestSetLangKeepsDetailInSync(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := testGUI("pt", "steam")
+	g.search = widget.NewEntry()
+	g.status = newMaxWidthLabel(500)
+	g.copyBtn = widget.NewButton("", func() {})
+	g.copyOnClick = &fyne.MenuItem{}
+	g.favToggleBtn = widget.NewButton("", func() {})
+	g.detailTitle = widget.NewLabel("")
+	g.detailCat = widget.NewLabel("")
+	g.detailCompat = widget.NewLabel("")
+	g.detailCmd = newMaxWidthLabel(500)
+	g.detailDesc = newMaxWidthLabel(500)
+	g.langRadio = widget.NewRadioGroup([]string{"Português", "Inglês"}, func(string) {})
+	g.list = widget.NewList(
+		func() int { return len(g.filtered) },
+		func() fyne.CanvasObject { return widget.NewLabel("") },
+		func(id widget.ListItemID, obj fyne.CanvasObject) {
+			if id < len(g.filtered) {
+				obj.(*widget.Label).SetText(g.all[g.filtered[id]].Command)
+			}
+		},
+	)
+	g.list.OnSelected = func(id widget.ListItemID) {
+		g.selID = id
+		g.selectCommand(id)
+	}
+	g.list.OnUnselected = func(_ widget.ListItemID) {
+		g.selID = -1
+		g.selectCommand(-1)
+	}
+	g.configBtn = widget.NewButton("", nil)
+	g.aboutBtn = widget.NewButton("", nil)
+	g.combCopyBtn = widget.NewButton("", nil)
+	g.combCount = widget.NewLabel("")
+	g.combWarn = canvas.NewText("", theme.ErrorColor())
+	g.combHint = widget.NewLabel("")
+	g.clearBtn = widget.NewButton("", nil)
+	g.launcherSel = widget.NewSelect(nil, func(string) {})
+	g.catSel = widget.NewSelect(nil, func(string) {})
+	g.favBtn = widget.NewButton("", nil)
+	g.combLabel = newMaxWidthLabel(940)
+	g.langHeader = fyne.NewMenuItem("", nil)
+	g.langPT = fyne.NewMenuItem("Português", nil)
+	g.langEN = fyne.NewMenuItem("Inglês", nil)
+	g.themeSystem = fyne.NewMenuItem("", nil)
+	g.themeLight = fyne.NewMenuItem("", nil)
+	g.themeDark = fyne.NewMenuItem("", nil)
+
+	g.search.Text = ""
+	g.applyFilter()
+	g.list.Select(0)
+	g.setLang("en", false)
+	if g.current != g.filtered[0] {
+		t.Fatalf("detalhe fora de sincronia após troca de idioma: current=%d, filtered[0]=%d", g.current, g.filtered[0])
+	}
+	if g.lang != "en" {
+		t.Fatalf("idioma não mudou: esperado 'en', obtido %q", g.lang)
 	}
 }
