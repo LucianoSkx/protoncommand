@@ -96,7 +96,7 @@ Manage and combine useful Proton launch commands (standard Proton, Proton-GE and
 
 ## Features
 
-- **79 commands** with descriptions in English and Portuguese
+- **78 commands** with descriptions in English and Portuguese
 - **Multiple combination**: check several commands and generate a single ready-to-paste line, e.g.:
   `mangohud gamemoderun PROTON_LOG=1 %command%`
 - **Launcher selector**: Steam, Faugus Launcher, Heroic, Lutris and Bottles — the generated line adapts (Steam/Faugus use `%command%`; the rest get environment variables only)
