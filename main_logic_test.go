@@ -3,6 +3,10 @@ package main
 import (
 	"strings"
 	"testing"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/test"
+	"fyne.io/fyne/v2/widget"
 )
 
 func testGUI(lang, launcherID string) *gui {
@@ -221,5 +225,55 @@ func TestNoObsoleteCommands(t *testing.T) {
 				}
 			}
 		}
+	}
+}
+
+// TestFilterKeepsDetailInSync garante que, ao filtrar, o painel de
+// detalhes acompanha a lista mesmo quando a linha 0 já estava
+// selecionada (nesse caso List.Select não dispara OnSelected).
+func TestFilterKeepsDetailInSync(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := testGUI("pt", "steam")
+	g.search = widget.NewEntry()
+	g.status = newMaxWidthLabel(500)
+	g.copyBtn = widget.NewButton("", func() {})
+	g.copyOnClick = &fyne.MenuItem{}
+	g.favToggleBtn = widget.NewButton("", func() {})
+	g.detailTitle = widget.NewLabel("")
+	g.detailCat = widget.NewLabel("")
+	g.detailCompat = widget.NewLabel("")
+	g.detailCmd = newMaxWidthLabel(500)
+	g.detailDesc = newMaxWidthLabel(500)
+	g.list = widget.NewList(
+		func() int { return len(g.filtered) },
+		func() fyne.CanvasObject { return widget.NewLabel("") },
+		func(id widget.ListItemID, obj fyne.CanvasObject) {
+			if id < len(g.filtered) {
+				obj.(*widget.Label).SetText(g.all[g.filtered[id]].Command)
+			}
+		},
+	)
+	g.list.OnSelected = func(id widget.ListItemID) {
+		g.selID = id
+		g.selectCommand(id)
+	}
+	g.list.OnUnselected = func(_ widget.ListItemID) {
+		g.selID = -1
+		g.selectCommand(-1)
+	}
+	g.search.Text = ""
+	g.applyFilter()
+	if len(g.filtered) == 0 || g.current != g.filtered[0] {
+		t.Fatalf("sem filtro: current=%d, esperado filtered[0]=%d", g.current, g.filtered[0])
+	}
+	g.search.Text = "lsfg"
+	g.applyFilter()
+	if len(g.filtered) == 0 {
+		t.Fatal("filtro 'lsfg' não achou nada")
+	}
+	if g.current != g.filtered[0] {
+		t.Fatalf("detalhe fora de sincronia: mostra %q, lista mostra %q",
+			g.all[g.current].Command, g.all[g.filtered[0]].Command)
 	}
 }

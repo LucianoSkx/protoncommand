@@ -698,6 +698,9 @@ func (g *gui) applyFilter() {
 		}
 	}
 	g.selID = -1
+	// Limpa a seleção antes: Select não dispara OnSelected quando o id
+	// já estava selecionado, e o detalhe mostraria outro comando.
+	g.list.UnselectAll()
 	g.list.Refresh()
 	if len(g.filtered) > 0 {
 		g.list.Select(0)
