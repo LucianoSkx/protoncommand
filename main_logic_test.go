@@ -1225,6 +1225,7 @@ func TestBuildMontaInterface(t *testing.T) {
 	g.importFavBtn.OnTapped()
 	g.combCopyBtn.OnTapped()
 	g.clearBtn.OnTapped()
+	g.copyBtn.OnTapped()
 	g.favToggleBtn.OnTapped()
 	g.current = -1
 	g.favToggleBtn.OnTapped()
@@ -1248,6 +1249,15 @@ func TestApplyLangRestauraCategoria(t *testing.T) {
 	g.setLang("pt", false)
 	if g.catFilterPT != "" {
 		t.Fatal("applyLang deveria resetar categoria inválida")
+	}
+}
+
+// TestConflictsIgnoraWrappers não acusa tokens sem valor.
+func TestConflictsIgnoraWrappers(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("mangohud %command%")] = true
+	if warns := g.conflicts(); len(warns) != 0 {
+		t.Fatalf("wrapper não deveria gerar conflito, got %v", warns)
 	}
 }
 
