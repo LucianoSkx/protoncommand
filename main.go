@@ -235,7 +235,8 @@ func (g *gui) build() {
 	importFavBtn.Importance = widget.LowImportance
 	g.importFavBtn = importFavBtn
 
-	filterRow := container.NewBorder(nil, nil, container.NewHBox(g.catSel, g.favBtn), container.NewHBox(exportFavBtn, importFavBtn))
+	// HScroll: em janela estreita a linha rola em vez de cortar os botões.
+	filterRow := container.NewHScroll(container.NewBorder(nil, nil, container.NewHBox(g.catSel, g.favBtn), container.NewHBox(exportFavBtn, importFavBtn)))
 
 	g.list = widget.NewList(
 		func() int { return len(g.filtered) },
@@ -383,10 +384,10 @@ func (g *gui) build() {
 		}
 	})
 
-	topRow := container.NewBorder(
+	topRow := container.NewHScroll(container.NewBorder(
 		nil, nil, g.launcherSel, nil,
 		container.NewCenter(g.langRadio),
-	)
+	))
 
 	g.combLabel = newMaxWidthLabel(940)
 
