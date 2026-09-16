@@ -1,6 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -954,6 +958,184 @@ func TestSaveFavsPersisteOrdenado(t *testing.T) {
 	got := g.app.Preferences().StringListWithFallback("favs", nil)
 	if len(got) != 2 || got[0] > got[1] {
 		t.Fatalf("saveFavs deveria persistir ordenado, got %q", got)
+	}
+}
+
+// favExportWriteFake é um fyne.URIWriteCloser em memória para testes.
+type favExportWriteFake struct {
+	*bytes.Buffer
+	fail   bool
+	closed bool
+}
+
+func (f *favExportWriteFake) Write(p []byte) (int, error) {
+	if f.fail {
+		return 0, errors.New("write fail")
+	}
+	return f.Buffer.Write(p)
+}
+
+func (f *favExportWriteFake) Close() error {
+	f.closed = true
+	return nil
+}
+
+func (f *favExportWriteFake) URI() fyne.URI { return nil }
+
+// TestFinishFavExport cobre escrita OK, erro de escrita e cancelamento.
+func TestFinishFavExport(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	f := &favExportWriteFake{Buffer: &bytes.Buffer{}}
+	g.finishFavExport(f, nil, []byte(`["a"]`))
+	if !f.closed || f.String() != `["a"]` {
+		t.Fatalf("finish OK: closed=%v data=%q", f.closed, f.String())
+	}
+	if g.status.Text != g.tr("favsExported") {
+		t.Fatalf("finish OK: status=%q", g.status.Text)
+	}
+	g.finishFavExport(&favExportWriteFake{Buffer: &bytes.Buffer{}, fail: true}, nil, []byte(`x`))
+	if g.status.Text != g.tr("favsExportError") {
+		t.Fatalf("finish erro: status=%q", g.status.Text)
+	}
+	g.status.SetText("marcador")
+	g.finishFavExport(nil, nil, nil)
+	if g.status.Text != "marcador" {
+		t.Fatal("finish cancelado não deveria tocar no status")
+	}
+}
+
+// TestExportFavsComFavoritos abre o diálogo sem erro no ambiente de teste.
+func TestExportFavsComFavoritos(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.favs[g.favKey(0)] = true
+	g.exportFavs()
+	if g.status.Text == g.tr("favsEmpty") {
+		t.Fatal("export com favoritos não deveria dizer que está vazio")
+	}
+}
+
+// TestFavExportPayload gera JSON ordenado com round-trip válido.
+func TestFavExportPayload(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	favs := map[string]bool{g.favKey(2): true, g.favKey(0): true}
+	data, err := favExportPayload(favs)
+	if err != nil {
+		t.Fatalf("favExportPayload: erro inesperado: %v", err)
+	}
+	var got []string
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("payload não é JSON válido: %v", err)
+	}
+	if len(got) != 2 || got[0] > got[1] {
+		t.Fatalf("payload deveria ser ordenado, got %q", got)
+	}
+}
+
+// TestProcessFavImport cobre os três casos: inválido, misto e duplicado.
+func TestProcessFavImport(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	valid := g.validFavKeys()
+
+	if _, ok := processFavImport([]string{"lixo"}, valid, map[string]bool{}); ok {
+		t.Fatal("processFavImport deveria rejeitar arquivo sem chave conhecida")
+	}
+	existing := map[string]bool{g.favKey(0): true}
+	added, ok := processFavImport([]string{g.favKey(0), g.favKey(1), "lixo"}, valid, existing)
+	if !ok || added != 1 {
+		t.Fatalf("processFavImport misto: added=%d ok=%v, esperado 1/true", added, ok)
+	}
+	added, ok = processFavImport([]string{g.favKey(0)}, valid, existing)
+	if !ok || added != 0 {
+		t.Fatalf("processFavImport duplicado: added=%d ok=%v, esperado 0/true", added, ok)
+	}
+	added, ok = processFavImport(nil, valid, map[string]bool{})
+	if !ok || added != 0 {
+		t.Fatalf("processFavImport vazio: added=%d ok=%v, esperado 0/true", added, ok)
+	}
+}
+
+// TestApplyFavImport incorpora válidos, rejeita inválidos e filtra favOnly.
+func TestApplyFavImport(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.applyFavImport([]string{"lixo"})
+	if g.status.Text != g.tr("favsInvalidFile") {
+		t.Fatalf("import inválido: status=%q", g.status.Text)
+	}
+	if len(g.favs) != 0 {
+		t.Fatal("import inválido não deveria adicionar favoritos")
+	}
+	g.applyFavImport([]string{g.favKey(0), g.favKey(1), "lixo"})
+	if len(g.favs) != 2 {
+		t.Fatalf("import misto: %d favs, esperado 2", len(g.favs))
+	}
+	want := fmt.Sprintf(g.tr("favsImported"), 2)
+	if g.status.Text != want {
+		t.Fatalf("import misto: status=%q, esperado %q", g.status.Text, want)
+	}
+	g2 := initTestGUI("pt", "steam")
+	g2.favOnly = true
+	g2.applyFavImport([]string{g2.favKey(0)})
+	if len(g2.filtered) != 1 {
+		t.Fatalf("import com favOnly: filtered=%d, esperado 1", len(g2.filtered))
+	}
+}
+
+// TestDecodeFavImport lê JSON válido e rejeita inválido.
+func TestDecodeFavImport(t *testing.T) {
+	got, err := decodeFavImport(strings.NewReader(`["a", "b"]`))
+	if err != nil || len(got) != 2 {
+		t.Fatalf("decode válido: got=%q err=%v", got, err)
+	}
+	if _, err := decodeFavImport(strings.NewReader(`não-json`)); err == nil {
+		t.Fatal("decode inválido deveria retornar erro")
+	}
+}
+
+// TestMenuActions cobre os callbacks do menu de configurações.
+func TestMenuActions(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.buildConfigMenu()
+	g.langEN.Action()
+	if g.lang != "en" {
+		t.Fatalf("langEN.Action: lang=%q, esperado en", g.lang)
+	}
+	g.langPT.Action()
+	if g.lang != "pt" {
+		t.Fatalf("langPT.Action: lang=%q, esperado pt", g.lang)
+	}
+	g.themeDark.Action()
+	g.themeLight.Action()
+	g.themeSystem.Action()
+	before := g.copyOnClick.Checked
+	g.copyOnClick.Action()
+	if g.copyOnClick.Checked == before {
+		t.Fatal("copyOnClick.Action deveria alternar Checked")
+	}
+}
+
+// TestBuildConfigMenu garante que o menu de configurações é montado.
+func TestBuildConfigMenu(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	m := g.buildConfigMenu()
+	if m == nil || len(m.Items) == 0 {
+		t.Fatal("buildConfigMenu deveria retornar menu com itens")
+	}
+	if g.langPT == nil || g.langEN == nil || g.themeSystem == nil || g.copyOnClick == nil {
+		t.Fatal("buildConfigMenu deveria criar os itens de idioma, tema e copyOnClick")
 	}
 }
 

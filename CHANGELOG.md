@@ -13,7 +13,7 @@
 ## 🛠️ Por baixo do pano
 
 - Favoritos: persistência extraída para `saveFavs()`; import valida as chaves contra o catálogo.
-- Cobertura de testes em 43%+, com testes para import/export e busca por prefixo.
+- Cobertura de testes em 50%+, com testes para import/export e busca por prefixo.
 
 # v0.5.5
 

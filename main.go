@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"sort"
 	"strconv"
 	"strings"
@@ -679,12 +680,32 @@ func (g *gui) toggleFav(idx int) {
 
 // saveFavs persiste os favoritos ordenados nas preferências.
 func (g *gui) saveFavs() {
-	ids := make([]string, 0, len(g.favs))
-	for k := range g.favs {
+	g.app.Preferences().SetStringList("favs", sortedFavIDs(g.favs))
+}
+
+// sortedFavIDs retorna as chaves de favorito em ordem alfabética.
+func sortedFavIDs(favs map[string]bool) []string {
+	ids := make([]string, 0, len(favs))
+	for k := range favs {
 		ids = append(ids, k)
 	}
 	sort.Strings(ids)
-	g.app.Preferences().SetStringList("favs", ids)
+	return ids
+}
+
+// favExportPayload serializa os favoritos ordenados para exportação.
+func favExportPayload(favs map[string]bool) ([]byte, error) {
+	return json.MarshalIndent(sortedFavIDs(favs), "", "  ")
+}
+
+// processFavImport valida e incorpora a lista importada aos favoritos.
+// Retorna quantas chaves novas foram adicionadas e se o arquivo era
+// aproveitável (ok=false = nenhuma chave reconhecida).
+func processFavImport(imported []string, valid, existing map[string]bool) (added int, ok bool) {
+	if len(imported) > 0 && !hasKnownFavKey(imported, valid) {
+		return 0, false
+	}
+	return len(filterNewFavs(imported, valid, existing)), true
 }
 
 // validFavKeys retorna o conjunto de chaves de favorito válidas,
@@ -695,6 +716,15 @@ func (g *gui) validFavKeys() map[string]bool {
 		valid[g.favKey(i)] = true
 	}
 	return valid
+}
+
+// decodeFavImport lê a lista de favoritos de um arquivo JSON.
+func decodeFavImport(r io.Reader) ([]string, error) {
+	var favs []string
+	if err := json.NewDecoder(r).Decode(&favs); err != nil {
+		return nil, err
+	}
+	return favs, nil
 }
 
 // hasKnownFavKey diz se ao menos uma chave da lista é reconhecida.
@@ -750,29 +780,29 @@ func (g *gui) exportFavs() {
 		g.status.SetText(g.tr("favsEmpty"))
 		return
 	}
-	favs := make([]string, 0, len(g.favs))
-	for k := range g.favs {
-		favs = append(favs, k)
-	}
-	sort.Strings(favs)
-	data, err := json.MarshalIndent(favs, "", "  ")
+	data, err := favExportPayload(g.favs)
 	if err != nil {
 		g.status.SetText(g.tr("favsExportError"))
 		return
 	}
 	d := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
-		if w == nil || err != nil {
-			return
-		}
-		defer w.Close()
-		if _, err := w.Write(data); err != nil {
-			g.status.SetText(g.tr("favsExportError"))
-			return
-		}
-		g.status.SetText(g.tr("favsExported"))
+		g.finishFavExport(w, err, data)
 	}, g.win)
 	d.SetFileName("protoncommand-favorites.json")
 	d.Show()
+}
+
+// finishFavExport grava o payload e informa o resultado no status.
+func (g *gui) finishFavExport(w fyne.URIWriteCloser, err error, data []byte) {
+	if w == nil || err != nil {
+		return
+	}
+	defer w.Close()
+	if _, err := w.Write(data); err != nil {
+		g.status.SetText(g.tr("favsExportError"))
+		return
+	}
+	g.status.SetText(g.tr("favsExported"))
 }
 
 func (g *gui) importFavs() {
@@ -781,26 +811,31 @@ func (g *gui) importFavs() {
 			return
 		}
 		defer r.Close()
-		var favs []string
-		if err := json.NewDecoder(r).Decode(&favs); err != nil {
+		favs, err := decodeFavImport(r)
+		if err != nil {
 			g.status.SetText(g.tr("favsInvalidFile"))
 			return
 		}
-		added := filterNewFavs(favs, g.validFavKeys(), g.favs)
-		if len(favs) > 0 && len(added) == 0 && !hasKnownFavKey(favs, g.validFavKeys()) {
-			g.status.SetText(g.tr("favsInvalidFile"))
-			return
-		}
-		g.saveFavs()
-		g.updateFavButton()
-		g.list.Refresh()
-		if g.favOnly {
-			g.applyFilter()
-		}
-		g.status.SetText(fmt.Sprintf(g.tr("favsImported"), len(added)))
+		g.applyFavImport(favs)
 	}, g.win)
 	d.SetFilter(storage.NewExtensionFileFilter([]string{".json"}))
 	d.Show()
+}
+
+// applyFavImport incorpora a lista importada e atualiza a interface.
+func (g *gui) applyFavImport(favs []string) {
+	added, ok := processFavImport(favs, g.validFavKeys(), g.favs)
+	if !ok {
+		g.status.SetText(g.tr("favsInvalidFile"))
+		return
+	}
+	g.saveFavs()
+	g.updateFavButton()
+	g.list.Refresh()
+	if g.favOnly {
+		g.applyFilter()
+	}
+	g.status.SetText(fmt.Sprintf(g.tr("favsImported"), added))
 }
 
 func (g *gui) copyCurrent() {
