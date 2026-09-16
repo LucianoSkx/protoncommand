@@ -1538,5 +1538,85 @@ func commands() []Command {
 				EN: "Completely disables Steam Input in Proton. Useful when Steam Input conflicts with the game's native controller support.",
 			},
 		},
+		{
+			Command:   "DXVK_FILTER_DEVICE_NAME=\"NVIDIA\" %command%",
+			CommandEN: "DXVK_FILTER_DEVICE_NAME=\"NVIDIA\" %command%",
+			Title: Localized{
+				PT: "Filtrar GPU por nome",
+				EN: "Filter GPU by name",
+			},
+			Category: Localized{
+				PT: "GPU",
+				EN: "GPU",
+			},
+			Compat: Localized{
+				PT: "DXVK (todos)",
+				EN: "DXVK (all)",
+			},
+			Description: Localized{
+				PT: "Força o DXVK a usar uma GPU específica pelo nome. Útil em notebooks com GPU integrada + dedicada — substitua \"NVIDIA\" pelo nome exato da sua GPU (ex: \"NVIDIA GeForce RTX 3070\"). Use DXVK_HUD=devinfo para ver o nome da GPU.",
+				EN: "Forces DXVK to use a specific GPU by name. Useful on laptops with integrated + dedicated GPU — replace \"NVIDIA\" with your exact GPU name (e.g. \"NVIDIA GeForce RTX 3070\"). Use DXVK_HUD=devinfo to see GPU name.",
+			},
+		},
+		{
+			Command:   "PROTON_FRAME_RATE=60 %command%",
+			CommandEN: "PROTON_FRAME_RATE=60 %command%",
+			Title: Localized{
+				PT: "Limitar FPS via Proton",
+				EN: "Cap FPS via Proton",
+			},
+			Category: Localized{
+				PT: "Desempenho",
+				EN: "Performance",
+			},
+			Compat: Localized{
+				PT: "Proton 8+",
+				EN: "Proton 8+",
+			},
+			Description: Localized{
+				PT: "Limita o framerate no nível do Proton, antes do jogo renderizar. Mais leve que limitadores de overlay. Substitua 60 pelo valor desejado. Funciona melhor que V-Sync em monitores com refresh rate alto.",
+				EN: "Caps framerate at the Proton level, before the game renders. Lighter than overlay cappers. Replace 60 with your desired value. Works better than V-Sync on high refresh rate monitors.",
+			},
+		},
+		{
+			Command:   "DXVK_FILTER_DEVICE_NAME=\"AMD\" %command%",
+			CommandEN: "DXVK_FILTER_DEVICE_NAME=\"AMD\" %command%",
+			Title: Localized{
+				PT: "Forçar GPU AMD",
+				EN: "Force AMD GPU",
+			},
+			Category: Localized{
+				PT: "GPU",
+				EN: "GPU",
+			},
+			Compat: Localized{
+				PT: "DXVK (todos)",
+				EN: "DXVK (all)",
+			},
+			Description: Localized{
+				PT: "Força o DXVK a usar a GPU AMD. Em sistemas com AMD + Intel, garante que a GPU dedicada seja usada. Substitua \"AMD\" pelo nome exato da sua GPU.",
+				EN: "Forces DXVK to use the AMD GPU. On systems with AMD + Intel, ensures the dedicated GPU is used. Replace \"AMD\" with your exact GPU name.",
+			},
+		},
+		{
+			Command:   "MANGOHUD_CONFIG=\"fps_limit=60\" %command%",
+			CommandEN: "MANGOHUD_CONFIG=\"fps_limit=60\" %command%",
+			Title: Localized{
+				PT: "MangoHUD: limitar FPS",
+				EN: "MangoHUD: cap FPS",
+			},
+			Category: Localized{
+				PT: "Desempenho",
+				EN: "Performance",
+			},
+			Compat: Localized{
+				PT: "MangoHUD instalado",
+				EN: "MangoHUD installed",
+			},
+			Description: Localized{
+				PT: "Configura o MangoHUD via variável de ambiente. Substitua 60 pelo FPS desejado. Outras opções: \"fps_limit=60,120\" (lista), \"toggle_fps_limit=Shift_L+F1\" (atalho). O MangoHUD precisa estar instalado no sistema.",
+				EN: "Configures MangoHUD via environment variable. Replace 60 with desired FPS. Other options: \"fps_limit=60,120\" (list), \"toggle_fps_limit=Shift_L+F1\" (hotkey). MangoHUD must be installed on the system.",
+			},
+		},
 	}
 }

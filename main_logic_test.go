@@ -25,9 +25,12 @@ func testGUI(lang, launcherID string) *gui {
 // initTestGUI cria um gui com todos os widgets necessários para testes de UI.
 func initTestGUI(lang, launcherID string) *gui {
 	a := test.NewApp()
+	w := a.NewWindow("test")
 	g := testGUI(lang, launcherID)
 	g.app = a
+	g.win = w
 	g.search = widget.NewEntry()
+	g.search.OnChanged = func(_ string) { g.applyFilter() }
 	g.status = newMaxWidthLabel(500)
 	g.copyBtn = widget.NewButton("", func() {})
 	g.copyOnClick = &fyne.MenuItem{}
@@ -702,5 +705,298 @@ func TestLauncherInvalido(t *testing.T) {
 	}
 	if g.launcher().ID != "steam" {
 		t.Fatalf("launcher() deveria resetar para steam, got %q", g.launcher().ID)
+	}
+}
+
+// TestMinSizeCurto testa MinSize com texto curto.
+func TestMinSizeCurto(t *testing.T) {
+	l := newMaxWidthLabel(500)
+	l.SetText("hello")
+	size := l.MinSize()
+	if size.Width <= 0 || size.Height <= 0 {
+		t.Fatalf("MinSize deveria ter dimensões positivas, got %v", size)
+	}
+}
+
+// TestMinSizeLongo testa MinSize com texto longo que excede maxWidth.
+func TestMinSizeLongo(t *testing.T) {
+	l := newMaxWidthLabel(200)
+	l.SetText("Este é um texto muito longo que deveria quebrar linha e ocupar mais de uma linha de altura")
+	size := l.MinSize()
+	if size.Width > 210 { // margem para arredondamento
+		t.Fatalf("MinSize.Width não deveria exceder maxWidth significativamente, got %v", size.Width)
+	}
+	if size.Height <= 20 { // deveria ter múltiplas linhas
+		t.Fatalf("MinSize.Height deveria ser maior para texto longo, got %v", size.Height)
+	}
+}
+
+// TestMinSizeZeroMaxWidth testa MinSize com maxWidth zero.
+func TestMinSizeZeroMaxWidth(t *testing.T) {
+	l := newMaxWidthLabel(0)
+	l.SetText("test")
+	size := l.MinSize()
+	if size.Width <= 0 || size.Height <= 0 {
+		t.Fatalf("MinSize deveria funcionar com maxWidth zero, got %v", size)
+	}
+}
+
+// TestToggleAtualizaSelected verifica se toggle atualiza o map selected.
+func TestToggleAtualizaSelected(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	idx := idxOf("PROTON_LOG=1 %command%")
+	g.toggle(idx, true)
+	if !g.selected[idx] {
+		t.Fatal("toggle(true) deveria adicionar ao selected")
+	}
+	g.toggle(idx, false)
+	if g.selected[idx] {
+		t.Fatal("toggle(false) deveria remover do selected")
+	}
+}
+
+// TestCopyCombinationCopiaParaClipboard verifica se copyCombination copia.
+func TestCopyCombinationCopiaParaClipboard(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.selected[idxOf("PROTON_LOG=1 %command%")] = true
+	g.updateCombination()
+	g.copyCombination()
+	// Verifica que o status foi atualizado
+	if g.status.Text == "" {
+		t.Fatal("copyCombination deveria atualizar o status")
+	}
+}
+
+// TestCopyCombinationVazio não copia nada.
+func TestCopyCombinationVazio(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.copyCombination()
+	// Não deveria mudar o status
+	if g.status.Text != "" {
+		t.Fatal("copyCombination vazio não deveria alterar o status")
+	}
+}
+
+// TestCopyCurrentCopiaComandoAtual verifica se copyCurrent copia o comando.
+func TestCopyCurrentCopiaComandoAtual(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.selectCommand(0)
+	g.copyCurrent()
+	if g.status.Text == "" {
+		t.Fatal("copyCurrent deveria atualizar o status")
+	}
+}
+
+// TestCopyCurrentInvalido não copia nada.
+func TestCopyCurrentInvalido(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.current = -1
+	g.copyCurrent()
+	if g.status.Text != "" {
+		t.Fatal("copyCurrent com current=-1 não deveria alterar o status")
+	}
+}
+
+// TestApplyFavButtonAltaImportance verifica se o botão fica destacado.
+func TestApplyFavButtonAltaImportance(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.favOnly = true
+	g.applyFavButton()
+	if g.favBtn.Importance != widget.HighImportance {
+		t.Fatal("applyFavButton deveria usar HighImportance quando favOnly=true")
+	}
+}
+
+// TestApplyFavButtonMediaImportance verifica se o botão fica normal.
+func TestApplyFavButtonMediaImportance(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.favOnly = false
+	g.applyFavButton()
+	if g.favBtn.Importance != widget.MediumImportance {
+		t.Fatal("applyFavButton deveria usar MediumImportance quando favOnly=false")
+	}
+}
+
+// TestSelectCommandAtualizaCopiBtn verifica se o botão de copiar é habilitado.
+func TestSelectCommandAtualizaCopiBtn(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.copyBtn.Disable()
+	g.selectCommand(0)
+	if g.copyBtn.Disabled() {
+		t.Fatal("selectCommand deveria habilitar o copyBtn")
+	}
+}
+
+// TestClearDetailDesabilitaCopiBtn verifica se o botão de copiar é desabilitado.
+func TestClearDetailDesabilitaCopiBtn(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.copyBtn.Enable()
+	g.clearDetail()
+	if !g.copyBtn.Disabled() {
+		t.Fatal("clearDetail deveria desabilitar o copyBtn")
+	}
+}
+
+// TestCombinationSemComandos retorna string vazia.
+func TestCombinationSemComandos(t *testing.T) {
+	g := testGUI("pt", "steam")
+	got := g.buildCombination()
+	if got != "" {
+		t.Fatalf("buildCombination sem seleção deveria retornar vazio, got %q", got)
+	}
+}
+
+// TestLauncherSemLaunchers testa comportamento com slice vazio.
+func TestLauncherSemLaunchers(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.launchers = nil
+	if g.launcher() != nil {
+		t.Fatal("launcher() deveria retornar nil com launchers nil")
+	}
+}
+
+// TestConflictsSemSeleção retorna slice vazio.
+func TestConflictsSemSeleção(t *testing.T) {
+	g := testGUI("pt", "steam")
+	warns := g.conflicts()
+	if len(warns) != 0 {
+		t.Fatalf("conflicts sem seleção deveria retornar vazio, got %v", warns)
+	}
+}
+
+// TestDisplayCmdSemPercentCommand testa display de comando sem %command%.
+func TestDisplayCmdSemPercentCommand(t *testing.T) {
+	g := testGUI("pt", "steam")
+	c := Command{Command: "VAR=1"}
+	got := g.displayCmd(c)
+	if got != "VAR=1" {
+		t.Fatalf("displayCmd sem %%command%%: esperado 'VAR=1', got %q", got)
+	}
+}
+
+// TestSetLauncherInvalido não muda o launcher.
+func TestSetLauncherInvalido(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	original := g.launcher().ID
+	g.setLauncher("launcherQueNaoExiste")
+	if g.launcher().ID != original {
+		t.Fatalf("setLauncher inválido deveria manter launcher original, got %q", g.launcher().ID)
+	}
+}
+
+// TestUpdateCombinationSemSeleção desabilita botão de copiar.
+func TestUpdateCombinationSemSeleção(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.updateCombination()
+	if !g.combCopyBtn.Disabled() {
+		t.Fatal("updateCombination sem seleção deveria desabilitar combCopyBtn")
+	}
+	if g.combCount.Text != "" {
+		t.Fatalf("updateCombination sem seleção deveria limpar combCount, got %q", g.combCount.Text)
+	}
+}
+
+// TestExportFavsVazio mostra mensagem de vazio.
+func TestExportFavsVazio(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.exportFavs()
+	if g.status.Text != g.tr("favsEmpty") {
+		t.Fatalf("exportFavs vazio: status=%q, esperado %q", g.status.Text, g.tr("favsEmpty"))
+	}
+}
+
+// TestImportFavsInvalido mostra mensagem de arquivo inválido.
+func TestImportFavsInvalido(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	// Teste indireto: funções de import/export não devem paniquar com estado vazio
+	g.importFavs()
+	// Sem arquivo real, apenas verifica que não paniqua
+}
+
+// TestApplyFilterCatPrefix filtra por categoria usando prefixo cat:.
+func TestApplyFilterCatPrefix(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.search.SetText("cat:gpu")
+	if len(g.filtered) == 0 {
+		t.Fatal("cat:gpu deveria retornar resultados")
+	}
+	for _, idx := range g.filtered {
+		cat := strings.ToLower(g.t(g.all[idx].Category))
+		if !strings.Contains(cat, "gpu") {
+			t.Fatalf("cat:gpu retornou categoria %q", cat)
+		}
+	}
+}
+
+// TestApplyFilterCompatPrefix filtra por compatibilidade usando prefixo compat:.
+func TestApplyFilterCompatPrefix(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.search.SetText("compat:cachyos")
+	if len(g.filtered) == 0 {
+		t.Fatal("compat:cachyos deveria retornar resultados")
+	}
+	for _, idx := range g.filtered {
+		compat := strings.ToLower(g.t(g.all[idx].Compat))
+		if !strings.Contains(compat, "cachyos") {
+			t.Fatalf("compat:cachyos retornou compat %q", compat)
+		}
+	}
+}
+
+// TestApplyFilterCmdPrefix filtra por comando usando prefixo cmd:.
+func TestApplyFilterCmdPrefix(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.search.SetText("cmd:mangohud")
+	if len(g.filtered) == 0 {
+		t.Fatal("cmd:mangohud deveria retornar resultados")
+	}
+	for _, idx := range g.filtered {
+		cmd := strings.ToLower(g.all[idx].Command)
+		if !strings.Contains(cmd, "mangohud") {
+			t.Fatalf("cmd:mangohud retornou comando %q", cmd)
+		}
+	}
+}
+
+// TestApplyFilterPrefixVazio lista tudo.
+func TestApplyFilterPrefixVazio(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.search.SetText("cat:")
+	if len(g.filtered) != len(g.all) {
+		t.Fatalf("cat: vazio deveria listar tudo, got %d/%d", len(g.filtered), len(g.all))
 	}
 }

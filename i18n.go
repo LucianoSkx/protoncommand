@@ -2,7 +2,7 @@ package main
 
 var ptTexts = map[string]string{
 	"appTitle":              "Comandos úteis do Proton",
-	"searchPlaceholder":     "Buscar comando (ex.: fsr, log, hud...)",
+	"searchPlaceholder":     "Buscar (ex.: fsr, cat:GPU, compat:DXVK, cmd:PROTON_LOG)",
 	"selectCommand":         "Selecione um comando",
 	"noCommand":             "Nenhum comando encontrado",
 	"category":              "Categoria: ",
@@ -29,11 +29,17 @@ var ptTexts = map[string]string{
 	"warning":               "Atenção: ",
 	"conflictDuplicate":     "%s definida mais de uma vez com valores diferentes (%s)",
 	"conflictAntiLagReflex": "Anti-Lag 2 e Reflex são modos mutuamente exclusivos do low_latency_layer — escolha apenas um.",
+	"exportFavs":            "Exportar favoritos",
+	"importFavs":            "Importar favoritos",
+	"favsExported":          "Favoritos exportados!",
+	"favsImported":          "%d favoritos importados!",
+	"favsEmpty":             "Nenhum favorito para exportar.",
+	"favsInvalidFile":       "Arquivo de favoritos inválido.",
 }
 
 var enTexts = map[string]string{
 	"appTitle":              "Useful Proton Commands",
-	"searchPlaceholder":     "Search command (e.g.: fsr, log, hud...)",
+	"searchPlaceholder":     "Search (e.g.: fsr, cat:GPU, compat:DXVK, cmd:PROTON_LOG)",
 	"selectCommand":         "Select a command",
 	"noCommand":             "No command found",
 	"category":              "Category: ",
@@ -60,4 +66,10 @@ var enTexts = map[string]string{
 	"warning":               "Warning: ",
 	"conflictDuplicate":     "%s set more than once with different values (%s)",
 	"conflictAntiLagReflex": "Anti-Lag 2 and Reflex are mutually exclusive low_latency_layer modes — pick only one.",
+	"exportFavs":            "Export favorites",
+	"importFavs":            "Import favorites",
+	"favsExported":          "Favorites exported!",
+	"favsImported":          "%d favorites imported!",
+	"favsEmpty":             "No favorites to export.",
+	"favsInvalidFile":       "Invalid favorites file.",
 }

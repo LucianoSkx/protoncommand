@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -11,6 +13,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -197,6 +200,7 @@ func (g *gui) launcher() *Launcher {
 
 func (g *gui) build() {
 	g.search = widget.NewEntry()
+	g.search.SetPlaceHolder(g.tr("searchPlaceholder"))
 	g.search.OnChanged = func(_ string) { g.applyFilter() }
 
 	g.catSel = widget.NewSelect(nil, func(v string) {
@@ -216,7 +220,17 @@ func (g *gui) build() {
 		g.applyFilter()
 	})
 
-	filterRow := container.NewBorder(nil, nil, g.catSel, g.favBtn)
+	exportFavBtn := widget.NewButtonWithIcon("", theme.DocumentSaveIcon(), func() {
+		g.exportFavs()
+	})
+	exportFavBtn.Importance = widget.LowImportance
+
+	importFavBtn := widget.NewButtonWithIcon("", theme.FolderOpenIcon(), func() {
+		g.importFavs()
+	})
+	importFavBtn.Importance = widget.LowImportance
+
+	filterRow := container.NewBorder(nil, nil, container.NewHBox(g.catSel, g.favBtn), container.NewHBox(exportFavBtn, importFavBtn))
 
 	g.list = widget.NewList(
 		func() int { return len(g.filtered) },
@@ -310,7 +324,10 @@ func (g *gui) build() {
 	detail.Resize(fyne.NewSize(520, 560))
 
 	left := container.NewBorder(
-		container.NewVBox(g.search, filterRow),
+		container.NewVBox(
+			container.NewBorder(nil, nil, widget.NewIcon(theme.SearchIcon()), nil, g.search),
+			filterRow,
+		),
 		nil, nil, nil,
 		g.list,
 	)
@@ -682,6 +699,63 @@ func (g *gui) clearSelection() {
 	g.status.SetText("")
 }
 
+func (g *gui) exportFavs() {
+	if len(g.favs) == 0 {
+		g.status.SetText(g.tr("favsEmpty"))
+		return
+	}
+	favs := make([]string, 0, len(g.favs))
+	for k := range g.favs {
+		favs = append(favs, k)
+	}
+	sort.Strings(favs)
+	data, _ := json.MarshalIndent(favs, "", "  ")
+	d := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
+		if w == nil || err != nil {
+			return
+		}
+		defer w.Close()
+		w.Write(data)
+		g.status.SetText(g.tr("favsExported"))
+	}, g.win)
+	d.SetFileName("protoncommand-favorites.json")
+	d.Show()
+}
+
+func (g *gui) importFavs() {
+	d := dialog.NewFileOpen(func(r fyne.URIReadCloser, err error) {
+		if r == nil || err != nil {
+			return
+		}
+		defer r.Close()
+		var favs []string
+		if err := json.NewDecoder(r).Decode(&favs); err != nil {
+			g.status.SetText(g.tr("favsInvalidFile"))
+			return
+		}
+		count := 0
+		for _, k := range favs {
+			if !g.favs[k] {
+				g.favs[k] = true
+				count++
+			}
+		}
+		ids := make([]string, 0, len(g.favs))
+		for k := range g.favs {
+			ids = append(ids, k)
+		}
+		sort.Strings(ids)
+		g.app.Preferences().SetStringList("favs", ids)
+		g.updateFavButton()
+		if g.favOnly {
+			g.applyFilter()
+		}
+		g.status.SetText(fmt.Sprintf(g.tr("favsImported"), count))
+	}, g.win)
+	d.SetFilter(storage.NewExtensionFileFilter([]string{".json"}))
+	d.Show()
+}
+
 func (g *gui) copyCurrent() {
 	if g.current < 0 {
 		return
@@ -703,7 +777,30 @@ func (g *gui) applyFilter() {
 			continue
 		}
 		hay := strings.ToLower(c.Command + " " + c.CommandEN + " " + g.t(c.Title) + " " + g.t(c.Category) + " " + g.t(c.Description) + " " + g.t(c.Compat))
-		if query == "" || strings.Contains(hay, query) {
+		if query == "" {
+			g.filtered = append(g.filtered, i)
+			continue
+		}
+		// Suporte a prefixos de busca: cat:, compat:, cmd:
+		if strings.HasPrefix(query, "cat:") {
+			catQ := strings.TrimSpace(strings.TrimPrefix(query, "cat:"))
+			catLower := strings.ToLower(g.t(c.Category))
+			if catQ == "" || strings.Contains(catLower, catQ) {
+				g.filtered = append(g.filtered, i)
+			}
+		} else if strings.HasPrefix(query, "compat:") {
+			compatQ := strings.TrimSpace(strings.TrimPrefix(query, "compat:"))
+			compatLower := strings.ToLower(g.t(c.Compat))
+			if compatQ == "" || strings.Contains(compatLower, compatQ) {
+				g.filtered = append(g.filtered, i)
+			}
+		} else if strings.HasPrefix(query, "cmd:") {
+			cmdQ := strings.TrimSpace(strings.TrimPrefix(query, "cmd:"))
+			cmdLower := strings.ToLower(c.Command)
+			if cmdQ == "" || strings.Contains(cmdLower, cmdQ) {
+				g.filtered = append(g.filtered, i)
+			}
+		} else if strings.Contains(hay, query) {
 			g.filtered = append(g.filtered, i)
 		}
 	}
