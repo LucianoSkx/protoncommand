@@ -9,6 +9,7 @@
 - Exportar/importar favoritos em JSON (o import ignora chaves inválidas e duplicadas).
 - Busca avançada com prefixos: `cat:`, `compat:` e `cmd:` (ex.: `cat:GPU`).
 - Botões de exportar/importar com texto e ícone; campo de busca com ícone.
+- Barras de filtro e topo com rolagem horizontal (não cortam em janela estreita).
 
 ## 🛠️ Por baixo do pano
 
