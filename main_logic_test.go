@@ -1215,6 +1215,53 @@ func TestBuildMontaInterface(t *testing.T) {
 	if g.configBtn == nil || g.aboutBtn == nil || g.copyBtn == nil {
 		t.Fatal("build deveria criar botões de config, sobre e copiar")
 	}
+	// Interações que cobrem os callbacks criados no build().
+	g.search.SetText("fsr")
+	g.search.SetText("")
+	g.catSel.SetSelected(g.catOptions[1])
+	g.favBtn.OnTapped()
+	g.favBtn.OnTapped()
+	g.exportFavBtn.OnTapped()
+	g.importFavBtn.OnTapped()
+	g.combCopyBtn.OnTapped()
+	g.clearBtn.OnTapped()
+	g.favToggleBtn.OnTapped()
+	g.current = -1
+	g.favToggleBtn.OnTapped()
+	g.langRadio.SetSelected("Inglês")
+	g.langRadio.SetSelected("Português")
+	g.configBtn.OnTapped()
+	g.aboutBtn.OnTapped()
+}
+
+// TestApplyLangRestauraCategoria cobre o filtro de categoria salvo.
+func TestApplyLangRestauraCategoria(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.catFilterPT = g.all[0].Category.PT
+	g.setLang("pt", false)
+	if g.catFilterPT == "" {
+		t.Fatal("applyLang deveria manter categoria válida")
+	}
+	g.catFilterPT = "categoria-que-nao-existe"
+	g.setLang("pt", false)
+	if g.catFilterPT != "" {
+		t.Fatal("applyLang deveria resetar categoria inválida")
+	}
+}
+
+// TestUpdateCombinationMostraAviso exibe o alerta de conflito.
+func TestUpdateCombinationMostraAviso(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.selected[idxOf("PROTON_LOG=1 %command%")] = true
+	g.selected[idxOf("PROTON_LOG=warn+pipewire,warn+mmdevapi %command%")] = true
+	g.updateCombination()
+	if g.combWarn.Text == "" {
+		t.Fatal("updateCombination deveria mostrar aviso de conflito")
+	}
 }
 
 // TestBuildConfigMenu garante que o menu de configurações é montado.
