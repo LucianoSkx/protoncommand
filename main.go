@@ -631,8 +631,15 @@ func (g *gui) setLauncher(id string) {
 	g.refreshDetail()
 }
 
+// favKey gera uma chave composta para favoritos usando comando + título,
+// evitando colisão quando dois comandos diferentes têm o mesmo shell.
+func (g *gui) favKey(idx int) string {
+	c := g.all[idx]
+	return c.Command + "\x00" + c.Title.PT
+}
+
 func (g *gui) toggleFav(idx int) {
-	key := g.all[idx].Command
+	key := g.favKey(idx)
 	if g.favs[key] {
 		delete(g.favs, key)
 	} else {
@@ -651,7 +658,7 @@ func (g *gui) toggleFav(idx int) {
 }
 
 func (g *gui) updateFavButton() {
-	if g.current >= 0 && g.favs[g.all[g.current].Command] {
+	if g.current >= 0 && g.favs[g.favKey(g.current)] {
 		g.favToggleBtn.Text = "★ " + g.tr("removeFavorite")
 	} else {
 		g.favToggleBtn.Text = "☆ " + g.tr("addFavorite")
@@ -692,7 +699,7 @@ func (g *gui) applyFilter() {
 		if g.catFilterPT != "" && c.Category.PT != g.catFilterPT {
 			continue
 		}
-		if g.favOnly && !g.favs[c.Command] {
+		if g.favOnly && !g.favs[g.favKey(i)] {
 			continue
 		}
 		hay := strings.ToLower(c.Command + " " + c.CommandEN + " " + g.t(c.Title) + " " + g.t(c.Category) + " " + g.t(c.Description) + " " + g.t(c.Compat))

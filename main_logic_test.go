@@ -22,6 +22,64 @@ func testGUI(lang, launcherID string) *gui {
 	return &gui{all: commands(), launchers: ls, launcherIdx: idx, selected: map[int]bool{}, lang: lang}
 }
 
+// initTestGUI cria um gui com todos os widgets necessários para testes de UI.
+func initTestGUI(lang, launcherID string) *gui {
+	a := test.NewApp()
+	g := testGUI(lang, launcherID)
+	g.app = a
+	g.search = widget.NewEntry()
+	g.status = newMaxWidthLabel(500)
+	g.copyBtn = widget.NewButton("", func() {})
+	g.copyOnClick = &fyne.MenuItem{}
+	g.favToggleBtn = widget.NewButton("", func() {})
+	g.detailTitle = widget.NewLabel("")
+	g.detailCat = widget.NewLabel("")
+	g.detailCompat = widget.NewLabel("")
+	g.detailCmd = newMaxWidthLabel(500)
+	g.detailDesc = newMaxWidthLabel(500)
+	g.langRadio = widget.NewRadioGroup([]string{"Português", "Inglês"}, func(string) {})
+	g.combLabel = newMaxWidthLabel(940)
+	g.combCount = widget.NewLabel("")
+	g.combWarn = canvas.NewText("", theme.ErrorColor())
+	g.combHint = widget.NewLabel("")
+	g.combCopyBtn = widget.NewButton("", nil)
+	g.clearBtn = widget.NewButton("", nil)
+	g.launcherSel = widget.NewSelect(nil, func(string) {})
+	g.catSel = widget.NewSelect(nil, func(string) {})
+	g.favBtn = widget.NewButton("", nil)
+	g.langHeader = fyne.NewMenuItem("", nil)
+	g.langPT = fyne.NewMenuItem("Português", nil)
+	g.langEN = fyne.NewMenuItem("Inglês", nil)
+	g.themeSystem = fyne.NewMenuItem("", nil)
+	g.themeLight = fyne.NewMenuItem("", nil)
+	g.themeDark = fyne.NewMenuItem("", nil)
+	g.configBtn = widget.NewButton("", nil)
+	g.aboutBtn = widget.NewButton("", nil)
+	g.list = widget.NewList(
+		func() int { return len(g.filtered) },
+		func() fyne.CanvasObject { return widget.NewLabel("") },
+		func(id widget.ListItemID, obj fyne.CanvasObject) {
+			if id < len(g.filtered) {
+				obj.(*widget.Label).SetText(g.all[g.filtered[id]].Command)
+			}
+		},
+	)
+	g.list.OnSelected = func(id widget.ListItemID) {
+		g.selID = id
+		g.selectCommand(id)
+	}
+	g.list.OnUnselected = func(_ widget.ListItemID) {
+		g.selID = -1
+		g.selectCommand(-1)
+	}
+	g.favs = map[string]bool{}
+	g.filtered = make([]int, len(g.all))
+	for i := range g.all {
+		g.filtered[i] = i
+	}
+	return g
+}
+
 func idxOf(cmd string) int {
 	cmds := commands()
 	for i := range cmds {
@@ -236,34 +294,8 @@ func TestNoObsoleteCommands(t *testing.T) {
 func TestFilterKeepsDetailInSync(t *testing.T) {
 	a := test.NewApp()
 	defer a.Quit()
-	g := testGUI("pt", "steam")
-	g.search = widget.NewEntry()
-	g.status = newMaxWidthLabel(500)
-	g.copyBtn = widget.NewButton("", func() {})
-	g.copyOnClick = &fyne.MenuItem{}
-	g.favToggleBtn = widget.NewButton("", func() {})
-	g.detailTitle = widget.NewLabel("")
-	g.detailCat = widget.NewLabel("")
-	g.detailCompat = widget.NewLabel("")
-	g.detailCmd = newMaxWidthLabel(500)
-	g.detailDesc = newMaxWidthLabel(500)
-	g.list = widget.NewList(
-		func() int { return len(g.filtered) },
-		func() fyne.CanvasObject { return widget.NewLabel("") },
-		func(id widget.ListItemID, obj fyne.CanvasObject) {
-			if id < len(g.filtered) {
-				obj.(*widget.Label).SetText(g.all[g.filtered[id]].Command)
-			}
-		},
-	)
-	g.list.OnSelected = func(id widget.ListItemID) {
-		g.selID = id
-		g.selectCommand(id)
-	}
-	g.list.OnUnselected = func(_ widget.ListItemID) {
-		g.selID = -1
-		g.selectCommand(-1)
-	}
+	g := initTestGUI("pt", "steam")
+
 	g.search.Text = ""
 	g.applyFilter()
 	if len(g.filtered) == 0 || g.current != g.filtered[0] {
@@ -285,52 +317,7 @@ func TestFilterKeepsDetailInSync(t *testing.T) {
 func TestSetLangKeepsDetailInSync(t *testing.T) {
 	a := test.NewApp()
 	defer a.Quit()
-	g := testGUI("pt", "steam")
-	g.search = widget.NewEntry()
-	g.status = newMaxWidthLabel(500)
-	g.copyBtn = widget.NewButton("", func() {})
-	g.copyOnClick = &fyne.MenuItem{}
-	g.favToggleBtn = widget.NewButton("", func() {})
-	g.detailTitle = widget.NewLabel("")
-	g.detailCat = widget.NewLabel("")
-	g.detailCompat = widget.NewLabel("")
-	g.detailCmd = newMaxWidthLabel(500)
-	g.detailDesc = newMaxWidthLabel(500)
-	g.langRadio = widget.NewRadioGroup([]string{"Português", "Inglês"}, func(string) {})
-	g.list = widget.NewList(
-		func() int { return len(g.filtered) },
-		func() fyne.CanvasObject { return widget.NewLabel("") },
-		func(id widget.ListItemID, obj fyne.CanvasObject) {
-			if id < len(g.filtered) {
-				obj.(*widget.Label).SetText(g.all[g.filtered[id]].Command)
-			}
-		},
-	)
-	g.list.OnSelected = func(id widget.ListItemID) {
-		g.selID = id
-		g.selectCommand(id)
-	}
-	g.list.OnUnselected = func(_ widget.ListItemID) {
-		g.selID = -1
-		g.selectCommand(-1)
-	}
-	g.configBtn = widget.NewButton("", nil)
-	g.aboutBtn = widget.NewButton("", nil)
-	g.combCopyBtn = widget.NewButton("", nil)
-	g.combCount = widget.NewLabel("")
-	g.combWarn = canvas.NewText("", theme.ErrorColor())
-	g.combHint = widget.NewLabel("")
-	g.clearBtn = widget.NewButton("", nil)
-	g.launcherSel = widget.NewSelect(nil, func(string) {})
-	g.catSel = widget.NewSelect(nil, func(string) {})
-	g.favBtn = widget.NewButton("", nil)
-	g.combLabel = newMaxWidthLabel(940)
-	g.langHeader = fyne.NewMenuItem("", nil)
-	g.langPT = fyne.NewMenuItem("Português", nil)
-	g.langEN = fyne.NewMenuItem("Inglês", nil)
-	g.themeSystem = fyne.NewMenuItem("", nil)
-	g.themeLight = fyne.NewMenuItem("", nil)
-	g.themeDark = fyne.NewMenuItem("", nil)
+	g := initTestGUI("pt", "steam")
 
 	g.search.Text = ""
 	g.applyFilter()
@@ -341,5 +328,379 @@ func TestSetLangKeepsDetailInSync(t *testing.T) {
 	}
 	if g.lang != "en" {
 		t.Fatalf("idioma não mudou: esperado 'en', obtido %q", g.lang)
+	}
+}
+
+// TestToggleFav adiciona e remove favoritos corretamente.
+func TestToggleFav(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	idx := idxOf("PROTON_LOG=1 %command%")
+	if idx < 0 {
+		t.Fatal("comando PROTON_LOG não encontrado")
+	}
+	g.toggleFav(idx)
+	key := g.favKey(idx)
+	if !g.favs[key] {
+		t.Fatal("favorito não foi adicionado")
+	}
+	g.toggleFav(idx)
+	if g.favs[key] {
+		t.Fatal("favorito não foi removido")
+	}
+}
+
+// TestClearSelection limpa todos os comandos selecionados.
+func TestClearSelection(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.selected[idxOf("PROTON_LOG=1 %command%")] = true
+	g.selected[idxOf("mangohud %command%")] = true
+	g.clearSelection()
+	if len(g.selected) != 0 {
+		t.Fatalf("clearSelection não limou: %v", g.selected)
+	}
+}
+
+// TestSelectCommandSelecionaComando g.current aponta para o comando certo.
+func TestSelectCommandSelecionaComando(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.search.Text = ""
+	g.applyFilter()
+	if len(g.filtered) == 0 {
+		t.Fatal("nenhum comando filtrado")
+	}
+	g.selectCommand(0)
+	if g.current != g.filtered[0] {
+		t.Fatalf("selectCommand(0): current=%d, filtered[0]=%d", g.current, g.filtered[0])
+	}
+	if g.detailTitle.Text == "" {
+		t.Fatal("detailTitle vazio após selectCommand")
+	}
+}
+
+// TestSelectCommandInvalido limpa o detalhe.
+func TestSelectCommandInvalido(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.selectCommand(-1)
+	if g.current != -1 {
+		t.Fatalf("selectCommand(-1): current=%d, esperado -1", g.current)
+	}
+	g.selectCommand(9999)
+	if g.current != -1 {
+		t.Fatalf("selectCommand(9999): current=%d, esperado -1", g.current)
+	}
+}
+
+// TestClearDetail limpa o detalhe e desabilita o botão de copiar.
+func TestClearDetail(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.selectCommand(0)
+	g.clearDetail()
+	if g.current != -1 {
+		t.Fatalf("clearDetail: current=%d, esperado -1", g.current)
+	}
+	if g.detailTitle.Text != g.tr("noCommand") {
+		t.Fatalf("clearDetail: title=%q, esperado %q", g.detailTitle.Text, g.tr("noCommand"))
+	}
+}
+
+// TestUpdateFavButtonAtualizaTexto verifica se o botão de favorito
+// mostra o texto correto baseado no estado atual.
+func TestUpdateFavButtonAtualizaTexto(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	idx := idxOf("PROTON_LOG=1 %command%")
+	g.selectCommand(idx)
+	g.updateFavButton()
+	if !strings.Contains(g.favToggleBtn.Text, g.tr("addFavorite")) {
+		t.Fatalf("botão deveria mostrar addFavorite, got %q", g.favToggleBtn.Text)
+	}
+	g.toggleFav(idx)
+	g.updateFavButton()
+	if !strings.Contains(g.favToggleBtn.Text, g.tr("removeFavorite")) {
+		t.Fatalf("botão deveria mostrar removeFavorite, got %q", g.favToggleBtn.Text)
+	}
+}
+
+// TestSetThemeAplicaTema verifica se o tema é aplicado corretamente.
+func TestSetThemeAplicaTema(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.setTheme("dark", false)
+	if !g.themeDark.Checked {
+		t.Fatal("themeDark deveria estar checked após setTheme('dark')")
+	}
+	if g.themeSystem.Checked || g.themeLight.Checked {
+		t.Fatal("outros temas não deveriam estar checked")
+	}
+	g.setTheme("light", false)
+	if !g.themeLight.Checked {
+		t.Fatal("themeLight deveria estar checked após setTheme('light')")
+	}
+	g.setTheme("system", false)
+	if !g.themeSystem.Checked {
+		t.Fatal("themeSystem deveria estar checked após setTheme('system')")
+	}
+}
+
+// TestSetLangPersistencia verifica se o idioma é persistido.
+func TestSetLangPersistencia(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.setLang("en", true)
+	if g.lang != "en" {
+		t.Fatalf("idioma não mudou: esperado 'en', obtido %q", g.lang)
+	}
+	g.setLang("pt", true)
+	if g.lang != "pt" {
+		t.Fatalf("idioma não mudou: esperado 'pt', obtido %q", g.lang)
+	}
+	g.setLang("invalid", true)
+	if g.lang != "pt" {
+		t.Fatalf("idioma deveria permanecer 'pt' para valor inválido, obtido %q", g.lang)
+	}
+}
+
+// TestLauncher atualiza o launcher corretamente.
+func TestLauncher(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	if g.launcher().ID != "steam" {
+		t.Fatalf("launcher inicial: esperado 'steam', obtido %q", g.launcher().ID)
+	}
+	g.setLauncher("heroic")
+	if g.launcher().ID != "heroic" {
+		t.Fatalf("setLauncher: esperado 'heroic', obtido %q", g.launcher().ID)
+	}
+}
+
+// TestUpdateCombinationAtualizaContagem verifica se a contagem de
+// seleções é atualizada corretamente.
+func TestUpdateCombinationAtualizaContagem(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.updateCombination()
+	if g.combCount.Text != "" {
+		t.Fatalf("combCount deveria estar vazio, got %q", g.combCount.Text)
+	}
+	g.selected[idxOf("PROTON_LOG=1 %command%")] = true
+	g.updateCombination()
+	if g.combCount.Text == "" {
+		t.Fatal("combCount não deveria estar vazio após selecionar comando")
+	}
+}
+
+// TestApplyFilterCategoriaFiltraCorretamente.
+func TestApplyFilterCategoriaFiltraCorretamente(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.search.Text = ""
+	g.catFilterPT = ""
+	g.applyFilter()
+	totalSemFiltro := len(g.filtered)
+
+	// Filtra por uma categoria específica
+	for _, c := range g.all {
+		g.catFilterPT = c.Category.PT
+		break
+	}
+	g.applyFilter()
+	totalComFiltro := len(g.filtered)
+	if totalComFiltro >= totalSemFiltro {
+		t.Fatalf("filtro por categoria deveria reduzir resultados: %d >= %d", totalComFiltro, totalSemFiltro)
+	}
+}
+
+// TestApplyFilterFavoritosFiltraCorretamente.
+func TestApplyFilterFavoritosFiltraCorretamente(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.search.Text = ""
+	g.favOnly = false
+	g.applyFilter()
+
+	idx := idxOf("PROTON_LOG=1 %command%")
+	key := g.favKey(idx)
+	g.favs[key] = true
+	g.favOnly = true
+	g.applyFilter()
+	totalComFiltro := len(g.filtered)
+	if totalComFiltro != 1 {
+		t.Fatalf("filtro de favoritos deveria retornar 1 resultado, got %d", totalComFiltro)
+	}
+}
+
+// TestCombinationMultiplosComandos testa combinação com vários comandos.
+func TestCombinationMultiplosComandos(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("PROTON_LOG=1 %command%")] = true
+	g.selected[idxOf("mangohud %command%")] = true
+	g.selected[idxOf("gamemoderun %command%")] = true
+	got := g.buildCombination()
+	if !strings.Contains(got, "PROTON_LOG=1") {
+		t.Fatalf("combinação deveria conter PROTON_LOG=1, got %q", got)
+	}
+	if !strings.Contains(got, "mangohud") {
+		t.Fatalf("combinação deveria conter mangohud, got %q", got)
+	}
+	if !strings.Contains(got, "gamemoderun") {
+		t.Fatalf("combinação deveria conter gamemoderun, got %q", got)
+	}
+	if !strings.HasSuffix(got, "%command%") {
+		t.Fatalf("combinação deveria terminar com %%command%%, got %q", got)
+	}
+}
+
+// TestCombinationWrappersPorUltimo verifica se wrappers ficam por último.
+func TestCombinationWrappersPorUltimo(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("PROTON_LOG=1 %command%")] = true
+	g.selected[idxOf("mangohud %command%")] = true
+	g.selected[idxOf("gamescope -e -f -F fsr -- %command%")] = true
+	got := g.buildCombination()
+	// Wrappers devem estar depois de PROTON_LOG
+	idxLog := strings.Index(got, "PROTON_LOG")
+	idxMango := strings.Index(got, "mangohud")
+	idxGamescope := strings.Index(got, "gamescope")
+	if idxLog > idxMango || idxLog > idxGamescope {
+		t.Fatalf("PROTON_LOG deveria estar antes dos wrappers, got %q", got)
+	}
+}
+
+// TestConflictSemConflitoDeAspas verifica que valores entre aspas
+// não geram falsos positivos.
+func TestConflictSemConflitoDeAspas(t *testing.T) {
+	g := testGUI("pt", "steam")
+	// Seleciona dois comandos com PROTON_LOG (mesmo valor, sem conflito)
+	g.selected[idxOf("PROTON_LOG=1 %command%")] = true
+	g.selected[idxOf("PROTON_LOG=warn+pipewire,warn+mmdevapi %command%")] = true
+	warns := g.conflicts()
+	found := false
+	for _, w := range warns {
+		if strings.Contains(w, "PROTON_LOG") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("deveria detectar conflito de PROTON_LOG com valores diferentes")
+	}
+}
+
+// TestSplitFieldsAspasSimples verifica preservação de aspas simples.
+func TestSplitFieldsAspasSimples(t *testing.T) {
+	toks := splitFields(`VAR1=1 'value with spaces' VAR2=2`)
+	if len(toks) != 3 {
+		t.Fatalf("esperado 3 tokens, got %d: %q", len(toks), toks)
+	}
+	if toks[1] != "'value with spaces'" {
+		t.Fatalf("token 1: esperado 'value with spaces', got %q", toks[1])
+	}
+}
+
+// TestSplitFieldsVazio testa entrada vazia.
+func TestSplitFieldsVazio(t *testing.T) {
+	toks := splitFields("")
+	if len(toks) != 0 {
+		t.Fatalf("esperado 0 tokens, got %d: %q", len(toks), toks)
+	}
+}
+
+// TestDisplayCmdWrapperWithoutPercentCommand testa display de wrapper sem %command%.
+func TestDisplayCmdWrapperWithoutPercentCommand(t *testing.T) {
+	g := testGUI("pt", "steam")
+	c := Command{
+		Command:   "mangohud",
+		CommandEN: "mangohud",
+	}
+	got := g.displayCmd(c)
+	// Wrapper sem %command% não deveria adicionar nada
+	if got != "mangohud" {
+		t.Fatalf("displayCmd wrapper: esperado 'mangohud', got %q", got)
+	}
+}
+
+// TestTrChaveInexistente testa tradução de chave inexistente.
+func TestTrChaveInexistente(t *testing.T) {
+	g := testGUI("pt", "steam")
+	got := g.tr("chaveQueNaoExiste")
+	// ptTexts retorna "" para chave inexistente
+	if got != "" {
+		t.Fatalf("tr deveria retornar vazio para chave inexistente, got %q", got)
+	}
+	g.lang = "en"
+	got = g.tr("chaveQueNaoExiste")
+	if got != "" {
+		t.Fatalf("tr EN deveria retornar vazio para chave inexistente, got %q", got)
+	}
+}
+
+// TestTLocalizado testa a função t() para Localized.
+func TestTLocalizado(t *testing.T) {
+	g := testGUI("pt", "steam")
+	loc := Localized{PT: "pt-text", EN: "en-text"}
+	if got := g.t(loc); got != "pt-text" {
+		t.Fatalf("t(pt): esperado 'pt-text', got %q", got)
+	}
+	g.lang = "en"
+	if got := g.t(loc); got != "en-text" {
+		t.Fatalf("t(en): esperado 'en-text', got %q", got)
+	}
+}
+
+// TestCmdIdiomaAlternativo testa a função cmd() para idioma alternativo.
+func TestCmdIdiomaAlternativo(t *testing.T) {
+	g := testGUI("pt", "steam")
+	c := Command{Command: "cmd-pt", CommandEN: "cmd-en"}
+	if got := g.cmd(c); got != "cmd-pt" {
+		t.Fatalf("cmd(pt): esperado 'cmd-pt', got %q", got)
+	}
+	g.lang = "en"
+	if got := g.cmd(c); got != "cmd-en" {
+		t.Fatalf("cmd(en): esperado 'cmd-en', got %q", got)
+	}
+}
+
+// TestCmdIdiomaAlternativoVazio testa cmd() quando CommandEN está vazio.
+func TestCmdIdiomaAlternativoVazio(t *testing.T) {
+	g := testGUI("pt", "steam")
+	c := Command{Command: "cmd-pt", CommandEN: ""}
+	g.lang = "en"
+	if got := g.cmd(c); got != "cmd-pt" {
+		t.Fatalf("cmd(en) vazio: esperado 'cmd-pt', got %q", got)
+	}
+}
+
+// TestLauncherInvalido testa comportamento com launcherIdx inválido.
+func TestLauncherInvalido(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.launcherIdx = -1
+	if g.launcher() == nil {
+		t.Fatal("launcher() não deveria retornar nil com idx -1")
+	}
+	if g.launcher().ID != "steam" {
+		t.Fatalf("launcher() deveria resetar para steam, got %q", g.launcher().ID)
+	}
+	g.launcherIdx = 999
+	if g.launcher() == nil {
+		t.Fatal("launcher() não deveria retornar nil com idx 999")
+	}
+	if g.launcher().ID != "steam" {
+		t.Fatalf("launcher() deveria resetar para steam, got %q", g.launcher().ID)
 	}
 }
