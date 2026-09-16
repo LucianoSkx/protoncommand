@@ -1,3 +1,16 @@
+# v0.5.5
+
+Favoritos mais robustos e cobertura de testes quase triplicada.
+
+## 🐛 Correções
+
+- Favoritos usam chave composta (comando + título) para evitar colisão quando dois comandos diferentes têm o mesmo shell.
+
+## 🛠️ Por baixo do pano
+
+- Cobertura de testes subiu de 19.8% para 38.7%.
+- Novos testes: toggleFav, clearSelection, selectCommand, clearDetail, updateFavButton, setTheme, setLang, launcher, updateCombination, applyFilter, combinação, conflitos, splitFields, displayCmd, tr, t, cmd.
+
 # v0.5.4
 
 Detalhe acompanha a lista ao pesquisar e ao trocar de idioma.
