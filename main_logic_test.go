@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image/color"
 	"strings"
 	"testing"
 
@@ -14,6 +15,42 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
+
+// fontFallbackTheme envolve o tema de teste e substitui combinações
+// de fonte inexistentes (ex.: Bold+Monospace) por equivalentes válidas,
+// permitindo montar a interface completa no ambiente de teste.
+type fontFallbackTheme struct {
+	base fyne.Theme
+}
+
+func (t fontFallbackTheme) Color(n fyne.ThemeColorName, v fyne.ThemeVariant) color.Color {
+	return t.base.Color(n, v)
+}
+
+func (t fontFallbackTheme) Icon(n fyne.ThemeIconName) fyne.Resource {
+	return t.base.Icon(n)
+}
+
+func (t fontFallbackTheme) Size(s fyne.ThemeSizeName) float32 {
+	return t.base.Size(s)
+}
+
+func (t fontFallbackTheme) Font(s fyne.TextStyle) fyne.Resource {
+	s.Strikethrough = false
+	s.Underline = false
+	switch s {
+	case fyne.TextStyle{}, fyne.TextStyle{Bold: true}, fyne.TextStyle{Italic: true},
+		fyne.TextStyle{Bold: true, Italic: true}, fyne.TextStyle{Monospace: true},
+		fyne.TextStyle{Symbol: true}:
+		return t.base.Font(s)
+	}
+	s.Bold = false
+	s.Italic = false
+	if s == (fyne.TextStyle{Monospace: true}) || s == (fyne.TextStyle{Symbol: true}) {
+		return t.base.Font(s)
+	}
+	return t.base.Font(fyne.TextStyle{})
+}
 
 func testGUI(lang, launcherID string) *gui {
 	ls := launchers()
@@ -1090,6 +1127,37 @@ func TestApplyFavImport(t *testing.T) {
 	}
 }
 
+// TestToggleFavComFavOnly refiltra a lista ao favoritar.
+func TestToggleFavComFavOnly(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.favOnly = true
+	g.toggleFav(0)
+	if len(g.filtered) != 1 || !g.favs[g.favKey(0)] {
+		t.Fatalf("toggleFav favOnly: filtered=%d favs=%d", len(g.filtered), len(g.favs))
+	}
+	g.toggleFav(0)
+	if len(g.filtered) != 0 || len(g.favs) != 0 {
+		t.Fatalf("toggleFav remover: filtered=%d favs=%d", len(g.filtered), len(g.favs))
+	}
+}
+
+// TestSelectCommandComCopyOnClick copia ao selecionar.
+func TestSelectCommandComCopyOnClick(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.copyOnClick.Checked = true
+	g.selectCommand(0)
+	if g.current != 0 {
+		t.Fatalf("selectCommand: current=%d, esperado 0", g.current)
+	}
+	if !strings.Contains(g.status.Text, g.displayCmd(g.all[0])) {
+		t.Fatalf("copyOnClick deveria copiar, status=%q", g.status.Text)
+	}
+}
+
 // TestDecodeFavImport lê JSON válido e rejeita inválido.
 func TestDecodeFavImport(t *testing.T) {
 	got, err := decodeFavImport(strings.NewReader(`["a", "b"]`))
@@ -1122,6 +1190,30 @@ func TestMenuActions(t *testing.T) {
 	g.copyOnClick.Action()
 	if g.copyOnClick.Checked == before {
 		t.Fatal("copyOnClick.Action deveria alternar Checked")
+	}
+}
+
+// TestBuildMontaInterface monta a interface completa com tema de fallback.
+func TestBuildMontaInterface(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	test.ApplyTheme(t, fontFallbackTheme{base: test.Theme()})
+	g.build()
+	if g.list == nil || g.search == nil || g.exportFavBtn == nil || g.importFavBtn == nil {
+		t.Fatal("build deveria criar list, search e botões de favoritos")
+	}
+	if len(g.filtered) != len(g.all) {
+		t.Fatalf("build: filtered=%d, esperado %d", len(g.filtered), len(g.all))
+	}
+	if g.search.PlaceHolder != g.tr("searchPlaceholder") {
+		t.Fatalf("build: placeholder=%q", g.search.PlaceHolder)
+	}
+	if g.exportFavBtn.Text != g.tr("exportFavs") || g.importFavBtn.Text != g.tr("importFavs") {
+		t.Fatalf("build: textos dos botões=%q/%q", g.exportFavBtn.Text, g.importFavBtn.Text)
+	}
+	if g.configBtn == nil || g.aboutBtn == nil || g.copyBtn == nil {
+		t.Fatal("build deveria criar botões de config, sobre e copiar")
 	}
 }
 
