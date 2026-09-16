@@ -1,4 +1,4 @@
-# Não lançado
+# v0.5.6
 
 ## 📚 Catálogo (82 comandos)
 
