@@ -50,6 +50,8 @@ func initTestGUI(lang, launcherID string) *gui {
 	g.launcherSel = widget.NewSelect(nil, func(string) {})
 	g.catSel = widget.NewSelect(nil, func(string) {})
 	g.favBtn = widget.NewButton("", nil)
+	g.exportFavBtn = widget.NewButton("", nil)
+	g.importFavBtn = widget.NewButton("", nil)
 	g.langHeader = fyne.NewMenuItem("", nil)
 	g.langPT = fyne.NewMenuItem("Português", nil)
 	g.langEN = fyne.NewMenuItem("Inglês", nil)
@@ -915,6 +917,43 @@ func TestUpdateCombinationSemSeleção(t *testing.T) {
 	}
 	if g.combCount.Text != "" {
 		t.Fatalf("updateCombination sem seleção deveria limpar combCount, got %q", g.combCount.Text)
+	}
+}
+
+// TestFilterNewFavs ignora chaves inválidas e duplicadas.
+func TestFilterNewFavs(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	valid := g.validFavKeys()
+	if len(valid) != len(g.all) {
+		t.Fatalf("validFavKeys: %d chaves, esperado %d", len(valid), len(g.all))
+	}
+	existing := map[string]bool{g.favKey(0): true}
+	imported := []string{g.favKey(0), g.favKey(1), g.favKey(1), "chave-invalida"}
+	added := filterNewFavs(imported, valid, existing)
+	if len(added) != 1 || added[0] != g.favKey(1) {
+		t.Fatalf("filterNewFavs: got %q, esperado só favKey(1)", added)
+	}
+	if hasKnownFavKey([]string{"lixo"}, valid) {
+		t.Fatal("hasKnownFavKey deveria ser falso para chaves desconhecidas")
+	}
+	if !hasKnownFavKey([]string{"lixo", g.favKey(2)}, valid) {
+		t.Fatal("hasKnownFavKey deveria ser verdadeiro com ao menos uma chave válida")
+	}
+}
+
+// TestSaveFavsPersisteOrdenado verifica que saveFavs grava a lista ordenada.
+func TestSaveFavsPersisteOrdenado(t *testing.T) {
+	a := test.NewApp()
+	defer a.Quit()
+	g := initTestGUI("pt", "steam")
+	g.favs[g.favKey(2)] = true
+	g.favs[g.favKey(0)] = true
+	g.saveFavs()
+	got := g.app.Preferences().StringListWithFallback("favs", nil)
+	if len(got) != 2 || got[0] > got[1] {
+		t.Fatalf("saveFavs deveria persistir ordenado, got %q", got)
 	}
 }
 

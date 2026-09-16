@@ -16,3 +16,7 @@
 .DS_Store
 /appimagetool
 /protonbox
+
+# cobertura de testes
+coverage.out
+*.coverprofile

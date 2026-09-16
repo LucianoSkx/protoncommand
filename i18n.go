@@ -35,6 +35,7 @@ var ptTexts = map[string]string{
 	"favsImported":          "%d favoritos importados!",
 	"favsEmpty":             "Nenhum favorito para exportar.",
 	"favsInvalidFile":       "Arquivo de favoritos inválido.",
+	"favsExportError":       "Erro ao exportar favoritos.",
 }
 
 var enTexts = map[string]string{
@@ -72,4 +73,5 @@ var enTexts = map[string]string{
 	"favsImported":          "%d favorites imported!",
 	"favsEmpty":             "No favorites to export.",
 	"favsInvalidFile":       "Invalid favorites file.",
+	"favsExportError":       "Error exporting favorites.",
 }

@@ -1,3 +1,20 @@
+# Não lançado
+
+## 📚 Catálogo (82 comandos)
+
+- **Novos 4**: `DXVK_FILTER_DEVICE_NAME` (forçar GPU NVIDIA/AMD pelo nome), `PROTON_FRAME_RATE` (limite de FPS no nível do Proton) e `MANGOHUD_CONFIG` (limite de FPS via MangoHUD).
+
+## ✨ Novidades
+
+- Exportar/importar favoritos em JSON (o import ignora chaves inválidas e duplicadas).
+- Busca avançada com prefixos: `cat:`, `compat:` e `cmd:` (ex.: `cat:GPU`).
+- Botões de exportar/importar com texto e ícone; campo de busca com ícone.
+
+## 🛠️ Por baixo do pano
+
+- Favoritos: persistência extraída para `saveFavs()`; import valida as chaves contra o catálogo.
+- Cobertura de testes em 43%+, com testes para import/export e busca por prefixo.
+
 # v0.5.5
 
 Favoritos mais robustos e cobertura de testes quase triplicada.

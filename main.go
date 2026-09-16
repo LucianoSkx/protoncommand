@@ -107,14 +107,16 @@ type gui struct {
 	combWarn    *canvas.Text
 	combHint    *widget.Label
 
-	launcherSel *widget.Select
-	launchers   []Launcher
-	launcherIdx int
-	catSel      *widget.Select
-	catOptions  []string
-	catFilterPT string
-	favBtn      *widget.Button
-	favOnly     bool
+	launcherSel  *widget.Select
+	launchers    []Launcher
+	launcherIdx  int
+	catSel       *widget.Select
+	catOptions   []string
+	catFilterPT  string
+	favBtn       *widget.Button
+	exportFavBtn *widget.Button
+	importFavBtn *widget.Button
+	favOnly      bool
 
 	all      []Command
 	filtered []int
@@ -220,15 +222,17 @@ func (g *gui) build() {
 		g.applyFilter()
 	})
 
-	exportFavBtn := widget.NewButtonWithIcon("", theme.DocumentSaveIcon(), func() {
+	exportFavBtn := widget.NewButtonWithIcon(g.tr("exportFavs"), theme.DocumentSaveIcon(), func() {
 		g.exportFavs()
 	})
 	exportFavBtn.Importance = widget.LowImportance
+	g.exportFavBtn = exportFavBtn
 
-	importFavBtn := widget.NewButtonWithIcon("", theme.FolderOpenIcon(), func() {
+	importFavBtn := widget.NewButtonWithIcon(g.tr("importFavs"), theme.FolderOpenIcon(), func() {
 		g.importFavs()
 	})
 	importFavBtn.Importance = widget.LowImportance
+	g.importFavBtn = importFavBtn
 
 	filterRow := container.NewBorder(nil, nil, container.NewHBox(g.catSel, g.favBtn), container.NewHBox(exportFavBtn, importFavBtn))
 
@@ -514,6 +518,10 @@ func (g *gui) applyLang() {
 	g.clearBtn.Refresh()
 	g.favBtn.Text = "★ " + g.tr("favoritesOnly")
 	g.favBtn.Refresh()
+	g.exportFavBtn.Text = g.tr("exportFavs")
+	g.exportFavBtn.Refresh()
+	g.importFavBtn.Text = g.tr("importFavs")
+	g.importFavBtn.Refresh()
 	g.applyFavButton()
 
 	names := make([]string, len(g.launchers))
@@ -662,16 +670,54 @@ func (g *gui) toggleFav(idx int) {
 	} else {
 		g.favs[key] = true
 	}
+	g.saveFavs()
+	g.updateFavButton()
+	if g.favOnly {
+		g.applyFilter()
+	}
+}
+
+// saveFavs persiste os favoritos ordenados nas preferências.
+func (g *gui) saveFavs() {
 	ids := make([]string, 0, len(g.favs))
 	for k := range g.favs {
 		ids = append(ids, k)
 	}
 	sort.Strings(ids)
 	g.app.Preferences().SetStringList("favs", ids)
-	g.updateFavButton()
-	if g.favOnly {
-		g.applyFilter()
+}
+
+// validFavKeys retorna o conjunto de chaves de favorito válidas,
+// uma por comando do catálogo.
+func (g *gui) validFavKeys() map[string]bool {
+	valid := make(map[string]bool, len(g.all))
+	for i := range g.all {
+		valid[g.favKey(i)] = true
 	}
+	return valid
+}
+
+// hasKnownFavKey diz se ao menos uma chave da lista é reconhecida.
+func hasKnownFavKey(imported []string, valid map[string]bool) bool {
+	for _, k := range imported {
+		if valid[k] {
+			return true
+		}
+	}
+	return false
+}
+
+// filterNewFavs seleciona, da lista importada, só as chaves válidas
+// que ainda não estão nos favoritos.
+func filterNewFavs(imported []string, valid, existing map[string]bool) []string {
+	var out []string
+	for _, k := range imported {
+		if valid[k] && !existing[k] {
+			existing[k] = true
+			out = append(out, k)
+		}
+	}
+	return out
 }
 
 func (g *gui) updateFavButton() {
@@ -709,13 +755,20 @@ func (g *gui) exportFavs() {
 		favs = append(favs, k)
 	}
 	sort.Strings(favs)
-	data, _ := json.MarshalIndent(favs, "", "  ")
+	data, err := json.MarshalIndent(favs, "", "  ")
+	if err != nil {
+		g.status.SetText(g.tr("favsExportError"))
+		return
+	}
 	d := dialog.NewFileSave(func(w fyne.URIWriteCloser, err error) {
 		if w == nil || err != nil {
 			return
 		}
 		defer w.Close()
-		w.Write(data)
+		if _, err := w.Write(data); err != nil {
+			g.status.SetText(g.tr("favsExportError"))
+			return
+		}
 		g.status.SetText(g.tr("favsExported"))
 	}, g.win)
 	d.SetFileName("protoncommand-favorites.json")
@@ -733,24 +786,18 @@ func (g *gui) importFavs() {
 			g.status.SetText(g.tr("favsInvalidFile"))
 			return
 		}
-		count := 0
-		for _, k := range favs {
-			if !g.favs[k] {
-				g.favs[k] = true
-				count++
-			}
+		added := filterNewFavs(favs, g.validFavKeys(), g.favs)
+		if len(favs) > 0 && len(added) == 0 && !hasKnownFavKey(favs, g.validFavKeys()) {
+			g.status.SetText(g.tr("favsInvalidFile"))
+			return
 		}
-		ids := make([]string, 0, len(g.favs))
-		for k := range g.favs {
-			ids = append(ids, k)
-		}
-		sort.Strings(ids)
-		g.app.Preferences().SetStringList("favs", ids)
+		g.saveFavs()
 		g.updateFavButton()
+		g.list.Refresh()
 		if g.favOnly {
 			g.applyFilter()
 		}
-		g.status.SetText(fmt.Sprintf(g.tr("favsImported"), count))
+		g.status.SetText(fmt.Sprintf(g.tr("favsImported"), len(added)))
 	}, g.win)
 	d.SetFilter(storage.NewExtensionFileFilter([]string{".json"}))
 	d.Show()
@@ -796,7 +843,7 @@ func (g *gui) applyFilter() {
 			}
 		} else if strings.HasPrefix(query, "cmd:") {
 			cmdQ := strings.TrimSpace(strings.TrimPrefix(query, "cmd:"))
-			cmdLower := strings.ToLower(c.Command)
+			cmdLower := strings.ToLower(c.Command + " " + c.CommandEN)
 			if cmdQ == "" || strings.Contains(cmdLower, cmdQ) {
 				g.filtered = append(g.filtered, i)
 			}

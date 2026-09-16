@@ -18,13 +18,13 @@ Gerencie e combine comandos úteis do Proton (Proton padrão, Proton-GE e Proton
 
 ## Funcionalidades
 
-- **78 comandos** com descrição em Português e Inglês
+- **82 comandos** com descrição em Português e Inglês
 - **Combinação múltipla**: marque vários comandos e gere uma única linha pronta, por exemplo:
   `PROTON_LOG=1 mangohud gamemoderun %command%`
 - **Seletor de launcher**: Steam, Faugus Launcher, Heroic, Lutris e Bottles — a linha gerada se adapta (Steam/Faugus usam `%command%`; os demais só variáveis de ambiente)
 - **Avisos de conflito**: detecta variáveis definidas mais de uma vez com valores diferentes e opções mutuamente exclusivas (ex.: Anti-Lag 2 vs Reflex)
-- **Favoritos**: marque comandos com estrela e filtre só os favoritos
-- Filtro por categoria e favoritos; busca por comando, título, descrição, categoria e compatibilidade
+- **Favoritos**: marque comandos com estrela e filtre só os favoritos; exporte/importe favoritos em JSON
+- Filtro por categoria e favoritos; busca por comando, título, descrição, categoria e compatibilidade, com prefixos `cat:`, `compat:` e `cmd:` (ex.: `cat:GPU`)
 - Tema claro / escuro / sistema
 - Opção "copiar ao clicar"
 - Seletor de idioma (PT/EN) no topo
@@ -96,13 +96,13 @@ Manage and combine useful Proton launch commands (standard Proton, Proton-GE and
 
 ## Features
 
-- **78 commands** with descriptions in English and Portuguese
+- **82 commands** with descriptions in English and Portuguese
 - **Multiple combination**: check several commands and generate a single ready-to-paste line, e.g.:
   `PROTON_LOG=1 mangohud gamemoderun %command%`
 - **Launcher selector**: Steam, Faugus Launcher, Heroic, Lutris and Bottles — the generated line adapts (Steam/Faugus use `%command%`; the rest get environment variables only)
 - **Conflict warnings**: detects variables set more than once with different values and mutually exclusive options (e.g.: Anti-Lag 2 vs Reflex)
-- **Favorites**: star commands and filter favorites only
-- Category and favorites filter; search by command, title, description, category and compatibility
+- **Favorites**: star commands and filter favorites only; export/import favorites as JSON
+- Category and favorites filter; search by command, title, description, category and compatibility, with `cat:`, `compat:` and `cmd:` prefixes (e.g.: `cat:GPU`)
 - Light / dark / system theme
 - Optional "copy on click"
 - Language selector (PT/EN) at the top
