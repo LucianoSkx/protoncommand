@@ -218,6 +218,136 @@ func TestConflictAntiLagReflex(t *testing.T) {
 	}
 }
 
+func TestConflictMesaAntiLagLayer(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("ENABLE_LAYER_MESA_ANTI_LAG=1 %command%")] = true
+	g.selected[idxOf("LOW_LATENCY_LAYER=1 %command%")] = true
+	found := false
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "VK_AMD_anti_lag") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected mesa layer/anti-lag conflict, got %v", g.conflicts())
+	}
+}
+
+func TestConflictMesaAntiLagLayerComReflex(t *testing.T) {
+	g := testGUI("en", "steam")
+	g.selected[idxOf("ENABLE_LAYER_MESA_ANTI_LAG=1 %command%")] = true
+	g.selected[idxOf(`LOW_LATENCY_LAYER=1 LOW_LATENCY_LAYER_REFLEX=1 DXVK_CONFIG="dxgi.hideAmdGpu = True" %command%`)] = true
+	found := false
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "VK_AMD_anti_lag") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected mesa layer/reflex conflict, got %v", g.conflicts())
+	}
+}
+
+func TestNoConflictMesaAntiLagLayerSozinho(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("ENABLE_LAYER_MESA_ANTI_LAG=1 %command%")] = true
+	if warns := g.conflicts(); len(warns) != 0 {
+		t.Fatalf("expected no conflict, got %v", warns)
+	}
+}
+
+func TestCombinationLowLatenciaVrr(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("PROTON_DXVK_LOWLATENCY=1 %command%")] = true
+	g.selected[idxOf("DXVK_FRAME_PACE=low-latency-vrr %command%")] = true
+	want := "PROTON_DXVK_LOWLATENCY=1 DXVK_FRAME_PACE=low-latency-vrr %command%"
+	if got := g.buildCombination(); got != want {
+		t.Fatalf("got %q want %q", got, want)
+	}
+}
+
+// docsObrigatorias amarra os identificadores técnicos que a descrição de
+// cada opção de baixa latência precisa citar. São nomes de variável,
+// extensão, arquivo ou número de versão — não prosa — então o teste
+// protege os fatos sem travar a redação.
+var docsObrigatorias = map[string][]string{
+	"PROTON_VKD3D_LOWLATENCY=1 %command%": {
+		"waitable dxgi swapchain present percentage",
+		"PROTON_LOG=1",
+		"20-30%",
+		"Anti-Lag 2",
+		"FSR4",
+		"r.OneFrameThreadLag=1",
+		"VKD3D_FRAME_RATE",
+		"Street Fighter 6",
+	},
+	"PROTON_DXVK_LOWLATENCY=1 %command%": {
+		"3.1.1",
+		"low-latency-vrr",
+		"latencydetails",
+		"compatibilitytools.d",
+	},
+	"DXVK_FRAME_PACE=low-latency-vrr %command%": {
+		"VK_EXT_present_timing",
+		"DXVK_FRAME_RATE",
+		"wp_presentation v2",
+		"low-latency-vrr-240",
+		"PROTON_DXVK_LOWLATENCY=1",
+	},
+	"ENABLE_LAYER_MESA_ANTI_LAG=1 %command%": {
+		"VK_AMD_anti_lag",
+		"VK_LAYER_MESA_anti_lag",
+		"VkLayer_MESA_anti_lag.json",
+		"vkAntiLagUpdateAMD",
+		"DISABLE_LAYER_MESA_ANTI_LAG",
+		"42048",
+		"25.3",
+	},
+	"LOW_LATENCY_LAYER=1 %command%": {
+		"VK_AMD_anti_lag",
+		"Cyberpunk 2077",
+		"Marvel Rivals",
+		"LOW_LATENCY_LAYER_FORCE_DECOUPLED=1",
+		"LOW_LATENCY_LAYER_SPOOF_NVIDIA=1",
+	},
+	`LOW_LATENCY_LAYER=1 LOW_LATENCY_LAYER_REFLEX=1 DXVK_CONFIG="dxgi.hideAmdGpu = True" %command%`: {
+		"VK_NV_low_latency2",
+		"PROTON_FSR4_UPGRADE",
+		"FSR4",
+		"4.1.1",
+		"anti-cheat",
+		"PROTON_FORCE_NVAPI=1",
+		"LOW_LATENCY_LAYER_SPOOF_NVIDIA=1",
+		"dxgi.customVendorId=10de",
+		"NvAPI_D3D_SetSleepMode",
+		"PROTON_LOG=1",
+	},
+}
+
+func TestDocsObrigatoriasDeLatencia(t *testing.T) {
+	cmds := commands()
+	for cmd, termos := range docsObrigatorias {
+		i := idxOf(cmd)
+		if i < 0 {
+			t.Errorf("comando ausente do catálogo: %q", cmd)
+			continue
+		}
+		for _, lang := range []struct {
+			id    string
+			texto string
+		}{
+			{"PT", cmds[i].Description.PT},
+			{"EN", cmds[i].Description.EN},
+		} {
+			for _, termo := range termos {
+				if !strings.Contains(lang.texto, termo) {
+					t.Errorf("%s: %q não documenta %q", lang.id, cmd, termo)
+				}
+			}
+		}
+	}
+}
+
 func TestNoConflictSameValue(t *testing.T) {
 	g := testGUI("pt", "steam")
 	g.selected[idxOf("WINE_ESYNC=1 %command%")] = true

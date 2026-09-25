@@ -94,7 +94,7 @@ func (g *gui) conflicts() []string {
 	var out []string
 	vals := map[string]map[string]bool{}
 	var keys []string
-	hasAntiLag, hasReflex := false, false
+	hasAntiLag, hasReflex, hasMesaAntiLag := false, false, false
 	for i := range g.all {
 		if !g.selected[i] {
 			continue
@@ -112,6 +112,8 @@ func (g *gui) conflicts() []string {
 				cmdReflex = true
 			case "LOW_LATENCY_LAYER":
 				cmdAntiLag = true
+			case "ENABLE_LAYER_MESA_ANTI_LAG":
+				hasMesaAntiLag = true
 			}
 			if tok == "%command%" || tok == "--" {
 				continue
@@ -144,6 +146,9 @@ func (g *gui) conflicts() []string {
 	}
 	if hasAntiLag && hasReflex {
 		out = append(out, g.tr("conflictAntiLagReflex"))
+	}
+	if hasMesaAntiLag && (hasAntiLag || hasReflex) {
+		out = append(out, g.tr("conflictMesaAntiLagLayer"))
 	}
 	return out
 }

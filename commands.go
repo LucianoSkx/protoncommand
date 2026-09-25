@@ -331,12 +331,12 @@ func commands() []Command {
 				EN: "Rendering",
 			},
 			Compat: Localized{
-				PT: "CachyOS",
-				EN: "CachyOS",
+				PT: "CachyOS (ou qualquer Proton com as DLLs do dxvk-low-latency instaladas)",
+				EN: "CachyOS (or any Proton with the dxvk-low-latency DLLs installed)",
 			},
 			Description: Localized{
-				PT: "Usa o fork dxvk-low-latency nos jogos Direct3D 8/9/10/11: adiciona frame pacing de baixa latência, melhorando a responsividade (input lag) e a estabilidade da latência. Para jogos Direct3D 12 use PROTON_VKD3D_LOWLATENCY.",
-				EN: "Uses the dxvk-low-latency fork in Direct3D 8/9/10/11 games: adds low-latency frame pacing, improving responsiveness (input lag) and latency stability. For Direct3D 12 games use PROTON_VKD3D_LOWLATENCY.",
+				PT: "Troca o DXVK pelo fork dxvk-low-latency (a partir da 3.1.1) nos jogos Direct3D 8/9/10/11: substitui o max-frame-latency upstream por um pacing que atrasa a CPU só o necessário, reduzindo bastante o input lag e a variação de latência. Já vem no Proton-CachyOS; em outros Protons dá para instalar manualmente trocando as DLLs em files/lib/wine/dxvk dentro de um Proton em ~/.local/share/Steam/compatibilitytools.d. Para VRR, combine com DXVK_FRAME_PACE=low-latency-vrr. Diagnóstico: DXVK_HUD=latencydetails. Para jogos Direct3D 12 use PROTON_VKD3D_LOWLATENCY.",
+				EN: "Swaps DXVK for the dxvk-low-latency fork (3.1.1 and newer) in Direct3D 8/9/10/11 games: it replaces upstream's max-frame-latency with pacing that delays the CPU only as much as needed, cutting input lag and latency variance considerably. Bundled with Proton-CachyOS; in other Protons you can install it manually by replacing the DLLs in files/lib/wine/dxvk of a Proton under ~/.local/share/Steam/compatibilitytools.d. For VRR, combine with DXVK_FRAME_PACE=low-latency-vrr. Diagnostics: DXVK_HUD=latencydetails. For Direct3D 12 games use PROTON_VKD3D_LOWLATENCY.",
 			},
 		},
 		{
@@ -350,12 +350,31 @@ func commands() []Command {
 				EN: "Rendering",
 			},
 			Compat: Localized{
-				PT: "CachyOS",
-				EN: "CachyOS",
+				PT: "CachyOS (ou Proton com vkd3d-proton substituído pelo fork)",
+				EN: "CachyOS (or a Proton whose vkd3d-proton was replaced by the fork)",
 			},
 			Description: Localized{
-				PT: "Usa o fork vkd3d-low-latency nos jogos Direct3D 12: o equivalente do dxvk-low-latency para D3D12, com frame pacing de menor latência. Para jogos Direct3D 8/9/10/11 use PROTON_DXVK_LOWLATENCY. Combine com a layer LOW_LATENCY_LAYER para Anti-Lag/Reflex.",
-				EN: "Uses the vkd3d-low-latency fork in Direct3D 12 games: the D3D12 equivalent of dxvk-low-latency, with lower-latency frame pacing. For Direct3D 8/9/10/11 games use PROTON_DXVK_LOWLATENCY. Combine with the LOW_LATENCY_LAYER layer for Anti-Lag/Reflex.",
+				PT: "Usa o fork vkd3d-low-latency nos jogos Direct3D 12: o equivalente do dxvk-low-latency para D3D12. O pacing de baixa latência só é ativado se o jogo usar OU a API Reflex OU swapchains DXGI aguardáveis (waitable) — apenas cerca de 20-30% dos títulos DX12 usam swapchains aguardáveis, então confirme com PROTON_LOG=1 procurando \"waitable dxgi swapchain present percentage\" no log do proton (perto de 100% = ativo, 0% ou ausente = o jogo não usa). Se o jogo tiver ambos, o Reflex tem prioridade. Já foram verificados Resident Evil 2, Resident Evil 7, Street Fighter 6, Warframe, Devil May Cry 5, Monster Hunter Rise, Forza Horizon 4, The Division 2, Overwatch, Dead Space Remake e Witchfire; a lista completa está na discussion do projeto. Dois avisos: em jogos Unreal Engine 4 com r.OneFrameThreadLag=1 (o padrão) as swapchains aguardáveis causam queda forte de desempenho — solte um limite de fps (VKD3D_FRAME_RATE) para evitar, e lembre que esse limitador entra em conflito com o do próprio fork; e Anti-Lag 2 não é suportado aqui. Em GPU AMD o caminho do Reflex funciona por spoofing, mas isso quebra o upgrade FSR4 — ver a entrada de Reflex do low_latency_layer. Para jogos Direct3D 8/9/10/11 use PROTON_DXVK_LOWLATENCY.",
+				EN: "Uses the vkd3d-low-latency fork in Direct3D 12 games: the D3D12 equivalent of dxvk-low-latency. The low-latency pacing only kicks in if the game uses EITHER the Reflex API OR waitable DXGI swapchains — only around 20-30% of DX12 titles use waitable swapchains, so verify with PROTON_LOG=1 and look for \"waitable dxgi swapchain present percentage\" in the proton log (near 100% = active, 0% or missing = the game doesn't use it). If a game has both, Reflex wins. Verified so far in Resident Evil 2, Resident Evil 7, Street Fighter 6, Warframe, Devil May Cry 5, Monster Hunter Rise, Forza Horizon 4, The Division 2, Overwatch, Dead Space Remake and Witchfire; the full list lives in the project's discussion thread. Two warnings: in Unreal Engine 4 games with r.OneFrameThreadLag=1 (the default) waitable swapchains cause a heavy performance drop — set an fps limit (VKD3D_FRAME_RATE) to avoid it, and note that limiter conflicts with the fork's own one; and Anti-Lag 2 is not supported here. On AMD GPUs the Reflex path works through spoofing, but that breaks the FSR4 upgrade — see the low_latency_layer Reflex entry. For Direct3D 8/9/10/11 games use PROTON_DXVK_LOWLATENCY.",
+			},
+		},
+		{
+			Command: "DXVK_FRAME_PACE=low-latency-vrr %command%",
+			Title: Localized{
+				PT: "Pacing de baixa latência com VRR (DX8/9/10/11)",
+				EN: "Low-latency pacing with VRR (DX8/9/10/11)",
+			},
+			Category: Localized{
+				PT: "Latência",
+				EN: "Latency",
+			},
+			Compat: Localized{
+				PT: "CachyOS (requer PROTON_DXVK_LOWLATENCY=1 e monitor VRR)",
+				EN: "CachyOS (requires PROTON_DXVK_LOWLATENCY=1 and a VRR monitor)",
+			},
+			Description: Localized{
+				PT: "Ativa o modo de VRR do dxvk-low-latency 3.1.1+, que usa VK_EXT_present_timing para usar timings de VBlank precisos e detectar o refresh do monitor automaticamente: elimina o buffer de V-Sync e mantém o pacing suave. Exige PROTON_DXVK_LOWLATENCY=1 e o monitor configurado em frequência variável. O limite de fps é fixado em 5% abaixo do refresh máximo e pode ser ajustado com DXVK_FRAME_RATE (ex.: 225 em 240 Hz). No Wayland precisa de wp_presentation v2, que a maioria dos compositors já oferece. Em versões anteriores à 3.1.1 o modo equivalente era low-latency-vrr-<refresh>, ex.: low-latency-vrr-240. Diagnóstico: DXVK_HUD=latencydetails.",
+				EN: "Enables the VRR mode of dxvk-low-latency 3.1.1+, which uses VK_EXT_present_timing for precise VBlank timings and automatic refresh rate detection: it removes V-Sync buffering while keeping pacing smooth. Requires PROTON_DXVK_LOWLATENCY=1 and a monitor configured for variable refresh rate. The fps cap is fixed at 5% below the max refresh rate and can be overridden with DXVK_FRAME_RATE (e.g. 225 on 240 Hz). On Wayland it needs wp_presentation v2, which most compositors already provide. Before 3.1.1 the equivalent mode was low-latency-vrr-<refresh>, e.g. low-latency-vrr-240. Diagnostics: DXVK_HUD=latencydetails.",
 			},
 		},
 		{
@@ -550,6 +569,25 @@ func commands() []Command {
 			},
 		},
 		{
+			Command: "ENABLE_LAYER_MESA_ANTI_LAG=1 %command%",
+			Title: Localized{
+				PT: "Anti-Lag 2 (camada do Mesa)",
+				EN: "Anti-Lag 2 (Mesa layer)",
+			},
+			Category: Localized{
+				PT: "Latência",
+				EN: "Latency",
+			},
+			Compat: Localized{
+				PT: "Mesa 25.3+ com a camada anti-lag instalada (nem toda distro empacota)",
+				EN: "Mesa 25.3+ with the anti-lag layer installed (not every distro ships it)",
+			},
+			Description: Localized{
+				PT: "Liga a camada implícita VK_LAYER_MESA_anti_lag, a implementação open-source da extensão VK_AMD_anti_lag que o Mesa traz desde a 25.3. Duas ressalvas: (1) a camada é OPCIONAL — precisa estar em /usr/share/vulkan/implicit_layer.d/VkLayer_MESA_anti_lag.json, e vários builds não a incluem (runtime Flatpak do Mesa, por exemplo), então a variável não faz nada; confira com vulkaninfo; (2) ela não é global — só age em jogos que realmente chamam vkAntiLagUpdateAMD, ou seja, que implementam a extensão, muito menos jogos que o número de menus de Anti-Lag sugere. Nos testes do low_latency_layer ela chegou a parecer no-op. Desligue com DISABLE_LAYER_MESA_ANTI_LAG=1. O RADV agora recebe implementação nativa de VK_AMD_anti_lag (MR 42048), o que torna essa camada desnecessária nas versões que já a trouxeram — prefira LOW_LATENCY_LAYER=1 com LOW_LATENCY_LAYER_REFLEX=1, que tem o mesmo efeito e bem mais jogos.",
+				EN: "Enables the implicit VK_LAYER_MESA_anti_lag layer, the open-source implementation of the VK_AMD_anti_lag extension that has shipped with Mesa since 25.3. Two caveats: (1) the layer is OPTIONAL — it must be present as /usr/share/vulkan/implicit_layer.d/VkLayer_MESA_anti_lag.json, and many builds don't include it (the Mesa Flatpak runtime, for example), so the variable does nothing; check with vulkaninfo; (2) it is not global — it only acts on games that actually call vkAntiLagUpdateAMD, i.e. those implementing the extension, far fewer than the number of Anti-Lag menus suggests. In low_latency_layer's benchmarks it looked like a no-op. Turn it off with DISABLE_LAYER_MESA_ANTI_LAG=1. RADV now gets a native VK_AMD_anti_lag implementation (MR 42048), which makes this layer unnecessary on versions that include it — prefer LOW_LATENCY_LAYER=1 with LOW_LATENCY_LAYER_REFLEX=1, same effect and far more games.",
+			},
+		},
+		{
 			Command: "LOW_LATENCY_LAYER=1 %command%",
 			Title: Localized{
 				PT: "AMD Anti-Lag 2 (qualquer GPU)",
@@ -564,8 +602,8 @@ func commands() []Command {
 				EN: "All (AMD/Intel GPU; requires low_latency_layer)",
 			},
 			Description: Localized{
-				PT: "Ativa o low_latency_layer, que expõe a extensão VK_AMD_anti_lag em GPUs AMD e Intel — o Anti-Lag 2 passa a funcionar em jogos Vulkan (CS2 nativo, e via dxvk-nvapi em jogos Proton com proton-cachyos/GE, que já embutem o layer). Use para reduzir o input lag em jogos competitivos. Desative com DISABLE_LOW_LATENCY_LAYER=1 se causar travamentos.",
-				EN: "Enables low_latency_layer, which exposes the VK_AMD_anti_lag extension on AMD and Intel GPUs — Anti-Lag 2 now works in Vulkan games (native CS2, and via dxvk-nvapi in Proton games with proton-cachyos/GE, which already bundle the layer). Use to reduce input lag in competitive games. Disable with DISABLE_LOW_LATENCY_LAYER=1 if it causes crashes.",
+				PT: "Ativa o low_latency_layer, que expõe a extensão VK_AMD_anti_lag em GPUs AMD e Intel — o Anti-Lag 2 passa a funcionar em jogos Vulkan (CS2 nativo, e via dxvk-nvapi em jogos Proton com proton-cachyos/GE, que já embutem o layer). Use para reduzir o input lag em jogos competitivos. Desative com DISABLE_LOW_LATENCY_LAYER=1 se causar travamentos. Notas: o Reflex tem a mesma performance e funciona em muito mais jogos, então prefira a entrada de Reflex; em Cyberpunk 2077 o Anti-Lag 2 não funciona por bug do próprio jogo (a camada nunca recebe a chamada) — use o caminho do Reflex; em Marvel Rivals é preciso LOW_LATENCY_LAYER_FORCE_DECOUPLED=1 (o layer já aplica sozinho nesse título); LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 é uma alternativa mais suave ao PROTON_FORCE_NVAPI=1 para expor o menu.",
+				EN: "Enables low_latency_layer, which exposes the VK_AMD_anti_lag extension on AMD and Intel GPUs — Anti-Lag 2 now works in Vulkan games (native CS2, and via dxvk-nvapi in Proton games with proton-cachyos/GE, which already bundle the layer). Use to reduce input lag in competitive games. Disable with DISABLE_LOW_LATENCY_LAYER=1 if it causes crashes. Notes: Reflex has the same performance and works in far more games, so prefer the Reflex entry; in Cyberpunk 2077 Anti-Lag 2 doesn't work due to a game bug (the layer never gets the call) — use the Reflex path; Marvel Rivals needs LOW_LATENCY_LAYER_FORCE_DECOUPLED=1 (the layer already does it for that title on its own); LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 is a gentler alternative to PROTON_FORCE_NVAPI=1 for exposing the menu.",
 			},
 		},
 		{
@@ -583,8 +621,8 @@ func commands() []Command {
 				EN: "All (requires low_latency_layer; Reflex games)",
 			},
 			Description: Localized{
-				PT: "Faz o low_latency_layer expor VK_NV_low_latency2 em vez de anti-lag, ativando o Reflex (mesmo desempenho do Anti-Lag 2, mas com suporte em muito mais jogos). Se o menu Reflex não aparecer, tente também PROTON_FORCE_NVAPI=1 (atenção: quebra o upgrade FSR4).",
-				EN: "Makes low_latency_layer expose VK_NV_low_latency2 instead of anti-lag, enabling Reflex (same performance as Anti-Lag 2, but supported in far more games). If the Reflex menu doesn't appear, also try PROTON_FORCE_NVAPI=1 (warning: breaks FSR4 upgrade).",
+				PT: "Faz o low_latency_layer expor VK_NV_low_latency2 em vez de anti-lag, ativando o Reflex: mesma latência do Anti-Lag 2, mas com suporte em muito mais jogos (é a via preferida). O spoofing de GPU é um recurso de último recurso e costuma falhar, então tente nesta ordem: LOW_LATENCY_LAYER_REFLEX=1 sozinho; depois acrescente DXVK_CONFIG=\"dxgi.hideAmdGpu = True\" (às vezes também DXVK_NVAPI_ALLOW_OTHER_DRIVERS=1); e por último PROTON_FORCE_NVAPI=1 e/ou LOW_LATENCY_LAYER_SPOOF_NVIDIA=1. Se mesmo assim o jogo recusar a API, o mantenedor do vkd3d-low-latency sugere forjar o device inteiro por DXVK_CONFIG: dxgi.customVendorId=10de, dxgi.customDeviceId=2206, dxgi.customDeviceDesc=\"NVIDIA GeForce RTX 3080\" (também dá para pôr num dxvk.conf na pasta do jogo). AVISOS: PROTON_FORCE_NVAPI=1 e LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 quebram o upgrade automático do FSR4 (PROTON_FSR4_UPGRADE) — no FSR4 4.1.1+ o jogo cai para FSR3, e em RDNA3 isso costuma custar bastante desempenho, então vale testar FSR 4.1.0 ou inferior; o spoofing também não é à prova de falhas, jogos com verificações extras de GPU (THE FINALS tem uma exceção no próprio Proton, Test Drive: Solar Crown checa o device) podem recusar a API mesmo com o menu visível; e em jogos com anti-cheat o spoofing pode ser barrado ou causar kick — não use com anti-cheat. Confira se está realmente funcionando procurando \"nvapi64:<-NvAPI_D3D_SetSleepMode (Enabled/0us): OK\" no log com PROTON_LOG=1; o menu aparecer não garante que esteja ativo.",
+				EN: "Makes low_latency_layer expose VK_NV_low_latency2 instead of anti-lag, enabling Reflex: the same latency as Anti-Lag 2 but supported in far more games (it's the preferred path). GPU spoofing is a last resort and isn't foolproof, so try in this order: LOW_LATENCY_LAYER_REFLEX=1 alone; then add DXVK_CONFIG=\"dxgi.hideAmdGpu = True\" (sometimes DXVK_NVAPI_ALLOW_OTHER_DRIVERS=1 too); and only then PROTON_FORCE_NVAPI=1 and/or LOW_LATENCY_LAYER_SPOOF_NVIDIA=1. If the game still refuses the API, the vkd3d-low-latency maintainer suggests forging the whole device via DXVK_CONFIG: dxgi.customVendorId=10de, dxgi.customDeviceId=2206, dxgi.customDeviceDesc=\"NVIDIA GeForce RTX 3080\" (you can also drop these in a dxvk.conf next to the game). WARNINGS: PROTON_FORCE_NVAPI=1 and LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 break the FSR4 automatic upgrade (PROTON_FSR4_UPGRADE) — on FSR4 4.1.1+ the game falls back to FSR3, and on RDNA3 that usually costs a lot of performance, so consider FSR 4.1.0 or older; spoofing is also not foolproof — games with extra GPU checks (THE FINALS has an exception in Proton itself, Test Drive: Solar Crown checks the device) may refuse the API even with the menu visible; and in games with anti-cheat spoofing may be blocked or get you kicked — don't use it with anti-cheat. Verify it's actually working by looking for \"nvapi64:<-NvAPI_D3D_SetSleepMode (Enabled/0us): OK\" in the PROTON_LOG=1 log; the menu showing up doesn't guarantee it's active.",
 			},
 		},
 		{

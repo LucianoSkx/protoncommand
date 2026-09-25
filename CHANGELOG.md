@@ -1,8 +1,28 @@
+# v0.5.7
+
+Revisão das opções de baixa latência, com os avisos que mais importam na hora de combinar as flags.
+
+## 📚 Catálogo (84 comandos)
+
+- **Novos 2**: `DXVK_FRAME_PACE=low-latency-vrr` (modo VRR do dxvk-low-latency 3.1.1+, com `VK_EXT_present_timing`) e `ENABLE_LAYER_MESA_ANTI_LAG` (camada `VK_LAYER_MESA_anti_lag` do Mesa 25.3+).
+
+## 🐛 Correções
+
+- `PROTON_DXVK_LOWLATENCY`: documenta a versão 3.1.1, o modo VRR, o HUD de diagnóstico (`DXVK_HUD=latencydetails`) e a instalação manual das DLLs em `compatibilitytools.d`.
+- `PROTON_VKD3D_LOWLATENCY`: avisa que o pacing só ativa com Reflex **ou** swapchain DXGI aguardável (20-30% dos títulos DX12), como verificar via `PROTON_LOG=1`, lista os jogos já confirmados, alerta que em UE4 o `r.OneFrameThreadLag=1` derruba o desempenho (e que `VKD3D_FRAME_RATE` conflita com o limitador do fork) e que Anti-Lag 2 não é suportado.
+- `LOW_LATENCY_LAYER` (Anti-Lag 2): notas sobre o bug do Anti-Lag 2 em Cyberpunk 2077, `LOW_LATENCY_LAYER_FORCE_DECOUPLED` em Marvel Rivals e `LOW_LATENCY_LAYER_SPOOF_NVIDIA`.
+- `LOW_LATENCY_LAYER` (Reflex): ordem de tentativa do spoofing, o fallback de device forjado (`dxgi.customVendorId`/`customDeviceId`/`customDeviceDesc`) e os riscos — quebra o upgrade FSR4 (4.1.1+ cai para FSR3), falha em jogos com checagem extra de GPU, risco com anti-cheat e como confirmar no log.
+
+## 🛠️ Por baixo do pano
+
+- Novo aviso de conflito: a camada do Mesa e o `low_latency_layer` expõem a mesma extensão `VK_AMD_anti_lag`, então não faz sentido usar as duas juntas.
+- Cobertura de testes em 94%. O novo teste das opções de latência checa identificadores técnicos (variáveis, extensões, versões, nomes de jogo) em PT e EN, então a redação pode mudar sem quebrar o teste.
+
 # v0.5.6
 
 ## 📚 Catálogo (82 comandos)
 
-- **Novos 4**: `DXVK_FILTER_DEVICE_NAME` (forçar GPU NVIDIA/AMD pelo nome), `PROTON_FRAME_RATE` (limite de FPS no nível do Proton) e `MANGOHUD_CONFIG` (limite de FPS via MangoHUD).
+- **Novos 4**: `DXVK_FILTER_DEVICE_NAME` (forçar GPU NVIDIA/AMD pelo nome), `PROTON_FRAME_RATE` (limite de FPS no nível do Proton) e `MANGOHUD_CONFIG` (limite de FPS via MangoHud).
 
 ## ✨ Novidades
 

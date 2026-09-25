@@ -18,11 +18,11 @@ Gerencie e combine comandos úteis do Proton (Proton padrão, Proton-GE e Proton
 
 ## Funcionalidades
 
-- **82 comandos** com descrição em Português e Inglês
+- **84 comandos** com descrição em Português e Inglês
 - **Combinação múltipla**: marque vários comandos e gere uma única linha pronta, por exemplo:
   `PROTON_LOG=1 mangohud gamemoderun %command%`
 - **Seletor de launcher**: Steam, Faugus Launcher, Heroic, Lutris e Bottles — a linha gerada se adapta (Steam/Faugus usam `%command%`; os demais só variáveis de ambiente)
-- **Avisos de conflito**: detecta variáveis definidas mais de uma vez com valores diferentes e opções mutuamente exclusivas (ex.: Anti-Lag 2 vs Reflex)
+- **Avisos de conflito**: detecta variáveis definidas mais de uma vez com valores diferentes e opções mutuamente exclusivas (ex.: Anti-Lag 2 vs Reflex, ou a camada do Mesa vs o low_latency_layer)
 - **Favoritos**: marque comandos com estrela e filtre só os favoritos; exporte/importe favoritos em JSON
 - Filtro por categoria e favoritos; busca por comando, título, descrição, categoria e compatibilidade, com prefixos `cat:`, `compat:` e `cmd:` (ex.: `cat:GPU`)
 - Tema claro / escuro / sistema
@@ -96,11 +96,11 @@ Manage and combine useful Proton launch commands (standard Proton, Proton-GE and
 
 ## Features
 
-- **82 commands** with descriptions in English and Portuguese
+- **84 commands** with descriptions in English and Portuguese
 - **Multiple combination**: check several commands and generate a single ready-to-paste line, e.g.:
   `PROTON_LOG=1 mangohud gamemoderun %command%`
 - **Launcher selector**: Steam, Faugus Launcher, Heroic, Lutris and Bottles — the generated line adapts (Steam/Faugus use `%command%`; the rest get environment variables only)
-- **Conflict warnings**: detects variables set more than once with different values and mutually exclusive options (e.g.: Anti-Lag 2 vs Reflex)
+- **Conflict warnings**: detects variables set more than once with different values and mutually exclusive options (e.g.: Anti-Lag 2 vs Reflex, or the Mesa layer vs low_latency_layer)
 - **Favorites**: star commands and filter favorites only; export/import favorites as JSON
 - Category and favorites filter; search by command, title, description, category and compatibility, with `cat:`, `compat:` and `cmd:` prefixes (e.g.: `cat:GPU`)
 - Light / dark / system theme
