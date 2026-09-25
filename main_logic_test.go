@@ -202,20 +202,244 @@ func TestConflictDuplicate(t *testing.T) {
 	}
 }
 
+// TestConflictAntiLagReflex monta um catálogo sintético para isolar a
+// exclusividade: anti-lag puro ao lado de reflexo puro é conflito real,
+// porque são modos diferentes do mesmo layer ao mesmo tempo.
 func TestConflictAntiLagReflex(t *testing.T) {
 	g := testGUI("pt", "steam")
-	g.selected[idxOf("LOW_LATENCY_LAYER=1 %command%")] = true
-	g.selected[idxOf(`LOW_LATENCY_LAYER=1 LOW_LATENCY_LAYER_REFLEX=1 DXVK_CONFIG="dxgi.hideAmdGpu = True" %command%`)] = true
-	warns := g.conflicts()
+	g.all = []Command{
+		{Command: "LOW_LATENCY_LAYER=1 %command%"},
+		{Command: "LOW_LATENCY_LAYER_REFLEX=1 %command%"},
+	}
+	g.selected = map[int]bool{0: true, 1: true}
 	found := false
-	for _, w := range warns {
-		if strings.Contains(w, "Reflex") {
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "mutuamente exclusivos") {
 			found = true
 		}
 	}
 	if !found {
-		t.Fatalf("expected anti-lag/reflex conflict, got %v", warns)
+		t.Fatalf("expected anti-lag/reflex conflict, got %v", g.conflicts())
 	}
+}
+
+// TestSemConflitoAntiLagComReflexJuntos: a receita que já traz as duas
+// variáveis não pode gerar aviso — marcar o anti-lag avulso ao lado dela
+// só produz uma variável repetida, não dois modos conflitantes.
+func TestSemConflitoAntiLagComReflexJuntos(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.all = []Command{
+		{Command: "LOW_LATENCY_LAYER=1 %command%"},
+		{Command: "LOW_LATENCY_LAYER=1 LOW_LATENCY_LAYER_REFLEX=1 %command%"},
+	}
+	g.selected = map[int]bool{0: true, 1: true}
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "mutuamente exclusivos") {
+			t.Fatalf("aviso indevido de exclusividade: %q", w)
+		}
+	}
+}
+
+// TestConflictAntiLagRedundant: a receita mais o anti-lag avulso é
+// redundância, não exclusividade, e o aviso tem que dizer isso.
+func TestConflictAntiLagRedundant(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("LOW_LATENCY_LAYER=1 %command%")] = true
+	g.selected[idxOf(`LOW_LATENCY_LAYER=1 LOW_LATENCY_LAYER_REFLEX=1 DXVK_CONFIG="dxgi.hideAmdGpu = True" %command%`)] = true
+	found := false
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "LOW_LATENCY_LAYER=1") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected redundant anti-lag warning, got %v", g.conflicts())
+	}
+}
+
+// TestConflictSameWrapper: duas receitas do mesmo wrapper (gamescope)
+// produzem launch options quebradas, porque o segundo gamescope é
+// interpretado pelo primeiro como o nome do executável do jogo.
+func TestConflictSameWrapper(t *testing.T) {
+	g := testGUI("pt", "steam")
+	var marcados []int
+	for i := range g.all {
+		if strings.HasPrefix(g.all[i].Command, "gamescope") {
+			g.selected[i] = true
+			marcados = append(marcados, i)
+		}
+	}
+	if len(marcados) < 2 {
+		t.Fatalf("o catálogo precisa ter pelo menos 2 receitas de gamescope, tem %d", len(marcados))
+	}
+	found := false
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "gamescope") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected same-wrapper conflict, got %v", g.conflicts())
+	}
+}
+
+// TestSemConflitoWrappersDiferentes: mangohud + gamescope é aninhamento
+// aceito, não conflito.
+func TestSemConflitoWrappersDiferentes(t *testing.T) {
+	g := testGUI("pt", "steam")
+	var marcados []int
+	for i := range g.all {
+		if strings.HasPrefix(g.all[i].Command, "mangohud") ||
+			strings.HasPrefix(g.all[i].Command, "gamemoderun") {
+			g.selected[i] = true
+			marcados = append(marcados, i)
+		}
+	}
+	if len(marcados) < 2 {
+		t.Skip("catálogo sem dois wrappers diferentes")
+	}
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "wrapper") {
+			t.Fatalf("falso positivo de wrapper: %q", w)
+		}
+	}
+}
+
+// TestDisplayCmdNaoDivergedeDaCombinacao: nos launchers que não usam
+// %command%, o painel e a combinação têm que produzir exatamente a mesma
+// string, incluindo a remoção do separador "--".
+func TestDisplayCmdNaoDivergedeDaCombinacao(t *testing.T) {
+	for _, launcher := range []string{"heroic", "lutris", "bottles", "steam"} {
+		g := testGUI("pt", launcher)
+		for i := range g.all {
+			if !strings.HasPrefix(g.all[i].Command, "gamescope") {
+				continue
+			}
+			g.selected[i] = true
+			combo := g.buildCombination()
+			exibido := g.displayCmd(g.all[i])
+			if launcher != "steam" {
+				if strings.HasSuffix(exibido, "--") {
+					t.Fatalf("%s: displayCmd deixou o -- solto: %q", launcher, exibido)
+				}
+				if strings.Contains(combo, "--") {
+					t.Fatalf("%s: combinação deixou o -- solto: %q", launcher, combo)
+				}
+			}
+			if launcher == "steam" && !strings.Contains(exibido, "%command%") {
+				t.Fatalf("steam: displayCmd perdeu o %%command%%: %q", exibido)
+			}
+		}
+	}
+}
+
+// TestSetLangPreservaItemSelecionado: trocar de idioma não pode jogar o
+// detalhe para o primeiro item. UnselectAll dispara OnUnselected, que zera
+// g.selID, então a posição precisa ser lida antes.
+func TestSetLangPreservaItemSelecionado(t *testing.T) {
+	g := initTestGUI("pt", "steam")
+	g.search.SetText("")
+	g.applyFilter()
+	if len(g.filtered) < 5 {
+		t.Skip("catálogo pequeno demais")
+	}
+	g.list.Select(3)
+	if g.selID != 3 {
+		t.Fatalf("pré-condição: selID=%d, esperado 3", g.selID)
+	}
+	antes := g.all[g.current].Command
+	g.setLang("en", false)
+	if g.selID != 3 {
+		t.Fatalf("setLang perdeu a posição: selID=%d, esperado 3", g.selID)
+	}
+	if g.current != g.filtered[3] {
+		t.Fatalf("setLang trocou o comando em detalhe: %q", g.all[g.current].Command)
+	}
+	if g.all[g.current].Command != antes {
+		t.Fatal("setLang mudou o comando exibido")
+	}
+}
+
+// TestSetLangAtualizaTituloDaJanela: a janela nasce traduzida, então
+// trocar de idioma tem que mudar o título também.
+func TestSetLangAtualizaTituloDaJanela(t *testing.T) {
+	g := initTestGUI("pt", "steam")
+	g.setLang("en", false)
+	if g.win.Title() != enTexts["appTitle"] {
+		t.Fatalf("título da janela não traduziu: %q", g.win.Title())
+	}
+	g.setLang("pt", false)
+	if g.win.Title() != ptTexts["appTitle"] {
+		t.Fatalf("título da janela não voltou: %q", g.win.Title())
+	}
+}
+
+// TestFiltroNaoCopiaComCopyOnClick: com "copiar ao clicar" ligado,
+// digitar na busca não pode copiar nada. applyFilter chama Select(0), que
+// dispara OnSelected como se fosse clique. O clipboard do driver de teste
+// do Fyne é descartável (uma instância nova por chamada), então o teste
+// observa o status, que copyCurrent preenche com "Copiado: ".
+func TestFiltroNaoCopiaComCopyOnClick(t *testing.T) {
+	g := initTestGUI("pt", "steam")
+	g.copyOnClick.Checked = true
+	g.search.SetText("")
+	g.applyFilter()
+	if strings.HasPrefix(g.status.Text, g.tr("copied")) {
+		t.Fatalf("applyFilter disparou cópia: status=%q", g.status.Text)
+	}
+	g.selectCommand(0)
+	if !strings.HasPrefix(g.status.Text, g.tr("copied")) {
+		t.Fatalf("clique real não copiou com copyOnClick ligado: status=%q", g.status.Text)
+	}
+}
+
+// TestSetLangNaoCopiaComCopyOnClick: mesma regra vale na troca de idioma,
+// que também faz Select de forma programática.
+func TestSetLangNaoCopiaComCopyOnClick(t *testing.T) {
+	g := initTestGUI("pt", "steam")
+	g.copyOnClick.Checked = true
+	g.search.SetText("")
+	g.applyFilter()
+	g.setLang("en", false)
+	if strings.HasPrefix(g.status.Text, g.tr("copied")) {
+		t.Fatalf("setLang disparou cópia: status=%q", g.status.Text)
+	}
+}
+
+// TestCarregarFavsDescartaOrfas: chave de comando que saiu do catálogo
+// não pode sobreviver no load, senão fica invisível na UI e ainda vai
+// para o arquivo exportado.
+func TestCarregarFavsDescartaOrfas(t *testing.T) {
+	g := testGUI("pt", "steam")
+	validas := g.validFavKeys()
+	var umaValida string
+	for k := range validas {
+		umaValida = k
+		break
+	}
+	favs := carregarFavs([]string{umaValida, "comando-que-nao-existe\x00titulo"}, validas)
+	if !favs[umaValida] {
+		t.Fatal("chave válida deveria ter sido carregada")
+	}
+	if favs["comando-que-nao-existe\x00titulo"] {
+		t.Fatal("chave órfã deveria ter sido descartada")
+	}
+	if len(favs) != 1 {
+		t.Fatalf("esperado 1 favorito, veio %d", len(favs))
+	}
+}
+
+// TestFavKeyNaoDependeDoTitulo: mexer na redação do título não pode
+// invalidar o favorito de quem já rodou o app.
+func TestFavKeyNaoDependeDoTitulo(t *testing.T) {
+	g := testGUI("pt", "steam")
+	antes := g.favKey(3)
+	titulo := g.all[3].Title
+	g.all[3].Title = Localized{PT: "Título totalmente reescrito", EN: "Rewritten"}
+	if g.favKey(3) != antes {
+		t.Fatalf("favKey mudou com o título: %q -> %q", antes, g.favKey(3))
+	}
+	g.all[3].Title = titulo
 }
 
 func TestConflictMesaAntiLagLayer(t *testing.T) {
@@ -1362,8 +1586,12 @@ func TestProcessFavImport(t *testing.T) {
 		t.Fatalf("processFavImport duplicado: added=%d ok=%v, esperado 0/true", added, ok)
 	}
 	added, ok = processFavImport(nil, valid, map[string]bool{})
-	if !ok || added != 0 {
-		t.Fatalf("processFavImport vazio: added=%d ok=%v, esperado 0/true", added, ok)
+	if ok || added != 0 {
+		t.Fatalf("processFavImport vazio: added=%d ok=%v, esperado 0/false", added, ok)
+	}
+	added, ok = processFavImport([]string{}, valid, map[string]bool{})
+	if ok || added != 0 {
+		t.Fatalf("processFavImport lista vazia: added=%d ok=%v, esperado 0/false", added, ok)
 	}
 }
 

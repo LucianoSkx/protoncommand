@@ -50,6 +50,18 @@ func splitFields(s string) []string {
 	return out
 }
 
+// adapt normaliza um comando para o launcher escolhido. No Steam e no
+// Faugus o %command% é preservado, porque é ele que o launcher expande;
+// nos demais o placeholder e o separador "--" saem, já que não têm
+// sentido fora deles.
+func (g *gui) adapt(s string) string {
+	if g.launcher().HasCmd {
+		return s
+	}
+	s = strings.TrimSpace(strings.TrimSuffix(s, "%command%"))
+	return strings.TrimSpace(strings.TrimSuffix(s, "--"))
+}
+
 func (g *gui) buildCombination() string {
 	var wrappers, envs []string
 	for i := range g.all {
@@ -78,14 +90,10 @@ func (g *gui) buildCombination() string {
 	return line
 }
 
-// displayCmd adapta o comando ao launcher escolhido, removendo o
-// placeholder %command% quando o launcher não o usa.
+// displayCmd mostra o mesmo que buildCombination monta, para o painel de
+// detalhe e o botão de copiar não divergirem da combinação.
 func (g *gui) displayCmd(c Command) string {
-	s := g.cmd(c)
-	if !g.launcher().HasCmd {
-		s = strings.TrimSpace(strings.TrimSuffix(s, "%command%"))
-	}
-	return s
+	return g.adapt(g.cmd(c))
 }
 
 // conflicts detecta variáveis duplicadas com valores diferentes e
@@ -94,8 +102,10 @@ func (g *gui) conflicts() []string {
 	var out []string
 	vals := map[string]map[string]bool{}
 	var keys []string
-	hasAntiLag, hasReflex, hasMesaAntiLag, hasFsr4Upgrade := false, false, false, false
+	var antiLagSo, reflexSo, antiLagComReflex bool
+	hasMesaAntiLag, hasFsr4Upgrade := false, false
 	hasNvidiaLibs, hasWow64 := false, false
+	wrapperVisto := map[string]string{}
 	for i := range g.all {
 		if !g.selected[i] {
 			continue
@@ -135,10 +145,22 @@ func (g *gui) conflicts() []string {
 			}
 			vals[k][v] = true
 		}
-		if cmdReflex {
-			hasReflex = true
-		} else if cmdAntiLag {
-			hasAntiLag = true
+		switch {
+		case cmdReflex && cmdAntiLag:
+			antiLagComReflex = true
+		case cmdReflex:
+			reflexSo = true
+		case cmdAntiLag:
+			antiLagSo = true
+		}
+		if g.isWrapper(g.all[i]) && len(toks) > 0 {
+			if bin := toks[0]; bin != "%command%" {
+				if outro, repete := wrapperVisto[bin]; repete {
+					out = append(out, fmt.Sprintf(g.tr("conflictSameWrapper"), bin, outro, g.all[i].Command))
+				} else {
+					wrapperVisto[bin] = g.all[i].Command
+				}
+			}
 		}
 	}
 	for _, k := range keys {
@@ -151,10 +173,13 @@ func (g *gui) conflicts() []string {
 			out = append(out, fmt.Sprintf(g.tr("conflictDuplicate"), k, strings.Join(vs, ", ")))
 		}
 	}
-	if hasAntiLag && hasReflex {
+	if antiLagSo && reflexSo {
 		out = append(out, g.tr("conflictAntiLagReflex"))
 	}
-	if hasMesaAntiLag && (hasAntiLag || hasReflex) {
+	if antiLagSo && antiLagComReflex {
+		out = append(out, g.tr("conflictAntiLagRedundant"))
+	}
+	if hasMesaAntiLag && (antiLagSo || antiLagComReflex || reflexSo) {
 		out = append(out, g.tr("conflictMesaAntiLagLayer"))
 	}
 	if hasMesaAntiLag && hasFsr4Upgrade {

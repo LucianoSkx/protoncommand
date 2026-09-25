@@ -67,9 +67,6 @@ func (l *maxWidthLabel) MinSize() fyne.Size {
 		lines++
 	}
 	lines++ // margem: a quebra do Fyne pode usar uma linha a mais
-	if lines < 1 {
-		lines = 1
-	}
 	return fyne.NewSize(l.maxWidth, float32(lines)*lineH+pad)
 }
 
@@ -124,13 +121,16 @@ type gui struct {
 	selected map[int]bool
 	favs     map[string]bool
 	current  int
-	selID    int
+	// suppressCopy impede que uma seleção programática (filtro, troca de
+	// idioma) dispare a cópia automática de copyOnClick.
+	suppressCopy bool
+	selID        int
 }
 
 func main() {
 	a := app.NewWithID("br.com.protoncommands")
 	a.SetIcon(resourceIcon)
-	w := a.NewWindow("Proton Command")
+	w := a.NewWindow(ptTexts["appTitle"])
 	w.Resize(fyne.NewSize(980, 640))
 
 	g := &gui{
@@ -155,9 +155,7 @@ func main() {
 			}
 		}
 	}
-	for _, s := range a.Preferences().StringListWithFallback("favs", nil) {
-		g.favs[s] = true
-	}
+	g.favs = carregarFavs(a.Preferences().StringListWithFallback("favs", nil), g.validFavKeys())
 	g.filtered = make([]int, len(g.all))
 	for i := range g.all {
 		g.filtered[i] = i
@@ -483,12 +481,16 @@ func (g *gui) setLang(lang string, persist bool) {
 		g.app.Preferences().SetString("lang", g.lang)
 	}
 	g.applyLang()
+	g.win.SetTitle(g.tr("appTitle"))
 	// Limpa antes: Select não dispara OnSelected quando o id já
 	// estava selecionado, e o detalhe ficaria com o texto antigo.
+	pos := g.selID
+	g.suppressCopy = true
+	defer func() { g.suppressCopy = false }()
 	g.list.UnselectAll()
 	g.list.Refresh()
-	if g.selID >= 0 && g.selID < len(g.filtered) {
-		g.list.Select(g.selID)
+	if pos >= 0 && pos < len(g.filtered) {
+		g.list.Select(pos)
 	} else if len(g.filtered) > 0 {
 		g.list.Select(0)
 	}
@@ -658,11 +660,12 @@ func (g *gui) setLauncher(id string) {
 	g.refreshDetail()
 }
 
-// favKey gera uma chave composta para favoritos usando comando + título,
-// evitando colisão quando dois comandos diferentes têm o mesmo shell.
+// favKey é a chave de favorito de um comando: só o Command. O título
+// não entra de propósito — Command já é único por invariante do catálogo,
+// e incluir o texto do título fazia o favorito sumir sozinho quando a
+// redação mudava.
 func (g *gui) favKey(idx int) string {
-	c := g.all[idx]
-	return c.Command + "\x00" + c.Title.PT
+	return g.all[idx].Command
 }
 
 func (g *gui) toggleFav(idx int) {
@@ -703,10 +706,24 @@ func favExportPayload(favs map[string]bool) ([]byte, error) {
 // Retorna quantas chaves novas foram adicionadas e se o arquivo era
 // aproveitável (ok=false = nenhuma chave reconhecida).
 func processFavImport(imported []string, valid, existing map[string]bool) (added int, ok bool) {
-	if len(imported) > 0 && !hasKnownFavKey(imported, valid) {
+	if !hasKnownFavKey(imported, valid) {
 		return 0, false
 	}
 	return len(filterNewFavs(imported, valid, existing)), true
+}
+
+// carregarFavs monta o mapa de favoritos a partir das chaves salvas,
+// descartando as que não correspondem a comando algum do catálogo. Sem a
+// poda elas somem da UI, porque o filtro só olha comandos existentes, mas
+// continuam no arquivo e são reexportadas.
+func carregarFavs(chaves []string, validas map[string]bool) map[string]bool {
+	favs := make(map[string]bool, len(chaves))
+	for _, c := range chaves {
+		if validas[c] {
+			favs[c] = true
+		}
+	}
+	return favs
 }
 
 // validFavKeys retorna o conjunto de chaves de favorito válidas,
@@ -890,6 +907,8 @@ func (g *gui) applyFilter() {
 	g.selID = -1
 	// Limpa a seleção antes: Select não dispara OnSelected quando o id
 	// já estava selecionado, e o detalhe mostraria outro comando.
+	g.suppressCopy = true
+	defer func() { g.suppressCopy = false }()
 	g.list.UnselectAll()
 	g.list.Refresh()
 	if len(g.filtered) > 0 {
@@ -908,7 +927,7 @@ func (g *gui) selectCommand(id widget.ListItemID) {
 	g.refreshDetail()
 	g.status.SetText("")
 	g.copyBtn.Enable()
-	if g.copyOnClick.Checked {
+	if g.copyOnClick.Checked && !g.suppressCopy {
 		g.copyCurrent()
 	}
 }

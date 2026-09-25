@@ -1,3 +1,29 @@
+# Não publicado
+
+## 🐛 Correções
+
+Revisão de código achou sete defeitos, seis deles confirmados por execução:
+
+- **Duas receitas do mesmo wrapper** (as duas de `gamescope`) eram combinadas sem aviso, produzindo `gamescope -w 1920 ... gamescope -e -f -F fsr -- %command%`. O primeiro gamescope lê o segundo como o nome do executável do jogo, então o jogo não abre. Agora há aviso de exclusividade, e wrappers diferentes (mangohud + gamescope) continuam sem aviso, que é o aninhamento aceito.
+- **Com "copiar ao clicar" ligado, digitar na busca sobrescrevia o clipboard.** `applyFilter` termina com `Select(0)`, que dispara `OnSelected` como se fosse clique — cada tecla digitada destruía o que o usuário tinha copiado. Agora seleção programática é distinguida de clique do usuário.
+- **Trocar de idioma jogava o detalhe para o primeiro item.** O guarda que preservava a posição lia `g.selID` depois do `UnselectAll`, que dispara `OnUnselected` e zera o campo: guarda morta. Trocar de idioma agora mantém o item, e o clique manual segue copiando.
+- **`displayCmd` e `buildCombination` divergiam** nos launchers que não usam `%command%`: o painel mostrava o `--` que a combinação já tinha removido, então "Copiar comando" e "Copiar combinação" davam respostas diferentes para a mesma opção.
+- **Falso aviso de exclusividade:** marcar a receita de Reflex junto com o Anti-Lag 2 avulso produzia "escolha apenas um", mas o resultado era só uma variável repetida. Agora exclusividade é para anti-lag puro contra reflexo puro, e a redundância ganhou aviso próprio.
+- **Importar JSON vazio ou `null` dava "0 favoritos importados!"** em vez de erro: o guarda exigia lista não vazia.
+- **Favorito dependia do texto do título em português.** `favKey` era `Command + título`; reescrever a redação de um título — o que aconteceu nesta sessão com o `LSFGVK_PROFILE` — apagava o favorito de quem já rodou o app, sem aviso. Agora a chave é só o `Command`, que é único por invariante. Chaves órfãs também são podadas no load, senão ficavam invisíveis na UI e ainda eram exportadas.
+
+## 🛠️ Outros
+
+- O título da janela passou a ser traduzido, e `setLang` o atualiza. A chave `appTitle` existia nos dois idiomas e nunca era usada.
+- Removidas as chaves de i18n `selectCommand` e `launcher`, que não eram referenciadas em lugar nenhum.
+- Removido um guarda morto em `maxWidthLabel.MinSize` (`if lines < 1`), inalcançável porque `lines` já recebia incremento por parágrafo mais um de margem.
+- `splitFields` agora respeita `\` como escape dentro de citação, como o shell faz. Era latente: nenhum comando do catálogo tem escape hoje, mas o `tools/auditar-catalogo.py` depende do mesmo parser, então um `"` digitado por engano engoliria o resto da linha em silêncio.
+
+## 🧪 Testes
+
+- Cobertura em 94.2%. Sete testes novos, cada um verificado por mutação: neutralizar a correção faz o teste falhar com mensagem apontando o caso.
+- O clipboard do driver de teste do Fyne é descartável (uma instância nova por chamada), então o teste de cópia observa o `status`, que `copyCurrent` preenche com "Copiado: ".
+
 # v0.6.2
 
 ## 📚 Catálogo (104 comandos)
