@@ -94,7 +94,7 @@ func (g *gui) conflicts() []string {
 	var out []string
 	vals := map[string]map[string]bool{}
 	var keys []string
-	hasAntiLag, hasReflex, hasMesaAntiLag := false, false, false
+	hasAntiLag, hasReflex, hasMesaAntiLag, hasFsr4Upgrade := false, false, false, false
 	for i := range g.all {
 		if !g.selected[i] {
 			continue
@@ -114,6 +114,8 @@ func (g *gui) conflicts() []string {
 				cmdAntiLag = true
 			case "ENABLE_LAYER_MESA_ANTI_LAG":
 				hasMesaAntiLag = true
+			case "PROTON_FSR4_UPGRADE":
+				hasFsr4Upgrade = true
 			}
 			if tok == "%command%" || tok == "--" {
 				continue
@@ -149,6 +151,9 @@ func (g *gui) conflicts() []string {
 	}
 	if hasMesaAntiLag && (hasAntiLag || hasReflex) {
 		out = append(out, g.tr("conflictMesaAntiLagLayer"))
+	}
+	if hasMesaAntiLag && hasFsr4Upgrade {
+		out = append(out, g.tr("conflictMesaAntiLagFsr4"))
 	}
 	return out
 }

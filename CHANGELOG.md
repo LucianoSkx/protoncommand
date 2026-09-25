@@ -1,22 +1,20 @@
-# v0.5.7
+# v0.5.8
 
-Revisão das opções de baixa latência, com os avisos que mais importam na hora de combinar as flags.
+## 📚 Catálogo (87 comandos)
 
-## 📚 Catálogo (84 comandos)
-
-- **Novos 2**: `DXVK_FRAME_PACE=low-latency-vrr` (modo VRR do dxvk-low-latency 3.1.1+, com `VK_EXT_present_timing`) e `ENABLE_LAYER_MESA_ANTI_LAG` (camada `VK_LAYER_MESA_anti_lag` do Mesa 25.3+).
+- **Novos 3**: `LOW_LATENCY_LAYER_SPOOF_NVIDIA`, `LOW_LATENCY_LAYER_FORCE_DECOUPLED` e `VKD3D_FRAME_RATE` — variáveis que até aqui só apareciam dentro da descrição de outra entrada e não davam para copiar.
 
 ## 🐛 Correções
 
-- `PROTON_DXVK_LOWLATENCY`: documenta a versão 3.1.1, o modo VRR, o HUD de diagnóstico (`DXVK_HUD=latencydetails`) e a instalação manual das DLLs em `compatibilitytools.d`.
-- `PROTON_VKD3D_LOWLATENCY`: avisa que o pacing só ativa com Reflex **ou** swapchain DXGI aguardável (20-30% dos títulos DX12), como verificar via `PROTON_LOG=1`, lista os jogos já confirmados, alerta que em UE4 o `r.OneFrameThreadLag=1` derruba o desempenho (e que `VKD3D_FRAME_RATE` conflita com o limitador do fork) e que Anti-Lag 2 não é suportado.
-- `LOW_LATENCY_LAYER` (Anti-Lag 2): notas sobre o bug do Anti-Lag 2 em Cyberpunk 2077, `LOW_LATENCY_LAYER_FORCE_DECOUPLED` em Marvel Rivals e `LOW_LATENCY_LAYER_SPOOF_NVIDIA`.
-- `LOW_LATENCY_LAYER` (Reflex): ordem de tentativa do spoofing, o fallback de device forjado (`dxgi.customVendorId`/`customDeviceId`/`customDeviceDesc`) e os riscos — quebra o upgrade FSR4 (4.1.1+ cai para FSR3), falha em jogos com checagem extra de GPU, risco com anti-cheat e como confirmar no log.
+- `PROTON_FORCE_NVAPI`: a descrição dizia só "quebra o upgrade FSR 4". O script do Proton define **três** variáveis de uma vez e sem condição — `DXVK_NVAPI_ALLOW_OTHER_DRIVERS=1`, `DXVK_NVAPI_DRIVER_VERSION=99999` e `WINE_HIDE_AMD_GPU=1` — então o FSR 4 quebra sempre, e a alternativa que expõe o mesmo Reflex sem o `WINE_HIDE_AMD_GPU` (spoofing direto por `DXVK_CONFIG`) passa a ser a recomendada.
+- `PROTON_FSR4_UPGRADE`: "Desativa Anti-Lag 2" era impreciso. O Proton-CachyOS define `DISABLE_LAYER_MESA_ANTI_LAG=1` junto — só a camada do Mesa, o `low_latency_layer` continua funcionando. O flag já foi removido no 10.0-20250919 e voltou no 10.0-20251007.
+- `DXVK_FRAME_RATE`: não vale para D3D12 (use `VKD3D_FRAME_RATE`) e conflita com o limitador do `dxvk-low-latency`.
+- `ENABLE_LAYER_MESA_ANTI_LAG`: avisa que o `PROTON_FSR4_UPGRADE` desliga essa camada por conta própria.
 
 ## 🛠️ Por baixo do pano
 
-- Novo aviso de conflito: a camada do Mesa e o `low_latency_layer` expõem a mesma extensão `VK_AMD_anti_lag`, então não faz sentido usar as duas juntas.
-- Cobertura de testes em 94%. O novo teste das opções de latência checa identificadores técnicos (variáveis, extensões, versões, nomes de jogo) em PT e EN, então a redação pode mudar sem quebrar o teste.
+- Novo aviso de conflito: `ENABLE_LAYER_MESA_ANTI_LAG` + `PROTON_FSR4_UPGRADE`, porque o segundo define `DISABLE_LAYER_MESA_ANTI_LAG` por dentro.
+- Cobertura de testes em 94%, com as novas entradas e as novas âncoras de documentação.
 
 # v0.5.6
 

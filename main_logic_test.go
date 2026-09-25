@@ -248,6 +248,21 @@ func TestConflictMesaAntiLagLayerComReflex(t *testing.T) {
 	}
 }
 
+func TestConflictMesaAntiLagLayerComFsr4(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("ENABLE_LAYER_MESA_ANTI_LAG=1 %command%")] = true
+	g.selected[idxOf("PROTON_FSR4_UPGRADE=1 %command%")] = true
+	found := false
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "DISABLE_LAYER_MESA_ANTI_LAG") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected mesa layer/fsr4 conflict, got %v", g.conflicts())
+	}
+}
+
 func TestNoConflictMesaAntiLagLayerSozinho(t *testing.T) {
 	g := testGUI("pt", "steam")
 	g.selected[idxOf("ENABLE_LAYER_MESA_ANTI_LAG=1 %command%")] = true
@@ -300,6 +315,7 @@ var docsObrigatorias = map[string][]string{
 		"VkLayer_MESA_anti_lag.json",
 		"vkAntiLagUpdateAMD",
 		"DISABLE_LAYER_MESA_ANTI_LAG",
+		"PROTON_FSR4_UPGRADE",
 		"42048",
 		"25.3",
 	},
@@ -309,6 +325,39 @@ var docsObrigatorias = map[string][]string{
 		"Marvel Rivals",
 		"LOW_LATENCY_LAYER_FORCE_DECOUPLED=1",
 		"LOW_LATENCY_LAYER_SPOOF_NVIDIA=1",
+	},
+	"LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 %command%": {
+		"LOW_LATENCY_LAYER_REFLEX=1",
+		"PROTON_FORCE_NVAPI=1",
+		"WINE_HIDE_AMD_GPU",
+		"PROTON_FSR4_UPGRADE",
+		"anti-cheat",
+	},
+	"LOW_LATENCY_LAYER_FORCE_DECOUPLED=1 %command%": {
+		"Marvel Rivals",
+		"UE5",
+		"LOW_LATENCY_LAYER=1",
+	},
+	"VKD3D_FRAME_RATE=60 %command%": {
+		"PROTON_VKD3D_LOWLATENCY=1",
+		"r.OneFrameThreadLag=1",
+	},
+	"PROTON_FORCE_NVAPI=1 %command%": {
+		"DXVK_NVAPI_ALLOW_OTHER_DRIVERS=1",
+		"DXVK_NVAPI_DRIVER_VERSION=99999",
+		"WINE_HIDE_AMD_GPU",
+		"PROTON_FSR4_UPGRADE",
+		"anti-cheat",
+	},
+	"PROTON_FSR4_UPGRADE=1 %command%": {
+		"DISABLE_LAYER_MESA_ANTI_LAG",
+		"LOW_LATENCY_LAYER=1",
+		"10.0-20251007",
+	},
+	"DXVK_FRAME_RATE=60 %command%": {
+		"VKD3D_FRAME_RATE",
+		"PROTON_DXVK_LOWLATENCY=1",
+		"low-latency-vrr",
 	},
 	`LOW_LATENCY_LAYER=1 LOW_LATENCY_LAYER_REFLEX=1 DXVK_CONFIG="dxgi.hideAmdGpu = True" %command%`: {
 		"VK_NV_low_latency2",

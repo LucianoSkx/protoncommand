@@ -259,8 +259,8 @@ func commands() []Command {
 				EN: "GE and CachyOS (AMD RDNA3+/RDNA4 GPU)",
 			},
 			Description: Localized{
-				PT: "Baixa automaticamente a amdxcffx64.dll e atualiza jogos com FSR 3.1 para FSR 4. Versão customizável: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 no GE, 4.1.1 no CachyOS). Para RDNA3 use PROTON_FSR4_RDNA3_UPGRADE. Desativa Anti-Lag 2.",
-				EN: "Automatically downloads amdxcffx64.dll and upgrades games with FSR 3.1 to FSR 4. Custom version: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 on GE, 4.1.1 on CachyOS). For RDNA3 use PROTON_FSR4_RDNA3_UPGRADE. Disables Anti-Lag 2.",
+				PT: "Baixa automaticamente a amdxcffx64.dll e atualiza jogos com FSR 3.1 para FSR 4. Versão customizável: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 no GE, 4.1.1 no CachyOS). Para RDNA3 use PROTON_FSR4_RDNA3_UPGRADE. No Proton-CachyOS esta variável vem acompanhada de DISABLE_LAYER_MESA_ANTI_LAG=1, ou seja, ela desliga a camada Anti-Lag 2 do Mesa — porque as duas brigavam por causa da issue 47. O flag já foi removido uma vez (10.0-20250919, quando acharam que o Anti-Lag 2 tinha melhorado) e voltou no 10.0-20251007, então espere por ele. Isso NÃO afeta o low_latency_layer: o Reflex/Anti-Lag 2 do LOW_LATENCY_LAYER=1 continua funcionando, porque é outra camada.",
+				EN: "Automatically downloads amdxcffx64.dll and upgrades games with FSR 3.1 to FSR 4. Custom version: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 on GE, 4.1.1 on CachyOS). For RDNA3 use PROTON_FSR4_RDNA3_UPGRADE. On Proton-CachyOS this variable ships alongside DISABLE_LAYER_MESA_ANTI_LAG=1, i.e. it turns off the Mesa Anti-Lag 2 layer — the two used to clash over issue 47. The flag was removed once (10.0-20250919, when Anti-Lag 2 looked fixed) and came back in 10.0-20251007, so expect it. This does NOT affect low_latency_layer: the Reflex/Anti-Lag 2 from LOW_LATENCY_LAYER=1 keeps working, because that's a different layer.",
 			},
 		},
 		{
@@ -583,8 +583,8 @@ func commands() []Command {
 				EN: "Mesa 25.3+ with the anti-lag layer installed (not every distro ships it)",
 			},
 			Description: Localized{
-				PT: "Liga a camada implícita VK_LAYER_MESA_anti_lag, a implementação open-source da extensão VK_AMD_anti_lag que o Mesa traz desde a 25.3. Duas ressalvas: (1) a camada é OPCIONAL — precisa estar em /usr/share/vulkan/implicit_layer.d/VkLayer_MESA_anti_lag.json, e vários builds não a incluem (runtime Flatpak do Mesa, por exemplo), então a variável não faz nada; confira com vulkaninfo; (2) ela não é global — só age em jogos que realmente chamam vkAntiLagUpdateAMD, ou seja, que implementam a extensão, muito menos jogos que o número de menus de Anti-Lag sugere. Nos testes do low_latency_layer ela chegou a parecer no-op. Desligue com DISABLE_LAYER_MESA_ANTI_LAG=1. O RADV agora recebe implementação nativa de VK_AMD_anti_lag (MR 42048), o que torna essa camada desnecessária nas versões que já a trouxeram — prefira LOW_LATENCY_LAYER=1 com LOW_LATENCY_LAYER_REFLEX=1, que tem o mesmo efeito e bem mais jogos.",
-				EN: "Enables the implicit VK_LAYER_MESA_anti_lag layer, the open-source implementation of the VK_AMD_anti_lag extension that has shipped with Mesa since 25.3. Two caveats: (1) the layer is OPTIONAL — it must be present as /usr/share/vulkan/implicit_layer.d/VkLayer_MESA_anti_lag.json, and many builds don't include it (the Mesa Flatpak runtime, for example), so the variable does nothing; check with vulkaninfo; (2) it is not global — it only acts on games that actually call vkAntiLagUpdateAMD, i.e. those implementing the extension, far fewer than the number of Anti-Lag menus suggests. In low_latency_layer's benchmarks it looked like a no-op. Turn it off with DISABLE_LAYER_MESA_ANTI_LAG=1. RADV now gets a native VK_AMD_anti_lag implementation (MR 42048), which makes this layer unnecessary on versions that include it — prefer LOW_LATENCY_LAYER=1 with LOW_LATENCY_LAYER_REFLEX=1, same effect and far more games.",
+				PT: "Liga a camada implícita VK_LAYER_MESA_anti_lag, a implementação open-source da extensão VK_AMD_anti_lag que o Mesa traz desde a 25.3. Duas ressalvas: (1) a camada é OPCIONAL — precisa estar em /usr/share/vulkan/implicit_layer.d/VkLayer_MESA_anti_lag.json, e vários builds não a incluem (runtime Flatpak do Mesa, por exemplo), então a variável não faz nada; confira com vulkaninfo; (2) ela não é global — só age em jogos que realmente chamam vkAntiLagUpdateAMD, ou seja, que implementam a extensão, muito menos jogos que o número de menus de Anti-Lag sugere. Nos testes do low_latency_layer ela chegou a parecer no-op. Desligue com DISABLE_LAYER_MESA_ANTI_LAG=1 — e note que o Proton-CachyOS já faz isso sozinho quando PROTON_FSR4_UPGRADE está ativo, porque as duas brigam. O RADV agora recebe implementação nativa de VK_AMD_anti_lag (MR 42048), o que torna essa camada desnecessária nas versões que já a trouxeram — prefira LOW_LATENCY_LAYER=1 com LOW_LATENCY_LAYER_REFLEX=1, que tem o mesmo efeito e bem mais jogos.",
+				EN: "Enables the implicit VK_LAYER_MESA_anti_lag layer, the open-source implementation of the VK_AMD_anti_lag extension that has shipped with Mesa since 25.3. Two caveats: (1) the layer is OPTIONAL — it must be present as /usr/share/vulkan/implicit_layer.d/VkLayer_MESA_anti_lag.json, and many builds don't include it (the Mesa Flatpak runtime, for example), so the variable does nothing; check with vulkaninfo; (2) it is not global — it only acts on games that actually call vkAntiLagUpdateAMD, i.e. those implementing the extension, far fewer than the number of Anti-Lag menus suggests. In low_latency_layer's benchmarks it looked like a no-op. Turn it off with DISABLE_LAYER_MESA_ANTI_LAG=1 — and note that Proton-CachyOS already does that on its own whenever PROTON_FSR4_UPGRADE is active, because the two clash. RADV now gets a native VK_AMD_anti_lag implementation (MR 42048), which makes this layer unnecessary on versions that include it — prefer LOW_LATENCY_LAYER=1 with LOW_LATENCY_LAYER_REFLEX=1, same effect and far more games.",
 			},
 		},
 		{
@@ -604,6 +604,63 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Ativa o low_latency_layer, que expõe a extensão VK_AMD_anti_lag em GPUs AMD e Intel — o Anti-Lag 2 passa a funcionar em jogos Vulkan (CS2 nativo, e via dxvk-nvapi em jogos Proton com proton-cachyos/GE, que já embutem o layer). Use para reduzir o input lag em jogos competitivos. Desative com DISABLE_LOW_LATENCY_LAYER=1 se causar travamentos. Notas: o Reflex tem a mesma performance e funciona em muito mais jogos, então prefira a entrada de Reflex; em Cyberpunk 2077 o Anti-Lag 2 não funciona por bug do próprio jogo (a camada nunca recebe a chamada) — use o caminho do Reflex; em Marvel Rivals é preciso LOW_LATENCY_LAYER_FORCE_DECOUPLED=1 (o layer já aplica sozinho nesse título); LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 é uma alternativa mais suave ao PROTON_FORCE_NVAPI=1 para expor o menu.",
 				EN: "Enables low_latency_layer, which exposes the VK_AMD_anti_lag extension on AMD and Intel GPUs — Anti-Lag 2 now works in Vulkan games (native CS2, and via dxvk-nvapi in Proton games with proton-cachyos/GE, which already bundle the layer). Use to reduce input lag in competitive games. Disable with DISABLE_LOW_LATENCY_LAYER=1 if it causes crashes. Notes: Reflex has the same performance and works in far more games, so prefer the Reflex entry; in Cyberpunk 2077 Anti-Lag 2 doesn't work due to a game bug (the layer never gets the call) — use the Reflex path; Marvel Rivals needs LOW_LATENCY_LAYER_FORCE_DECOUPLED=1 (the layer already does it for that title on its own); LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 is a gentler alternative to PROTON_FORCE_NVAPI=1 for exposing the menu.",
+			},
+		},
+		{
+			Command: "LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 %command%",
+			Title: Localized{
+				PT: "Spoofing NVIDIA no low_latency_layer",
+				EN: "NVIDIA spoof in low_latency_layer",
+			},
+			Category: Localized{
+				PT: "Latência",
+				EN: "Latency",
+			},
+			Compat: Localized{
+				PT: "Todos (requer LOW_LATENCY_LAYER=1)",
+				EN: "All (requires LOW_LATENCY_LAYER=1)",
+			},
+			Description: Localized{
+				PT: "Faz o low_latency_layer reportar a GPU como NVIDIA para a aplicação, independente do hardware real. É a alternativa mais suave ao PROTON_FORCE_NVAPI=1 para destravar o menu Reflex em GPU AMD, porque não passa pelo WINE_HIDE_AMD_GPU. Use junto de LOW_LATENCY_LAYER=1 e LOW_LATENCY_LAYER_REFLEX=1. O próprio autor marca como não recomendado, então trate como último recurso — e os mesmos avisos valem: quebra o upgrade FSR4 (PROTON_FSR4_UPGRADE) e não é à prova de anti-cheat. Compare sempre antes com DXVK_CONFIG=\"dxgi.hideAmdGpu = True\", que faz o mesmo pelo DXVK sem mexer na camada.",
+				EN: "Makes low_latency_layer report the GPU as NVIDIA to the application, whatever the real hardware. It's the gentler alternative to PROTON_FORCE_NVAPI=1 for unlocking the Reflex menu on AMD, because it doesn't go through WINE_HIDE_AMD_GPU. Use it together with LOW_LATENCY_LAYER=1 and LOW_LATENCY_LAYER_REFLEX=1. The author marks it as not recommended, so treat it as a last resort — and the same warnings apply: it breaks the FSR4 upgrade (PROTON_FSR4_UPGRADE) and isn't anti-cheat safe. Always compare it first with DXVK_CONFIG=\"dxgi.hideAmdGpu = True\", which does the same thing through DXVK without touching the layer.",
+			},
+		},
+		{
+			Command: "LOW_LATENCY_LAYER_FORCE_DECOUPLED=1 %command%",
+			Title: Localized{
+				PT: "Fila de simulação separada (Marvel Rivals)",
+				EN: "Decoupled sim queue (Marvel Rivals)",
+			},
+			Category: Localized{
+				PT: "Latência",
+				EN: "Latency",
+			},
+			Compat: Localized{
+				PT: "Todos (requer LOW_LATENCY_LAYER=1; Marvel Rivals)",
+				EN: "All (requires LOW_LATENCY_LAYER=1; Marvel Rivals)",
+			},
+			Description: Localized{
+				PT: "Força a mitigação de fila de simulação e render desacopladas no low_latency_layer. Existe por causa do Marvel Rivals, que usa essa arquitetura e precisa de estatísticas e de atraso extra para bater a implementação do Windows. O layer já aplica isso automaticamente só nesse título, então esta variável serve para os outros jogos UE5 com o mesmo problema — ou para forçar quando a detecção falha. Só faz sentido junto de LOW_LATENCY_LAYER=1.",
+				EN: "Forces low_latency_layer to mitigate a decoupled simulation and render queue. It exists because of Marvel Rivals, which uses that architecture and needs extra statistics and delay to match the Windows implementation. The layer already does this automatically for that title only, so this variable is for other UE5 games with the same problem — or to force it when detection fails. Only meaningful together with LOW_LATENCY_LAYER=1.",
+			},
+		},
+		{
+			Command: "VKD3D_FRAME_RATE=60 %command%",
+			Title: Localized{
+				PT: "Limite de FPS (D3D12, vkd3d-low-latency)",
+				EN: "FPS cap (D3D12, vkd3d-low-latency)",
+			},
+			Category: Localized{
+				PT: "Desempenho",
+				EN: "Performance",
+			},
+			Compat: Localized{
+				PT: "CachyOS (requer PROTON_VKD3D_LOWLATENCY=1)",
+				EN: "CachyOS (requires PROTON_VKD3D_LOWLATENCY=1)",
+			},
+			Description: Localized{
+				PT: "Limita o FPS dos jogos D3D12, equivalente ao DXVK_FRAME_RATE do outro lado. Só existe dentro do fork vkd3d-low-latency, então não combine sem PROTON_VKD3D_LOWLATENCY=1. Atenção: este limitador tem prioridade sobre o fps cap do Reflex e sobre o in-game, e o mantenedor é explícito — sobrepor dois limitadores é justamente o que piora a latência, então use um só. Em jogos UE4 com swapchain aguardável ele também evita a queda de desempenho do r.OneFrameThreadLag=1 (veja a entrada do PROTON_VKD3D_LOWLATENCY).",
+				EN: "Caps FPS in D3D12 games, the D12 counterpart of DXVK_FRAME_RATE. It only exists inside the vkd3d-low-latency fork, so don't use it without PROTON_VKD3D_LOWLATENCY=1. Note that this limiter takes priority over the Reflex fps cap and over the in-game one, and the maintainer is blunt about it — layering two limiters is exactly what makes latency worse, so pick one. In UE4 games with waitable swapchains it also avoids the r.OneFrameThreadLag=1 performance drop (see the PROTON_VKD3D_LOWLATENCY entry).",
 			},
 		},
 		{
@@ -1108,12 +1165,12 @@ func commands() []Command {
 				EN: "GPU",
 			},
 			Compat: Localized{
-				PT: "GE (GPU NVIDIA)",
-				EN: "GE (NVIDIA GPU)",
+				PT: "GE e CachyOS (GPU NVIDIA ou AMD com spoofing)",
+				EN: "GE and CachyOS (NVIDIA or spoofed AMD GPU)",
 			},
 			Description: Localized{
-				PT: "Habilita o suporte a patentes do NVIDIA Reflex no dxvk-nvapi. Útil quando o menu de Reflex não aparece em jogos com suporte. Atenção: quebra o upgrade FSR 4 (PROTON_FSR4_UPGRADE).",
-				EN: "Enables NVIDIA Reflex patent support in dxvk-nvapi. Useful when the Reflex menu doesn't show in supported games. Warning: breaks the FSR 4 upgrade (PROTON_FSR4_UPGRADE).",
+				PT: "Habilita o suporte a patentes do NVIDIA Reflex no dxvk-nvapi. Útil quando o menu de Reflex não aparece em jogos com suporte. No script do Proton isso define três variáveis de uma vez, sem condição: DXVK_NVAPI_ALLOW_OTHER_DRIVERS=1, DXVK_NVAPI_DRIVER_VERSION=99999 e WINE_HIDE_AMD_GPU=1. Ou seja, funciona em GPU AMD (é o que abre o Reflex lá), mas o WINE_HIDE_AMD_GPU é justamente o que impede o jogo de enxergar a AMD e por isso quebra o upgrade FSR 4 (PROTON_FSR4_UPGRADE) — sempre, não às vezes. Como o DXVK_NVAPI_ALLOW_OTHER_DRIVERS=1 já vem junto, prefira spoofing direto com DXVK_CONFIG=\"dxgi.hideAmdGpu=True\" DXVK_NVAPI_ALLOW_OTHER_DRIVERS=1, que expõe o mesmo Reflex sem o WINE_HIDE_AMD_GPU. Atenção também ao anti-cheat: forjar o device pode ser barrado. Evite em THE FINALS se possível — o Proton já desliga o NVAPI em GPU não-NVIDIA nesse título, e o PROTON_FORCE_NVAPI é a única forma de furar isso, ao custo do FSR 4.",
+				EN: "Enables NVIDIA Reflex patent support in dxvk-nvapi. Useful when the Reflex menu doesn't show in supported games. The Proton script sets three variables at once, unconditionally: DXVK_NVAPI_ALLOW_OTHER_DRIVERS=1, DXVK_NVAPI_DRIVER_VERSION=99999 and WINE_HIDE_AMD_GPU=1. In other words it works on AMD GPUs (that's what gets Reflex showing there), but the WINE_HIDE_AMD_GPU is exactly what stops the game from seeing the AMD, and that's why it breaks the FSR 4 upgrade (PROTON_FSR4_UPGRADE) — always, not sometimes. Since DXVK_NVAPI_ALLOW_OTHER_DRIVERS=1 comes bundled, prefer spoofing directly with DXVK_CONFIG=\"dxgi.hideAmdGpu=True\" DXVK_NVAPI_ALLOW_OTHER_DRIVERS=1, which exposes the same Reflex without the WINE_HIDE_AMD_GPU. Watch out for anti-cheat too: faking the device can get blocked. Avoid it in THE FINALS if you can — Proton already disables NVAPI on non-NVIDIA GPUs for that title, and PROTON_FORCE_NVAPI is the only way around, at the cost of FSR 4.",
 			},
 		},
 		{
@@ -1192,8 +1249,8 @@ func commands() []Command {
 				EN: "All",
 			},
 			Description: Localized{
-				PT: "Limita o FPS dos jogos D3D11/D3D10/D3D9 (via DXVK) direto no driver, sem overlay. Troque 60 pelo limite desejado (ex.: 120, 144); -1 desativa. Útil em telas 60 Hz ou para reduzir consumo/ruído quando o jogo passa folgado do refresh.",
-				EN: "Caps FPS in D3D11/D3D10/D3D9 games (via DXVK) right in the driver, with no overlay. Replace 60 with the desired cap (e.g.: 120, 144); -1 disables. Useful on 60 Hz displays or to cut power/noise when the game runs well past refresh.",
+				PT: "Limita o FPS dos jogos D3D11/D3D10/D3D9 (via DXVK) direto no driver, sem overlay. Troque 60 pelo limite desejado (ex.: 120, 144); -1 desativa. Útil em telas 60 Hz ou para reduzir consumo/ruído quando o jogo passa folgado do refresh. Não vale para D3D12 — nesses use VKD3D_FRAME_RATE, que só existe no vkd3d-low-latency. E cuidado: com PROTON_DXVK_LOWLATENCY=1 o limitador do fork entra em conflito com este, sobrepondo o fps cap do Reflex/V-Sync e normalmente piorando a latência. O próprio limitador do fork é o DXVK_FRAME_PACE=low-latency-vrr, que já vem com cap embutido.",
+				EN: "Caps FPS in D3D11/D3D10/D3D9 games (via DXVK) right in the driver, with no overlay. Replace 60 with the desired cap (e.g.: 120, 144); -1 disables. Useful on 60 Hz displays or to cut power/noise when the game runs well past refresh. It does not apply to D3D12 — use VKD3D_FRAME_RATE there, which only exists in vkd3d-low-latency. And be careful: with PROTON_DXVK_LOWLATENCY=1 the fork's limiter clashes with this one, overriding the Reflex/V-Sync fps cap and usually making latency worse. The fork's own limiter is DXVK_FRAME_PACE=low-latency-vrr, which already ships with a cap baked in.",
 			},
 		},
 		{
