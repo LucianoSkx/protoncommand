@@ -1,7 +1,8 @@
 # Não publicado
 
-## 📚 Catálogo (102 comandos)
+## 📚 Catálogo (103 comandos)
 
+- **Novo**: `PROTON_CPU_TOPOLOGY` — limita o jogo a um subconjunto de núcleos. O script do Proton repassa a variável para `WINE_CPU_TOPOLOGY`, e o formato `nCPUs:lista` aceita a lista até três vezes para separar grupos de kernel e usuário.
 - **Novos 11**: a família de controle do Proton-GE (`PROTON_STEAMINPUT_FALLBACK` e as três `PROTON_STEAMINPUT_LAYOUT_*`, mais `PROTON_SONY_AUTO_XINPUT`, `PROTON_SONY_DUALSENSE_AS_DUALSHOCK4`, `PROTON_SONY_DUALSENSE_EDGE_AS_DUALSENSE`, `PROTON_SONY_DUALSHOCK4_V2_AS_V1`, `PROTON_SONY_HIDRAW_XINPUT`), e duas de plataforma (`PROTON_USE_X11_EXCLUSIVE`, `PROTON_NO_WM_DECORATION`).
 
 ## 🛠️ Por baixo do pano

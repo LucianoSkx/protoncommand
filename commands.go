@@ -473,6 +473,25 @@ func commands() []Command {
 			},
 		},
 		{
+			Command: "PROTON_CPU_TOPOLOGY=6:2,3,4,5,6,7 %command%",
+			Title: Localized{
+				PT: "Isolar núcleos do jogo (topologia de CPU)",
+				EN: "Isolate game CPU cores (CPU topology)",
+			},
+			Category: Localized{
+				PT: "Desempenho",
+				EN: "Performance",
+			},
+			Compat: Localized{
+				PT: "Todos (Proton; ajuste os números à sua máquina)",
+				EN: "All (Proton; adjust the numbers to your machine)",
+			},
+			Description: Localized{
+				PT: "Faz o Wine ver só um conjunto de núcleos em vez de todos, o que resolve disputa de agendamento: o jogo fica preso a um subconjunto e sobra núcleo livre para o resto do sistema. O script do Proton repassa esta variável direto para WINE_CPU_TOPOLOGY. O formato é nCPUs:lista, e a lista pode se repetir até três vezes para dar grupos diferentes a kernel e usuário (n:nKernel:nUser). O exemplo acima = 6 CPUs nos núcleos 2 a 7, ou seja, os núcleos 0 e 1 ficam de fora — que é a parte interessante: se você isolou 0 e 1 no kernel para receber IRQ e trabalho em segundo plano (isolcpus com managed_irq, nohz_full, e a afinidade de IRQ em /proc/irq/*/smp_affinity_list), é exatamente eles que você deixa de fora daqui para o jogo não disputá-los. Atenção: número menor que o real de núcleos causa stutter, não ganho — comece pelo total menos os que reservou, não por menos que isso. O Proton já aplica limite automático em 19 jogos via default_cpu_limit (Far Cry 2 e 4, The Witcher 2, Space Marine, Prototype, DiRT, DIRT 5 e outros), e nesses títulos essa variável herda o valor do Proton. Verifique com PROTON_LOG=1: a linha de topologia aparece no log. E ajuste os números antes de colar, senão o jogo roda em um subconjunto que você não escolheu.",
+				EN: "Makes Wine see only a subset of cores instead of all of them, which settles scheduling contention: the game is pinned to a subset and cores are left free for the rest of the system. The Proton script passes this variable straight through to WINE_CPU_TOPOLOGY. The format is nCPUs:list, and the list can be repeated up to three times to give different groups to kernel and user (n:nKernel:nUser). The example above = 6 CPUs on cores 2 through 7, i.e. cores 0 and 1 stay out — which is the interesting part: if you isolated 0 and 1 in the kernel for IRQs and background work (isolcpus with managed_irq, nohz_full, and IRQ affinity in /proc/irq/*/smp_affinity_list), those are exactly the ones to leave out here so the game doesn't compete for them. Watch out: a number lower than your real core count causes stutter, not gains — start with total minus the ones you reserved, not less than that. Proton already applies an automatic limit on 19 games via default_cpu_limit (Far Cry 2 and 4, The Witcher 2, Space Marine, Prototype, DiRT, DIRT 5 and others), and on those titles this variable inherits Proton's value. Verify with PROTON_LOG=1: the topology line shows up in the log. And adjust the numbers before pasting, or the game will run on a subset you didn't pick.",
+			},
+		},
+		{
 			Command: "PROTON_USE_X11_EXCLUSIVE=Launcher.exe %command%",
 			Title: Localized{
 				PT: "XWayland só num executável",

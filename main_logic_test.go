@@ -420,6 +420,14 @@ var docsObrigatorias = map[string][]string{
 		"XWayland",
 		"Launcher.exe",
 	},
+	"PROTON_CPU_TOPOLOGY=6:2,3,4,5,6,7 %command%": {
+		"WINE_CPU_TOPOLOGY",
+		"default_cpu_limit",
+		"managed_irq",
+		"nohz_full",
+		"smp_affinity_list",
+		"PROTON_LOG=1",
+	},
 	`LOW_LATENCY_LAYER=1 LOW_LATENCY_LAYER_REFLEX=1 DXVK_CONFIG="dxgi.hideAmdGpu = True" %command%`: {
 		"VK_NV_low_latency2",
 		"PROTON_FSR4_UPGRADE",
