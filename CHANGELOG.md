@@ -13,6 +13,7 @@ Auditoria do catálogo inteiro contra as fontes primárias (script do Proton 11,
 
 - **Novo**: `DXVK_CONFIG="dxgi.maxFrameRate=60;d3d9.maxFrameRate=60"` — a forma suportada de limitar FPS no DXVK atual, já que a variável saiu do upstream.
 
+- `LSFGVK_PROFILE` ganhou os fatos da release v2.0.0 (setembro de 2026) depois de conferidos: é preciso trocar para o branch "lsfg-vk" do Lossless Scaling na Steam, o layout do arquivo de configuração mudou e é incompatível com a v1 (quem fizer upgrade precisa desinstalar antes, e o `lsfg-vk-cli healthcheck` acusa sobra), a v2 exige só Vulkan 1.2, e o pipeline bindless novo é 2-3x mais rápido em GPU com FP16 na proporção 2:1 (AMD laptop e handheld) usando 30% da memória. O changelog da v2.0.0 também confirma que ele não menciona a `LSFG_PROCESS` em nenhuma linha, o que reforça a remoção da afirmação de versão que estava lá.
 - `LSFGVK_PROFILE` deixou de afirmar que a `LSFG_PROCESS` foi "removida no v2.0.0" — não achei essa informação em lugar nenhum, e a wiki do projeto ainda cita a variável. A descrição agora traz o que a documentação oficial do lsfg-vk diz: o nome do perfil vai entre aspas quando tem espaço, a forma recomendada nem é a variável e sim o campo "Active In" do perfil no lsfg-vk-ui, VSync precisa estar ligado senão não há frame generation, e cuidado com qual `.exe` você marca em jogos UE4/5.
 
 ## 🛠️ Ferramenta
