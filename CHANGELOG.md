@@ -1,4 +1,18 @@
-# v0.5.9
+# Não publicado
+
+## 📚 Catálogo (102 comandos)
+
+- **Novos 11**: a família de controle do Proton-GE (`PROTON_STEAMINPUT_FALLBACK` e as três `PROTON_STEAMINPUT_LAYOUT_*`, mais `PROTON_SONY_AUTO_XINPUT`, `PROTON_SONY_DUALSENSE_AS_DUALSHOCK4`, `PROTON_SONY_DUALSENSE_EDGE_AS_DUALSENSE`, `PROTON_SONY_DUALSHOCK4_V2_AS_V1`, `PROTON_SONY_HIDRAW_XINPUT`), e duas de plataforma (`PROTON_USE_X11_EXCLUSIVE`, `PROTON_NO_WM_DECORATION`).
+
+## 🛠️ Por baixo do pano
+
+- O CI agora também roda em push de tag (`v*`), então uma release nunca sai sem passar por `gofmt`/`vet`/`test`/`build`.
+
+## 📝 Decisões
+
+- `PROTON_USE_D9VK` e `PROTON_USE_SECCOMP` **não** entraram no catálogo: estão obsoletas no upstream desde o Proton 5.0 e 5.13 respectivamente. O próprio README do Proton-CachyOS marca as duas como obsoletas.
+- `PROTON_ENABLE_MEDIACONV` não entrou: a documentação upstream diz literalmente "for debugging purposes, do not use".
+- As quatro variantes individuais `PROTON_NVIDIA_NVCUDA`, `_NVENC`, `_NVML` e `_NVOPTIX` foram deixadas dentro da descrição de `PROTON_NVIDIA_LIBS` em vez de virarem entradas — "use só a biblioteca X" é granularidade excessiva para quem consulta o catálogo, e a de NVML já vem ligada por padrão.
 
 ## 📚 Catálogo (91 comandos)
 

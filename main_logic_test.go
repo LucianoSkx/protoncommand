@@ -401,6 +401,25 @@ var docsObrigatorias = map[string][]string{
 		"PROTON_NVIDIA_LIBS",
 		"RTX 4000",
 	},
+	"PROTON_STEAMINPUT_FALLBACK=1 %command%": {
+		"PROTON_SONY_HIDRAW_XINPUT=1",
+		"PROTON_STEAMINPUT_XINPUT_FALLBACK=1",
+		"PROTON_STEAMINPUT_LAYOUT_XBOX",
+	},
+	"PROTON_SONY_AUTO_XINPUT=0 %command%": {
+		"PROTON_SONY_AUTO_XINPUT=0",
+		"HID",
+		"CONTROLLERS.md",
+	},
+	"PROTON_SONY_HIDRAW_XINPUT=1 %command%": {
+		"HIDRAW",
+		"XInput",
+	},
+	"PROTON_USE_X11_EXCLUSIVE=Launcher.exe %command%": {
+		"winex11.drv",
+		"XWayland",
+		"Launcher.exe",
+	},
 	`LOW_LATENCY_LAYER=1 LOW_LATENCY_LAYER_REFLEX=1 DXVK_CONFIG="dxgi.hideAmdGpu = True" %command%`: {
 		"VK_NV_low_latency2",
 		"PROTON_FSR4_UPGRADE",
@@ -415,7 +434,7 @@ var docsObrigatorias = map[string][]string{
 	},
 }
 
-func TestDocsObrigatoriasDeLatencia(t *testing.T) {
+func TestDocsObrigatorias(t *testing.T) {
 	cmds := commands()
 	for cmd, termos := range docsObrigatorias {
 		i := idxOf(cmd)

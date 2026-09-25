@@ -473,6 +473,44 @@ func commands() []Command {
 			},
 		},
 		{
+			Command: "PROTON_USE_X11_EXCLUSIVE=Launcher.exe %command%",
+			Title: Localized{
+				PT: "XWayland só num executável",
+				EN: "XWayland for one executable",
+			},
+			Category: Localized{
+				PT: "Wayland",
+				EN: "Wayland",
+			},
+			Compat: Localized{
+				PT: "GE (Wine-Wayland; troque pelo nome do seu .exe)",
+				EN: "GE (Wine-Wayland; replace with your .exe name)",
+			},
+			Description: Localized{
+				PT: "Sob Wine-Wayland, força o winex11.drv (XWayland) só para o executável que você nomear, deixando o resto no Wayland nativo. Aceita o basename exato, como Launcher.exe, ou um fragmento de caminho Windows sem distinção de maiúsculas, tipo Vendor\\Launcher.exe. É para quando um launcher ou um jogo específico abre janela branca no Wayland mas o resto do título funciona bem lá — o oposto de PROTON_ENABLE_WINED3D, que joga o jogo inteiro no XWayland. Troque o valor pelo seu executável antes de colar.",
+				EN: "Under Wine-Wayland, forces winex11.drv (XWayland) only for the executable you name, leaving everything else on native Wayland. It takes an exact basename such as Launcher.exe, or a case-insensitive Windows path fragment like Vendor\\Launcher.exe. It's for when a specific launcher or game shows a white window on Wayland while the rest of the title works fine there — the opposite of PROTON_ENABLE_WINED3D, which sends the whole game to XWayland. Replace the value with your executable before pasting.",
+			},
+		},
+		{
+			Command: "PROTON_NO_WM_DECORATION=1 %command%",
+			Title: Localized{
+				PT: "Decoração de janela do Wine",
+				EN: "Wine window decorations",
+			},
+			Category: Localized{
+				PT: "Wayland",
+				EN: "Wayland",
+			},
+			Compat: Localized{
+				PT: "CachyOS",
+				EN: "CachyOS",
+			},
+			Description: Localized{
+				PT: "Desliga a decoração de janela que o gerenciador de janelas desenha e usa a decoração própria do Wine. Ajuda quando a moldura fica com tamanho errado, aparece duplicada ou some ao redimensionar, especialmente em Wayland e XWayland. Se o problema for só a posição/tamanho da janela, o caminho costuma ser outro: WINE_FULLSCREEN_FSR=1 ou a remoção do overlay.",
+				EN: "Turns off the window decorations drawn by the window manager and uses Wine's own. It helps when the frame gets the wrong size, shows up duplicated, or disappears on resize, especially on Wayland and XWayland. If the problem is only the window position/size, the usual path is different: WINE_FULLSCREEN_FSR=1 or dropping the overlay.",
+			},
+		},
+		{
 			Command: "PROTON_ENABLE_WAYLAND=1 %command%",
 			Title: Localized{
 				PT: "Driver nativo Wayland",
@@ -508,6 +546,177 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Desativa o driver de áudio winepipewire (ligado por padrão no proton-cachyos) e volta para o winepulse. Útil quando o jogo tem áudio estalando ou cortando.",
 				EN: "Disables the winepipewire audio driver (default in proton-cachyos) and falls back to winepulse. Useful when a game's audio crackles or cuts out.",
+			},
+		},
+		{
+			Command: "PROTON_STEAMINPUT_FALLBACK=1 %command%",
+			Title: Localized{
+				PT: "Steam Input de reserva",
+				EN: "Steam Input fallback",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE",
+				EN: "GE",
+			},
+			Description: Localized{
+				PT: "Fornece uma substituta da interface Steam Input baseada em XInput, que alguns jogos exigem. Resolve controle fora do Steam e contorna a troca de perfil do Steam Input indisponível no Wine-Wayland. Se o Steam Input nativo estiver ativo na sessão, o controle e os mapeamentos nativos mandam e o fallback fica inativo. Para controle Sony, combine com PROTON_SONY_HIDRAW_XINPUT=1; controle Xbox usa direto. Com o fallback ativo, DS4 e DualSense/Edge são detectados dinamicamente (inclusive depois de hotplug) e o perfil anunciado se atualiza; para qualquer outro controle, ou se nenhum estiver conectado, o padrão é Xbox. PROTON_STEAMINPUT_XINPUT_FALLBACK=1 continua valendo como alias de compatibilidade. As variantes PROTON_STEAMINPUT_LAYOUT_XBOX, _DS4 e _DS5 fixam o perfil quando a detecção automática errar.",
+				EN: "Provides an XInput-backed replacement for the Steam Input interface some games require. It makes controllers work outside Steam and works around Steam Input profile switching being unavailable under Wine-Wayland. When native Steam Input is enabled for the session, the native controller and mappings stay authoritative and the fallback remains inactive. For Sony controllers, combine it with PROTON_SONY_HIDRAW_XINPUT=1; Xbox controllers use the fallback directly. While active, the fallback detects connected DS4 and DualSense/Edge devices dynamically (including after hotplug) and updates the advertised profile; for anything else, or with nothing connected, it defaults to Xbox. PROTON_STEAMINPUT_XINPUT_FALLBACK=1 is still supported as a compatibility alias. The PROTON_STEAMINPUT_LAYOUT_XBOX, _DS4 and _DS5 variants pin the profile when auto-detection picks wrong.",
+			},
+		},
+		{
+			Command: "PROTON_STEAMINPUT_LAYOUT_XBOX=1 %command%",
+			Title: Localized{
+				PT: "Fallback de controle: perfil Xbox",
+				EN: "Controller fallback: Xbox profile",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE (use com PROTON_STEAMINPUT_FALLBACK=1)",
+				EN: "GE (use with PROTON_STEAMINPUT_FALLBACK=1)",
+			},
+			Description: Localized{
+				PT: "Força o perfil Xbox One no controle do fallback, em vez da detecção automática. As outras opções de layout são PROTON_STEAMINPUT_LAYOUT_DS4 (DualShock 4) e PROTON_STEAMINPUT_LAYOUT_DS5 (DualSense). Só vale junto com PROTON_STEAMINPUT_FALLBACK=1; sozinha não faz nada.",
+				EN: "Forces the Xbox One profile on the fallback controller instead of automatic detection. The other layout options are PROTON_STEAMINPUT_LAYOUT_DS4 (DualShock 4) and PROTON_STEAMINPUT_LAYOUT_DS5 (DualSense). Only meaningful together with PROTON_STEAMINPUT_FALLBACK=1; on its own it does nothing.",
+			},
+		},
+		{
+			Command: "PROTON_STEAMINPUT_LAYOUT_DS4=1 %command%",
+			Title: Localized{
+				PT: "Fallback de controle: perfil DS4",
+				EN: "Controller fallback: DS4 profile",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE (use com PROTON_STEAMINPUT_FALLBACK=1)",
+				EN: "GE (use with PROTON_STEAMINPUT_FALLBACK=1)",
+			},
+			Description: Localized{
+				PT: "Força o perfil DualShock 4 no controle do fallback, em vez da detecção automática. Útil quando o jogo reconhece o controle mas com o perfil errado. As outras opções são PROTON_STEAMINPUT_LAYOUT_XBOX e PROTON_STEAMINPUT_LAYOUT_DS5. Só vale junto com PROTON_STEAMINPUT_FALLBACK=1.",
+				EN: "Forces the DualShock 4 profile on the fallback controller instead of automatic detection. Useful when the game sees the controller but under the wrong profile. The other options are PROTON_STEAMINPUT_LAYOUT_XBOX and PROTON_STEAMINPUT_LAYOUT_DS5. Only meaningful together with PROTON_STEAMINPUT_FALLBACK=1.",
+			},
+		},
+		{
+			Command: "PROTON_STEAMINPUT_LAYOUT_DS5=1 %command%",
+			Title: Localized{
+				PT: "Fallback de controle: perfil DS5",
+				EN: "Controller fallback: DS5 profile",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE (use com PROTON_STEAMINPUT_FALLBACK=1)",
+				EN: "GE (use with PROTON_STEAMINPUT_FALLBACK=1)",
+			},
+			Description: Localized{
+				PT: "Força o perfil DualSense no controle do fallback, em vez da detecção automática. As outras opções são PROTON_STEAMINPUT_LAYOUT_XBOX e PROTON_STEAMINPUT_LAYOUT_DS4. Só vale junto com PROTON_STEAMINPUT_FALLBACK=1.",
+				EN: "Forces the DualSense profile on the fallback controller instead of automatic detection. The other options are PROTON_STEAMINPUT_LAYOUT_XBOX and PROTON_STEAMINPUT_LAYOUT_DS4. Only meaningful together with PROTON_STEAMINPUT_FALLBACK=1.",
+			},
+		},
+		{
+			Command: "PROTON_SONY_AUTO_XINPUT=0 %command%",
+			Title: Localized{
+				PT: "Desativar fallback XInput da Sony",
+				EN: "Disable Sony XInput fallback",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE",
+				EN: "GE",
+			},
+			Description: Localized{
+				PT: "Ligado por padrão, e por isso o comando aqui é o inverso: PROTON_SONY_AUTO_XINPUT=0 desliga. Ele substitui a lista geral de forçar XInput por jogo, oferecendo um fallback XInput da Sony com VID/PID de DirectInput Xbox correspondentes, mantendo o HID nativo disponível; e recolhe o fallback automático e a projeção de identidade desse controle quando o processo consome entrada HID nativa. Onde houver suporte, o Steam Input reporta identidade e origem dos botões como DS4 ou DS5. Steam Input real e as sobreposições explícitas de compatibilidade Sony têm prioridade. Desligue quando o jogo se*''confundir com o controle ou quando você já usa o Steam Input. Mais detalhes em docs/CONTROLLERS.md do Proton-GE.",
+				EN: "Enabled by default, which is why the command here is the inverse: PROTON_SONY_AUTO_XINPUT=0 turns it off. It replaces the general per-game forced-XInput list, providing a Sony XInput fallback with matching Xbox DirectInput VID/PID while keeping native HID available; and it withdraws that controller's automatic fallback and identity projection when the process consumes native HID input. Where available, Steam Input reports DS4 or DS5 identity and button origins. Real Steam Input and explicit Sony compatibility overrides take priority. Turn it off when the game gets confused about the controller, or when you already use Steam Input. More detail in Proton-GE's docs/CONTROLLERS.md.",
+			},
+		},
+		{
+			Command: "PROTON_SONY_DUALSENSE_AS_DUALSHOCK4=1 %command%",
+			Title: Localized{
+				PT: "DualSense como DualShock 4",
+				EN: "DualSense as DualShock 4",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE",
+				EN: "GE",
+			},
+			Description: Localized{
+				PT: "Faz o DualSense ou o DualSense Edge se apresentarem como DualShock 4 v2. É para jogos antigos que soportam DS4 corretamente mas têm mapeamento de DualSense faltando ou quebrado: preserva os mapeamentos e os ícones de botão DS4 do jogo, traduzindo input, vibração, barra de luz e feature reports. Quando o fallback do Steam Input está ativo, também anuncia o DualSense detectado como perfil DS4. Para expor direto como DS4 v1, combine com PROTON_SONY_DUALSHOCK4_V2_AS_V1=1.",
+				EN: "Makes a DualSense or DualSense Edge present itself as a DualShock 4 v2. It's for older games that handle DS4 correctly but have missing or broken DualSense mappings: it preserves the game's DS4 button mappings and icons while translating input, rumble, lightbar and feature reports. When the Steam Input fallback is active, it also advertises the detected DualSense as a DS4 profile. To expose it directly as DS4 v1, combine with PROTON_SONY_DUALSHOCK4_V2_AS_V1=1.",
+			},
+		},
+		{
+			Command: "PROTON_SONY_DUALSENSE_EDGE_AS_DUALSENSE=1 %command%",
+			Title: Localized{
+				PT: "DualSense Edge como DualSense",
+				EN: "DualSense Edge as DualSense",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE (já ativo no Diablo IV)",
+				EN: "GE (already active in Diablo IV)",
+			},
+			Description: Localized{
+				PT: "Expõe um DualSense Edge nativo como um DualSense comum, para jogos sem suporte a Edge. Já vem ligado sozinho no Diablo IV, então nesse jogo é redundante. É ignorado quando há um controle virtual do Steam Input presente. A identidade física do controle e os reports nativos são preservados, então áudio, háptica e hotplug continuam funcionando.",
+				EN: "Exposes a native DualSense Edge as a regular DualSense for games without Edge support. It already turns on by itself in Diablo IV, so it's redundant there. It's skipped when a Steam Input virtual controller is present. The physical controller identity and native reports are preserved, so audio, haptics and hotplug handling keep working.",
+			},
+		},
+		{
+			Command: "PROTON_SONY_DUALSHOCK4_V2_AS_V1=1 %command%",
+			Title: Localized{
+				PT: "DualShock 4 v2 como v1",
+				EN: "DualShock 4 v2 as v1",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE",
+				EN: "GE",
+			},
+			Description: Localized{
+				PT: "Faz um DualShock 4 v2 se apresentar como DualShock 4 v1. Combinado com PROTON_SONY_DUALSENSE_AS_DUALSHOCK4=1, um DualSense ou DualSense Edge é exposto direto como DS4 v1. Input, output, feature reports, áudio do controle, háptica e hotplug continuam usando o controle físico internamente.",
+				EN: "Makes a DualShock 4 v2 present itself as a DualShock 4 v1. Combined with PROTON_SONY_DUALSENSE_AS_DUALSHOCK4=1, a DualSense or DualSense Edge is exposed directly as DS4 v1. Input, output, feature reports, controller audio, haptics and hotplug handling all keep using the physical controller internally.",
+			},
+		},
+		{
+			Command: "PROTON_SONY_HIDRAW_XINPUT=1 %command%",
+			Title: Localized{
+				PT: "Input Sony via HIDRAW",
+				EN: "Sony HIDRAW input",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE",
+				EN: "GE",
+			},
+			Description: Localized{
+				PT: "Traduz um dispositivo HIDRAW de DualShock 4, DualSense ou DualSense Edge para XInput, incluindo a vibração convencional de dois motores. Use quando o jogo tem mapeamento nativo Sony faltando ou incorreto. Os mapeamentos do controle são corrigidos, mas os ícones de botão mostrados pelo jogo podem não mudar.",
+				EN: "Translates a DualShock 4, DualSense or DualSense Edge HIDRAW device to XInput, including conventional two-motor rumble. Use it when a game has missing or incorrect native Sony mappings. The controller mappings are corrected, but the game's displayed button icons may not change.",
 			},
 		},
 		{
