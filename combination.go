@@ -6,17 +6,31 @@ import (
 	"strings"
 )
 
-func (g *gui) isWrapper(c Command) bool {
-	for _, w := range []string{"mangohud", "gamemoderun", "gamescope", "game-performance"} {
-		if strings.HasPrefix(c.Command, w) {
-			return true
+var wrapperNames = []string{"mangohud", "gamemoderun", "gamescope", "game-performance"}
+
+// wrapperBin devolve o nome do programa wrapper que a receita invoca, ou
+// "" se não for wrapper. Procura em qualquer posição e compara o token
+// inteiro: MANGOHUD=1 mangohud %command% é wrapper mesmo com a variável
+// na frente, e testar só o prefixo da string não pega esse caso.
+func (g *gui) wrapperBin(c Command) string {
+	for _, tok := range splitFields(c.Command) {
+		t := strings.ToLower(tok)
+		for _, w := range wrapperNames {
+			if t == w {
+				return t
+			}
 		}
 	}
-	return false
+	return ""
+}
+
+func (g *gui) isWrapper(c Command) bool {
+	return g.wrapperBin(c) != ""
 }
 
 // splitFields divide como strings.Fields, mas preserva trechos entre
-// aspas simples/duplas (ex.: DXVK_CONFIG="a = b" vira um token só).
+// aspas simples/duplas (ex.: DXVK_CONFIG="a = b" vira um token só) e
+// respeita barra invertida como escape dentro da citação, como o shell.
 func splitFields(s string) []string {
 	var out []string
 	var cur strings.Builder
@@ -30,6 +44,11 @@ func splitFields(s string) []string {
 	for i := 0; i < len(s); i++ {
 		ch := s[i]
 		if quote != 0 {
+			if ch == '\\' && i+1 < len(s) {
+				i++
+				cur.WriteByte(s[i])
+				continue
+			}
 			cur.WriteByte(ch)
 			if ch == quote {
 				quote = 0
@@ -153,8 +172,8 @@ func (g *gui) conflicts() []string {
 		case cmdAntiLag:
 			antiLagSo = true
 		}
-		if g.isWrapper(g.all[i]) && len(toks) > 0 {
-			if bin := toks[0]; bin != "%command%" {
+		if bin := g.wrapperBin(g.all[i]); bin != "" {
+			{
 				if outro, repete := wrapperVisto[bin]; repete {
 					out = append(out, fmt.Sprintf(g.tr("conflictSameWrapper"), bin, outro, g.all[i].Command))
 				} else {

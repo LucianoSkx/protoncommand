@@ -81,7 +81,26 @@ func initTestGUI(lang, launcherID string) *gui {
 	g.detailCompat = widget.NewLabel("")
 	g.detailCmd = newMaxWidthLabel(500)
 	g.detailDesc = newMaxWidthLabel(500)
-	g.langRadio = widget.NewRadioGroup([]string{"Português", "Inglês"}, func(string) {})
+	// Handler real: setLang chama applyLang, que faz catSel.SetSelected e
+	// isso dispara o filtro. Com no-op aqui o teste de setLang media um app
+	// que não existe — foi assim que uma correção de farsa passou.
+	g.catSel = widget.NewSelect(nil, func(v string) {
+		g.catFilterPT = ""
+		for _, c := range g.all {
+			if g.t(c.Category) == v {
+				g.catFilterPT = c.Category.PT
+				break
+			}
+		}
+		g.applyFilter()
+	})
+	g.langRadio = widget.NewRadioGroup([]string{"Português", "Inglês"}, func(v string) {
+		if v == "Inglês" {
+			g.setLang("en", false)
+		} else {
+			g.setLang("pt", false)
+		}
+	})
 	g.combLabel = newMaxWidthLabel(940)
 	g.combCount = widget.NewLabel("")
 	g.combWarn = canvas.NewText("", theme.ErrorColor())
@@ -89,7 +108,6 @@ func initTestGUI(lang, launcherID string) *gui {
 	g.combCopyBtn = widget.NewButton("", nil)
 	g.clearBtn = widget.NewButton("", nil)
 	g.launcherSel = widget.NewSelect(nil, func(string) {})
-	g.catSel = widget.NewSelect(nil, func(string) {})
 	g.favBtn = widget.NewButton("", nil)
 	g.exportFavBtn = widget.NewButton("", nil)
 	g.importFavBtn = widget.NewButton("", nil)
@@ -248,8 +266,11 @@ func TestConflictAntiLagRedundant(t *testing.T) {
 	g.selected[idxOf(`LOW_LATENCY_LAYER=1 LOW_LATENCY_LAYER_REFLEX=1 DXVK_CONFIG="dxgi.hideAmdGpu = True" %command%`)] = true
 	found := false
 	for _, w := range g.conflicts() {
-		if strings.Contains(w, "LOW_LATENCY_LAYER=1") {
+		if strings.Contains(w, "redundante") {
 			found = true
+		}
+		if strings.Contains(w, "mutuamente exclusivos") {
+			t.Fatalf("exclusividade indevida: %q", w)
 		}
 	}
 	if !found {
@@ -318,16 +339,25 @@ func TestDisplayCmdNaoDivergedeDaCombinacao(t *testing.T) {
 			g.selected[i] = true
 			combo := g.buildCombination()
 			exibido := g.displayCmd(g.all[i])
-			if launcher != "steam" {
-				if strings.HasSuffix(exibido, "--") {
-					t.Fatalf("%s: displayCmd deixou o -- solto: %q", launcher, exibido)
+			// A comparação é o que o nome promete: painel e combinação têm
+			// que devolver exatamente a mesma string.
+			if launcher == "steam" {
+				if want := g.all[i].Command; exibido != want {
+					t.Fatalf("%s: painel %q != catálogo %q", launcher, exibido, want)
 				}
-				if strings.Contains(combo, "--") {
-					t.Fatalf("%s: combinação deixou o -- solto: %q", launcher, combo)
+				if !strings.HasSuffix(combo, " %command%") {
+					t.Fatalf("%s: combinação perdeu o %%command%%: %q", launcher, combo)
+				}
+			} else {
+				if want := strings.TrimSuffix(g.all[i].Command, " %command%"); exibido != strings.TrimSuffix(want, " --") {
+					t.Fatalf("%s: painel %q != esperado %q", launcher, exibido, want)
 				}
 			}
-			if launcher == "steam" && !strings.Contains(exibido, "%command%") {
-				t.Fatalf("steam: displayCmd perdeu o %%command%%: %q", exibido)
+			// e o painel tem que ser exatamente a combinação
+			g2 := testGUI("pt", launcher)
+			g2.selected[i] = true
+			if exibido != g2.buildCombination() {
+				t.Fatalf("%s: painel %q divergiu da combinação %q", launcher, exibido, g2.buildCombination())
 			}
 		}
 	}
@@ -403,6 +433,49 @@ func TestSetLangNaoCopiaComCopyOnClick(t *testing.T) {
 	g.setLang("en", false)
 	if strings.HasPrefix(g.status.Text, g.tr("copied")) {
 		t.Fatalf("setLang disparou cópia: status=%q", g.status.Text)
+	}
+}
+
+// TestCarregarFavsMigraChaveAntiga: quem salvou com a v0.6.2 tem
+// "Command\x00Título" no disco. Sem migrar, a poda joga fora todos os
+// favoritos de quem já rodou o app, sem aviso.
+func TestCarregarFavsMigraChaveAntiga(t *testing.T) {
+	g := testGUI("pt", "steam")
+	validas := g.validFavKeys()
+	var cmd string
+	for k := range validas {
+		cmd = k
+		break
+	}
+	antiga := cmd + "\x00Título antigo em português"
+	favs := carregarFavs([]string{antiga}, validas)
+	if !favs[cmd] {
+		t.Fatalf("chave antiga não foi migrada para %q: %v", cmd, favs)
+	}
+}
+
+// isWrapper tem que ser case-insensitive: MANGOHUD=1 mangohud %command%
+// é a mesma receita de mangohud, e sem isso ela não entraria nem na ordem
+// de montagem nem na detecção de wrapper duplicado.
+func TestIsWrapperCaseInsensitive(t *testing.T) {
+	g := testGUI("pt", "steam")
+	for _, cmd := range []string{
+		"MANGOHUD=1 mangohud %command%",
+		"mangohud %command%",
+		"GAMEMODERUN=1 gamemoderun %command%",
+		"GAMESCOPE=1 gamescope -- %command%",
+	} {
+		if !g.isWrapper(Command{Command: cmd}) {
+			t.Errorf("isWrapper deveria reconhecer %q", cmd)
+		}
+	}
+	for _, cmd := range []string{
+		"PROTON_LOG=1 %command%",
+		"DXVK_HUD=fps %command%",
+	} {
+		if g.isWrapper(Command{Command: cmd}) {
+			t.Errorf("isWrapper não deveria reconhecer %q", cmd)
+		}
 	}
 }
 
@@ -716,6 +789,16 @@ func TestNoConflictSameValue(t *testing.T) {
 	g.selected[idxOf("WINEFSYNC=1 %command%")] = true
 	if warns := g.conflicts(); len(warns) != 0 {
 		t.Fatalf("expected no conflict, got %v", warns)
+	}
+}
+
+func TestSplitFieldsEscape(t *testing.T) {
+	toks := splitFields(`A="b\"c" B=2`)
+	if len(toks) != 2 {
+		t.Fatalf("esperava 2 tokens, veio %d: %q", len(toks), toks)
+	}
+	if toks[1] != "B=2" {
+		t.Fatalf("token 2 errado: %q", toks[1])
 	}
 }
 

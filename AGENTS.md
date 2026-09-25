@@ -112,6 +112,25 @@ Antes de fechar, prove que o teste pega regressão: quebre uma âncora de
 propósito, veja falhar com mensagem útil, reverta. Teste que nunca falhou não
 foi verificado.
 
+## Revisar antes de dizer que terminou
+
+Dois passos obrigatórios, nesta ordem:
+
+1. **Segunda opinião.** Chame um subagente de revisão com o diff e a lista do
+   que você mudou. Ele acha o que você não pensou — nesta repo a revisão
+   pegou um `UnselectAll()` que zerava o campo que o guarda seguinte ia ler,
+   um `Select(0)` programático disparando a cópia automática, e um
+   `fmt.Sprintf` com 3 argumentos para 4 verbos `%s`. Nenhum disso aparece em
+   build ou em leitura.
+2. **Mutação em cada teste novo.** Neutralize a correção e confirme que o
+   teste falha com mensagem útil. Reverter. Um teste que nunca falhou não foi
+   verificado, e a mutação que não aplica (string procurada errada) não prova
+   nada — confira que ela compilou antes de confiar no "ok".
+
+Onde não dá para testar, registre. O clipboard do driver de teste do Fyne é
+descartável (nova instância a cada chamada), então a cópia se observa pelo
+`status`, que `copyCurrent` preenche com `"Copiado: "`.
+
 ## Verificação
 
 ```bash

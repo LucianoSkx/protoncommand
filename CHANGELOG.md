@@ -1,4 +1,15 @@
-# Não publicado
+# v0.6.3
+
+## 🐛 Correções da segunda rodada (revisão das correções anteriores)
+
+A revisão do diff anterior encontrou defeito em quatro das sete correções, e um deles era o pior tipo: **teste verde com o código errado**.
+
+- **O aviso de wrapper duplicado saía com `%!s(MISSING)`.** A mensagem tinha quatro verbos `%s` e a chamada passava três argumentos — o quarto era justamente o nome do segundo wrapper, que é a informação principal do aviso. O texto agora tem três verbos e foi verificado em execução.
+- **Todos os favoritos de quem usou a v0.6.2 ou anterior eram apagados em silêncio no upgrade.** A chave nova é só o `Command`, mas o que está no disco de todo mundo é `Command\x00Título`. A poda jogava tudo fora. Agora a entrada antiga é migrada cortando no `\x00` antes da poda.
+- **A correção da troca de idioma não existia no app real.** O `pos := g.selID` era lido **depois** de `applyLang()`, e `applyLang` chama `catSel.SetSelected`, que dispara o handler de filtro — que já zera `selID` e faz `Select(0)`. O teste passava porque o harness ligava o `catSel` com um no-op, ou seja, media um app que não existe. A posição agora é lida antes de `applyLang`, e o `initTestGUI` replica os handlers reais de `build()`.
+- **Abrir o app sobrescrevia o clipboard.** `build()` lia a preferência "copiar ao clicar" e depois fazia `Select(0)`, que disparava a cópia automática. A preferência passou a ser lida depois do select inicial. *Esse caminho não é verificável no driver de teste do Fyne, porque `List.Select` não dispara callback antes do primeiro render — a proteção existe pelo mesmo mecanismo já coberto pelo filtro, mas o startup em si não tem teste.*
+- **`splitFields` não tinha mudado.** A primeira tentativa de aplicar o escape de barra falhou no meio do script e nada foi gravado, mas a alteração entrou no CHANGELOG e na mensagem de commit como se tivesse sido feita. Agora está feita, com teste que prova o comportamento (`A="b\"c" B=2` são dois tokens).
+- **`isWrapper` era mais frágil do que parecia:** comparava o prefixo da string inteira, então `MANGOHUD=1 mangohud %command%` nunca era reconhecida como wrapper — nem para a ordem de montagem, nem para o aviso de duplicata. Agora ela procura o token do nome do programa em qualquer posição, e há teste cobrindo as duas formas.
 
 ## 🐛 Correções
 

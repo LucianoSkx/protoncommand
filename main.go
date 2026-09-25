@@ -430,12 +430,17 @@ func (g *gui) build() {
 	))
 
 	g.applyLang()
-	g.copyOnClick.Checked = g.app.Preferences().BoolWithFallback("copyOnClick", false)
 	g.setTheme(g.app.Preferences().StringWithFallback("theme", "system"), false)
 	g.updateCombination()
+	// A preferência de copiar ao clicar entra depois do Select inicial: o
+	// startup não é um clique do usuário e não deve mexer no clipboard de
+	// quem já tinha algo copiado.
+	g.copyOnClick.Checked = g.app.Preferences().BoolWithFallback("copyOnClick", false)
+	g.suppressCopy = true
 	if len(g.filtered) > 0 {
 		g.list.Select(0)
 	}
+	g.suppressCopy = false
 }
 
 func (g *gui) buildConfigMenu() *fyne.Menu {
@@ -480,11 +485,15 @@ func (g *gui) setLang(lang string, persist bool) {
 	if persist {
 		g.app.Preferences().SetString("lang", g.lang)
 	}
+	// A posição precisa ser lida antes de applyLang: ele chama
+	// catSel.SetSelected, que dispara o handler de applyFilter, e o filtro
+	// zera g.selID e faz Select(0) por conta própria. Ler depois daria
+	// sempre 0.
+	pos := g.selID
 	g.applyLang()
 	g.win.SetTitle(g.tr("appTitle"))
 	// Limpa antes: Select não dispara OnSelected quando o id já
 	// estava selecionado, e o detalhe ficaria com o texto antigo.
-	pos := g.selID
 	g.suppressCopy = true
 	defer func() { g.suppressCopy = false }()
 	g.list.UnselectAll()
@@ -716,11 +725,22 @@ func processFavImport(imported []string, valid, existing map[string]bool) (added
 // descartando as que não correspondem a comando algum do catálogo. Sem a
 // poda elas somem da UI, porque o filtro só olha comandos existentes, mas
 // continuam no arquivo e são reexportadas.
+//
+// A chave antiga era "Command\x00Título em português". Quem salvou com a
+// v0.6.2 ou anterior tem isso no disco, então a entrada é migrada cortando
+// no \x00 antes da poda — sem isso o upgrade apagaria os favoritos de
+// todo mundo, em silêncio.
 func carregarFavs(chaves []string, validas map[string]bool) map[string]bool {
 	favs := make(map[string]bool, len(chaves))
 	for _, c := range chaves {
 		if validas[c] {
 			favs[c] = true
+			continue
+		}
+		if i := strings.IndexByte(c, 0); i >= 0 {
+			if cmd := c[:i]; validas[cmd] {
+				favs[cmd] = true
+			}
 		}
 	}
 	return favs
