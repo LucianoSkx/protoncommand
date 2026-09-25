@@ -1,4 +1,4 @@
-# Não publicado
+# v0.6.1
 
 ## 🐛 Correções
 
@@ -12,6 +12,8 @@ Auditoria do catálogo inteiro contra as fontes primárias (script do Proton 11,
 ## 📚 Catálogo (104 comandos)
 
 - **Novo**: `DXVK_CONFIG="dxgi.maxFrameRate=60;d3d9.maxFrameRate=60"` — a forma suportada de limitar FPS no DXVK atual, já que a variável saiu do upstream.
+
+- `LSFGVK_PROFILE` deixou de afirmar que a `LSFG_PROCESS` foi "removida no v2.0.0" — não achei essa informação em lugar nenhum, e a wiki do projeto ainda cita a variável. A descrição agora traz o que a documentação oficial do lsfg-vk diz: o nome do perfil vai entre aspas quando tem espaço, a forma recomendada nem é a variável e sim o campo "Active In" do perfil no lsfg-vk-ui, VSync precisa estar ligado senão não há frame generation, e cuidado com qual `.exe` você marca em jogos UE4/5.
 
 ## 🛠️ Ferramenta
 

@@ -1545,20 +1545,20 @@ func commands() []Command {
 			Command:   "LSFGVK_PROFILE=steam %command%",
 			CommandEN: "LSFGVK_PROFILE=steam %command%",
 			Title: Localized{
-				PT: "lsfg-vk: perfil Steam (v2.0.0+)",
-				EN: "lsfg-vk: Steam profile (v2.0.0+)",
+				PT: "lsfg-vk: escolher perfil por variável",
+				EN: "lsfg-vk: pick profile by variable",
 			},
 			Category: Localized{
 				PT: "Overlay e desempenho",
 				EN: "Overlay & Performance",
 			},
 			Compat: Localized{
-				PT: "Todos (exige lsfg-vk 2.0+ instalado)",
-				EN: "All (requires lsfg-vk 2.0+)",
+				PT: "Todos (exige lsfg-vk instalado)",
+				EN: "All (requires lsfg-vk installed)",
 			},
 			Description: Localized{
-				PT: "Seleciona o perfil \"steam\" do lsfg-vk (v2.0.0+), ativando o frame generation para jogos lançados pelo Steam. Variável oficial do lsfg-vk: LSFGVK_PROFILE substitui a detecção automática de processo. Prefira LSFGVK_PROFILE sobre a variante antiga LSFG_PROCESS, removida no v2.0.0. Requer Lossless Scaling ativado no Steam e lsfg-vk 2.0+ instalado.",
-				EN: "Selects the lsfg-vk \"steam\" profile (v2.0.0+), enabling frame generation for Steam-launched games. Official lsfg-vk variable: LSFGVK_PROFILE overrides automatic process detection. Use LSFGVK_PROFILE instead of the removed LSFG_PROCESS (deprecated in v2.0.0). Requires Lossless Scaling enabled in Steam and lsfg-vk 2.0+ installed.",
+				PT: "Escolhe qual perfil do lsfg-vk usar, com o nome entre aspas quando tiver espaço (ex.: LSFGVK_PROFILE='Test Profile' %command%). O comando aqui usa o perfil \"steam\"; a lista de perfis e os nomes exatos ficam no lsfg-vk-ui. A documentação oficial diz que a forma mais conveniente nem é a variável, e sim marcar o executável no campo \"Active In\" do próprio perfil, que aí ativa sozinho em todo lançamento. Dois avisos que a doc deixa claros: o VSync precisa estar ligado, senão nenhum frame generation acontece — o lsfg-vk liga para você, mas se você desativou, não tem FG; e cuidado com qual .exe você marca, porque jogos UE4/5 costumam ter vários .exe e só um é o certo. Para conferir se a instalação está boa, lsfg-vk-cli healthcheck; para desligar tudo, DISABLE_LSFGVK=1. Este comando é específico do perfil \"steam\" — se o seu perfil tem outro nome, troque.",
+				EN: "Chooses which lsfg-vk profile to use, quoted when the name has spaces (e.g. LSFGVK_PROFILE='Test Profile' %command%). This command uses the \"steam\" profile; the profile list and exact names live in lsfg-vk-ui. The official docs say the most convenient option is not the variable at all, but marking the executable in the profile's own \"Active In\" field, which then activates by itself on every launch. Two warnings the docs make explicit: VSync must be enabled or you get no frame generation at all — lsfg-vk turns it on for you, but if you disabled it there is no FG; and be careful which .exe you mark, because UE4/5 titles usually ship several and only one is the right one. To check the installation, run lsfg-vk-cli healthcheck; to turn everything off, DISABLE_LSFGVK=1. This command targets the \"steam\" profile specifically — swap it if yours is named differently.",
 			},
 		},
 		{
