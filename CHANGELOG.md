@@ -1,3 +1,25 @@
+# Não publicado
+
+## 🐛 Correções
+
+Auditoria do catálogo inteiro contra as fontes primárias (script do Proton 11, README e CHANGELOG do Proton-CachyOS, README do GE, README e release notes do DXVK, `dxvk.conf`, `radv_instance.c` e o `umu-protonfixes`) encontrou duas entradas que prometiam coisa que não existe mais:
+
+- **`DXVK_FRAME_RATE`** foi **removida no DXVK 3.0** — está no release note, com o próprio doitsujin mandando usar limitador externo ou opção de configuração. A entrada dizia "Todos" e prometia funcionar. Agora avisa que só volta a existir no fork dxvk-low-latency (ou emulada pelo Proton-EM) e aponta a alternativa.
+- **`PROTON_FRAME_RATE`** não é limitador do Proton, e o compat "Proton 8+" estava errado: ela é do **Proton-EM**, que só a converte nas opções `dxgi.maxFrameRate` e `d3d9.maxFrameRate` do `DXVK_CONFIG` — o mesmo código que emula `DXVK_FRAME_RATE` e `VKD3D_FRAME_RATE`. Não existe no Proton upstream, nem no GE, nem no CachyOS.
+- `VKD3D_FRAME_RATE` ficou mais preciso: existe só no fork vkd3d-low-latency, e a emulação do Proton-EM não alcança D3D12 mesmo.
+- `RADV_DEBUG=nofastclears` passou a citar a origem (`radv_debug_options`, primeira entrada) e as irmãs que resolvem artefato parecido, com o aviso de que flag de debug custa desempenho.
+
+## 📚 Catálogo (104 comandos)
+
+- **Novo**: `DXVK_CONFIG="dxgi.maxFrameRate=60;d3d9.maxFrameRate=60"` — a forma suportada de limitar FPS no DXVK atual, já que a variável saiu do upstream.
+
+## ✅ Verificados sem mudança
+
+- `RADV_DEBUG=nofastclears` e `DXVK_FILTER_DEVICE_NAME` confirmados no código e no README do upstream.
+- `LSFGVK_PROFILE` confirmado no `docs/Configuration.md` do lsfg-vk.
+- `PROTON_MEDIA_FORCE_GST` está correto: foi renomeado de `PROTON_MEDIA_USE_GST`, e o nome novo é o atual.
+- `PROTON_CPU_TOPOLOGY` confirmado no script do Proton, junto com o `default_cpu_limit` de 19 jogos.
+
 # v0.6.0
 
 ## 📚 Catálogo (103 comandos)

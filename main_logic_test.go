@@ -372,7 +372,27 @@ var docsObrigatorias = map[string][]string{
 	"DXVK_FRAME_RATE=60 %command%": {
 		"VKD3D_FRAME_RATE",
 		"PROTON_DXVK_LOWLATENCY=1",
-		"low-latency-vrr",
+		"DXVK_FRAME_PACE",
+		"dxvk.maxFrameRate",
+		"3.0",
+	},
+	`DXVK_CONFIG="dxgi.maxFrameRate=60;d3d9.maxFrameRate=60" %command%`: {
+		"dxvk.maxFrameRate",
+		"dxgi.maxFrameRate",
+		"d3d9.maxFrameRate",
+		"3.0",
+	},
+	"PROTON_FRAME_RATE=60 %command%": {
+		"dxgi.maxFrameRate",
+		"d3d9.maxFrameRate",
+		"DXVK_CONFIG",
+		"DXVK_FRAME_RATE",
+		"VKD3D_FRAME_RATE",
+		"Proton-EM",
+	},
+	"RADV_DEBUG=nofastclears %command%": {
+		"nofastclears",
+		"RADV_DEBUG",
 	},
 	"PROTON_FFX4_UPGRADE=1 %command%": {
 		"PROTON_FFX3_UPGRADE",

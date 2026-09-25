@@ -887,8 +887,8 @@ func commands() []Command {
 				EN: "CachyOS (requires PROTON_VKD3D_LOWLATENCY=1)",
 			},
 			Description: Localized{
-				PT: "Limita o FPS dos jogos D3D12, equivalente ao DXVK_FRAME_RATE do outro lado. Só existe dentro do fork vkd3d-low-latency, então não combine sem PROTON_VKD3D_LOWLATENCY=1. Atenção: este limitador tem prioridade sobre o fps cap do Reflex e sobre o in-game, e o mantenedor é explícito — sobrepor dois limitadores é justamente o que piora a latência, então use um só. Em jogos UE4 com swapchain aguardável ele também evita a queda de desempenho do r.OneFrameThreadLag=1 (veja a entrada do PROTON_VKD3D_LOWLATENCY).",
-				EN: "Caps FPS in D3D12 games, the D12 counterpart of DXVK_FRAME_RATE. It only exists inside the vkd3d-low-latency fork, so don't use it without PROTON_VKD3D_LOWLATENCY=1. Note that this limiter takes priority over the Reflex fps cap and over the in-game one, and the maintainer is blunt about it — layering two limiters is exactly what makes latency worse, so pick one. In UE4 games with waitable swapchains it also avoids the r.OneFrameThreadLag=1 performance drop (see the PROTON_VKD3D_LOWLATENCY entry).",
+				PT: "Limita o FPS dos jogos D3D12. Só existe dentro do fork vkd3d-low-latency (a vkd3d-proton upstream nunca teve essa variável), então não combine sem PROTON_VKD3D_LOWLATENCY=1. A única exceção é o Proton-EM, que a emula convertendo para a DXVK_CONFIG — e aí ela nem alcança o D3D12, porque quem traduz o D3D12 é a vkd3d, não o DXVK. Atenção: este limitador tem prioridade sobre o fps cap do Reflex e sobre o in-game, e o mantenedor é explícito — sobrepor dois limitadores é justamente o que piora a latência, então use um só. Em jogos UE4 com swapchain aguardável ele também evita a queda de desempenho do r.OneFrameThreadLag=1 (veja a entrada do PROTON_VKD3D_LOWLATENCY).",
+				EN: "Caps FPS in D3D12 games. It only exists inside the vkd3d-low-latency fork (upstream vkd3d-proton never had this variable), so don't use it without PROTON_VKD3D_LOWLATENCY=1. The one exception is Proton-EM, which emulates it by converting to DXVK_CONFIG — and there it doesn't even reach D3D12, because vkd3d does the D3D12 translation, not DXVK. Note that this limiter takes priority over the Reflex fps cap and over the in-game one, and the maintainer is blunt about it — layering two limiters is exactly what makes latency worse, so pick one. In UE4 games with waitable swapchains it also avoids the r.OneFrameThreadLag=1 performance drop (see the PROTON_VKD3D_LOWLATENCY entry).",
 			},
 		},
 		{
@@ -1001,8 +1001,8 @@ func commands() []Command {
 				EN: "All (AMD GPU / Mesa RADV)",
 			},
 			Description: Localized{
-				PT: "Desativa os fast clears no driver RADV, corrigindo artefatos visuais (tela piscando, linhas estranhas) em alguns jogos AMD. Se o jogo sumir no HUD, é sintoma de fast clear.",
-				EN: "Disables fast clears in the RADV driver, fixing visual artifacts (flickering, weird lines) in some AMD games. If a game disappears from the HUD, it's a fast clear symptom.",
+				PT: "Desativa os fast clears no driver RADV, corrigindo artefatos visuais (tela piscando, linhas estranhas) em alguns jogos AMD. Se o jogo sumir no HUD, é sintoma de fast clear. A variável é RADV_DEBUG e nofastclears é a primeira opção da tabela radv_debug_options do driver, e a lista tem várias outras que resolvem artefatos parecidos (nodcc, nohiz, zerovram, nongg, noumr, nodma, nofmask) — se uma não servir, tente a próxima. É opção de debug: use só para diagnosticar e tire depois, porque ligar flag de debug sempre custa algum desempenho.",
+				EN: "Disables fast clears in the RADV driver, fixing visual artifacts (flickering, weird lines) in some AMD games. If a game disappears from the HUD, it's a fast clear symptom. The variable is RADV_DEBUG, and nofastclears is the first entry in the driver's radv_debug_options table, and the list has several others that fix similar artifacts (nodcc, nohiz, zerovram, nongg, noumr, nodma, nofmask) — if one doesn't do it, try the next. It's a debug option: use it only to diagnose and remove it afterwards, because a debug flag always costs some performance.",
 			},
 		},
 		{
@@ -1462,6 +1462,26 @@ func commands() []Command {
 			},
 		},
 		{
+			Command:   "DXVK_CONFIG=\"dxgi.maxFrameRate=60;d3d9.maxFrameRate=60\" %command%",
+			CommandEN: "DXVK_CONFIG=\"dxgi.maxFrameRate=60;d3d9.maxFrameRate=60\" %command%",
+			Title: Localized{
+				PT: "Limite de FPS pelo DXVK_CONFIG",
+				EN: "FPS cap via DXVK_CONFIG",
+			},
+			Category: Localized{
+				PT: "Desempenho",
+				EN: "Performance",
+			},
+			Compat: Localized{
+				PT: "Todos (DXVK; não vale para D3D12)",
+				EN: "All (DXVK; not for D3D12)",
+			},
+			Description: Localized{
+				PT: "É a forma suportada de limitar FPS no DXVK atual: o DXVK 3.0 removeu a variável DXVK_FRAME_RATE e deixou só opções de configuração, então é por aqui que se limita. Existem três: dxgi.maxFrameRate para D3D10/11, d3d9.maxFrameRate para D3D9, e dxvk.maxFrameRate para todos de uma vez (use este e dispense os outros dois). O default de todas é 0, que é sem limite. Vale para D3D9/10/11 — em D3D12 quem traduz é a vkd3d, e o truque não pega. O DXVK_CONFIG aceita várias opções separadas por ponto e vírgula, então combine com cuidado: outra entrada sua que também use DXVK_CONFIG precisa ter o mesmo valor, senão o app avisa que a variável está definida duas vezes com valores diferentes. A alternativa mais leve e a preferida do próprio DXVK é limitador externo (Gamescope, MangoHud), que costuma dar um resultado mais suave.",
+				EN: "This is the supported way to cap FPS on current DXVK: DXVK 3.0 removed the DXVK_FRAME_RATE variable and left only configuration options, so this is how you cap now. There are three: dxgi.maxFrameRate for D3D10/11, d3d9.maxFrameRate for D3D9, and dxvk.maxFrameRate for all of them at once (use that one and skip the other two). The default for all of them is 0, meaning no limit. It covers D3D9/10/11 — on D3D12 vkd3d does the translation and the trick misses. DXVK_CONFIG accepts several options separated by semicolons, so combine carefully: another entry of yours that also uses DXVK_CONFIG needs the same value, otherwise the app warns that the variable is set twice with different values. The lighter alternative, and the one DXVK itself prefers, is an external limiter (Gamescope, MangoHud), which usually gives a smoother result.",
+			},
+		},
+		{
 			Command:   "DXVK_FRAME_RATE=60 %command%",
 			CommandEN: "DXVK_FRAME_RATE=60 %command%",
 			Title: Localized{
@@ -1473,12 +1493,12 @@ func commands() []Command {
 				EN: "Overlay & Performance",
 			},
 			Compat: Localized{
-				PT: "Todos",
-				EN: "All",
+				PT: "Fork dxvk-low-latency (PROTON_DXVK_LOWLATENCY=1) ou Proton-EM; removido do DXVK 3.0",
+				EN: "dxvk-low-latency fork (PROTON_DXVK_LOWLATENCY=1) or Proton-EM; removed in DXVK 3.0",
 			},
 			Description: Localized{
-				PT: "Limita o FPS dos jogos D3D11/D3D10/D3D9 (via DXVK) direto no driver, sem overlay. Troque 60 pelo limite desejado (ex.: 120, 144); -1 desativa. Útil em telas 60 Hz ou para reduzir consumo/ruído quando o jogo passa folgado do refresh. Não vale para D3D12 — nesses use VKD3D_FRAME_RATE, que só existe no vkd3d-low-latency. E cuidado: com PROTON_DXVK_LOWLATENCY=1 o limitador do fork entra em conflito com este, sobrepondo o fps cap do Reflex/V-Sync e normalmente piorando a latência. O próprio limitador do fork é o DXVK_FRAME_PACE=low-latency-vrr, que já vem com cap embutido.",
-				EN: "Caps FPS in D3D11/D3D10/D3D9 games (via DXVK) right in the driver, with no overlay. Replace 60 with the desired cap (e.g.: 120, 144); -1 disables. Useful on 60 Hz displays or to cut power/noise when the game runs well past refresh. It does not apply to D3D12 — use VKD3D_FRAME_RATE there, which only exists in vkd3d-low-latency. And be careful: with PROTON_DXVK_LOWLATENCY=1 the fork's limiter clashes with this one, overriding the Reflex/V-Sync fps cap and usually making latency worse. The fork's own limiter is DXVK_FRAME_PACE=low-latency-vrr, which already ships with a cap baked in.",
+				PT: "ATENÇÃO: a partir do DXVK 3.0 esta variável foi REMOVIDA e não faz nada no DXVK upstream — o próprio release note manda usar limitador externo (Gamescope, MangoHud) ou a opção de configuração. Ela só volta a existir no fork dxvk-low-latency, então use sempre junto com PROTON_DXVK_LOWLATENCY=1; no Proton-EM ela funciona por emulação. Sem nenhum dos dois, troque por DXVK_CONFIG=\"dxgi.maxFrameRate=60;d3d9.maxFrameRate=60\", que é a forma suportada no upstream: dxgi.maxFrameRate vale para D3D10/11, d3d9.maxFrameRate para D3D9, e dxvk.maxFrameRate para todos de uma vez. Não vale para D3D12 — nesses use VKD3D_FRAME_RATE. E cuidado com o fork: usar este aqui junto com o limitador interno dele (DXVK_FRAME_PACE) sobrepõe dois limitadores, que é justamente o que piora a latência — o mantenedor do fork é explícito em usar um só. Útil em telas 60 Hz ou para reduzir consumo/ruído quando o jogo passa folgado do refresh.",
+				EN: "Careful: as of DXVK 3.0 this variable was REMOVED and does nothing on upstream DXVK — the release note itself tells you to use an external limiter (Gamescope, MangoHud) or the configuration option instead. It only comes back in the dxvk-low-latency fork, so always pair it with PROTON_DXVK_LOWLATENCY=1; on Proton-EM it works through emulation. With neither, use DXVK_CONFIG=\"dxgi.maxFrameRate=60;d3d9.maxFrameRate=60\", which is the form supported upstream: dxgi.maxFrameRate covers D3D10/11, d3d9.maxFrameRate covers D3D9, and dxvk.maxFrameRate covers everything at once. It does not apply to D3D12 — use VKD3D_FRAME_RATE there. And be careful with the fork: using this alongside the fork's own limiter (DXVK_FRAME_PACE) layers two limiters, which is exactly what makes latency worse — the fork maintainer is blunt about using only one. Useful on 60 Hz displays or to cut power/noise when the game runs well past refresh.",
 			},
 		},
 		{
@@ -1973,12 +1993,12 @@ func commands() []Command {
 				EN: "Performance",
 			},
 			Compat: Localized{
-				PT: "Proton 8+",
-				EN: "Proton 8+",
+				PT: "Proton-EM (não existe no Proton upstream nem no GE/CachyOS)",
+				EN: "Proton-EM (absent from upstream Proton and from GE/CachyOS)",
 			},
 			Description: Localized{
-				PT: "Limita o framerate no nível do Proton, antes do jogo renderizar. Mais leve que limitadores de overlay. Substitua 60 pelo valor desejado. Funciona melhor que V-Sync em monitores com refresh rate alto.",
-				EN: "Caps framerate at the Proton level, before the game renders. Lighter than overlay cappers. Replace 60 with your desired value. Works better than V-Sync on high refresh rate monitors.",
+				PT: "Limita o FPS, mas não como a descrição antiga dizia: não é um limitador do Proton. O Proton-EM não implementa limitador próprio — ele converte esta variável nas opções dxgi.maxFrameRate e d3d9.maxFrameRate do DXVK_CONFIG, que é a mesma coisa que escrever na mão. O mesmo código também emula DXVK_FRAME_RATE e VKD3D_FRAME_RATE, justamente porque o DXVK removeu a primeira no 3.0 e a vkd3d-proton nunca teve a segunda. Não existe no Proton upstream, nem no GE, nem no CachyOS: use nestas se escrever a DXVK_CONFIG direto. Vale para D3D9/10/11; em D3D12 o truque não pega, porque quem traduz o D3D12 é o vkd3d e não o DXVK.",
+				EN: "Caps FPS, but not the way the old description said: this is not a Proton-level limiter. Proton-EM has no limiter of its own — it converts this variable into the dxgi.maxFrameRate and d3d9.maxFrameRate options in DXVK_CONFIG, which is the same thing as writing that by hand. The same code also emulates DXVK_FRAME_RATE and VKD3D_FRAME_RATE, precisely because DXVK removed the former in 3.0 and vkd3d-proton never had the latter. It does not exist in upstream Proton, nor in GE, nor in CachyOS: on those, write the DXVK_CONFIG directly. It covers D3D9/10/11; on D3D12 the trick misses, because vkd3d does the D3D12 translation, not DXVK.",
 			},
 		},
 		{
