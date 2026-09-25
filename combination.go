@@ -95,6 +95,7 @@ func (g *gui) conflicts() []string {
 	vals := map[string]map[string]bool{}
 	var keys []string
 	hasAntiLag, hasReflex, hasMesaAntiLag, hasFsr4Upgrade := false, false, false, false
+	hasNvidiaLibs, hasWow64 := false, false
 	for i := range g.all {
 		if !g.selected[i] {
 			continue
@@ -116,6 +117,10 @@ func (g *gui) conflicts() []string {
 				hasMesaAntiLag = true
 			case "PROTON_FSR4_UPGRADE":
 				hasFsr4Upgrade = true
+			case "PROTON_NVIDIA_LIBS":
+				hasNvidiaLibs = true
+			case "PROTON_USE_WOW64":
+				hasWow64 = true
 			}
 			if tok == "%command%" || tok == "--" {
 				continue
@@ -154,6 +159,9 @@ func (g *gui) conflicts() []string {
 	}
 	if hasMesaAntiLag && hasFsr4Upgrade {
 		out = append(out, g.tr("conflictMesaAntiLagFsr4"))
+	}
+	if hasNvidiaLibs && hasWow64 {
+		out = append(out, g.tr("conflictNvidiaLibsWow64"))
 	}
 	return out
 }

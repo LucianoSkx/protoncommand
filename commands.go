@@ -1374,6 +1374,86 @@ func commands() []Command {
 			},
 		},
 		{
+			Command:   "PROTON_FFX4_UPGRADE=1 %command%",
+			CommandEN: "PROTON_FFX4_UPGRADE=1 %command%",
+			Title: Localized{
+				PT: "Upgrade de FSR 4 (nome atual)",
+				EN: "FSR 4 upgrade (current name)",
+			},
+			Category: Localized{
+				PT: "Upscaling",
+				EN: "Upscaling",
+			},
+			Compat: Localized{
+				PT: "CachyOS 11+ (GPU AMD)",
+				EN: "CachyOS 11+ (AMD GPU)",
+			},
+			Description: Localized{
+				PT: "Nome atual do upgrade de FSR 4 no Proton-CachyOS 11+, no mesmo movimento em que PROTON_FSR3_UPGRADE virou PROTON_FFX3_UPGRADE. As versões são as mesmas controladas por PROTON_FSR4_UPGRADE — o FFX4 só muda o nome; e, segundo o CHANGELOG, quando o OptiScaler está ativo as duas continuam controlling as mesmas versões, para não quebrar configuração existente. Use este se quiser o nome novo. Atenção: vem com DISABLE_LAYER_MESA_ANTI_LAG=1 (a camada Anti-Lag 2 do Mesa é desligada junto, por causa da issue 47), e o frame generation MLFG liga por padrão nesse caso — desligue com PROTON_MLFG_UPGRADE=0. O README do Proton-CachyOS lista a variável sem descrição, então a fonte aqui é o CHANGELOG da release 11.0-20260703.",
+				EN: "Current name of the FSR 4 upgrade in Proton-CachyOS 11+, in the same move that renamed PROTON_FSR3_UPGRADE to PROTON_FFX3_UPGRADE. The versions are the same ones PROTON_FSR4_UPGRADE controls — FFX4 only changes the name; and per the changelog, when OptiScaler is active both still control the same versions so existing setups keep working. Use this if you prefer the new name. Note that it ships with DISABLE_LAYER_MESA_ANTI_LAG=1 (the Mesa Anti-Lag 2 layer gets turned off too, because of issue 47), and MLFG frame generation turns on by default in that case — turn it off with PROTON_MLFG_UPGRADE=0. The Proton-CachyOS README lists the variable with no description, so the source here is the changelog for release 11.0-20260703.",
+			},
+		},
+		{
+			Command:   "PROTON_MLFG_UPGRADE=1 %command%",
+			CommandEN: "PROTON_MLFG_UPGRADE=1 %command%",
+			Title: Localized{
+				PT: "Frame generation MLFG (Redstone)",
+				EN: "MLFG frame generation (Redstone)",
+			},
+			Category: Localized{
+				PT: "Upscaling",
+				EN: "Upscaling",
+			},
+			Compat: Localized{
+				PT: "CachyOS (exige FSR 4 >= 4.0.3)",
+				EN: "CachyOS (requires FSR 4 >= 4.0.3)",
+			},
+			Description: Localized{
+				PT: "Habilita o MLFG (Redstone), o frame generation da AMD que roda junto do FSR 4 — exige FSR 4 >= 4.0.3, senão não faz nada. Ele já vem ligado sozinho quando você usa o upgrade de FSR 4 (PROTON_FSR4_UPGRADE ou PROTON_FFX4_UPGRADE); para desligar, use PROTON_MLFG_UPGRADE=0, porque frame generation sempre adiciona latência de input. Em RDNA3 o MLFG precisa do FSR 4 I8 com DXIL_SPIRV_CONFIG=wmma_rdna3_workaround — foi exatamente por dispensar esse workaround na maioria dos casos que o PROTON_FSR4_RDNA3_UPGRADE foi removido. Atenção ao Reflex: o indicador de FSR4 agora marca MLFG_WATERMARK=1 junto, então dá para conferir visualmente se está ativo.",
+				EN: "Enables MLFG (Redstone), AMD's frame generation, which runs alongside FSR 4 — it requires FSR 4 >= 4.0.3, otherwise it does nothing. It already comes enabled on its own when you use the FSR 4 upgrade (PROTON_FSR4_UPGRADE or PROTON_FFX4_UPGRADE); to turn it off use PROTON_MLFG_UPGRADE=0, since frame generation always adds input latency. On RDNA3, MLFG needs FSR 4 I8 with DXIL_SPIRV_CONFIG=wmma_rdna3_workaround — and it's precisely because that workaround stopped being needed in most cases that PROTON_FSR4_RDNA3_UPGRADE was removed. One Reflex-related note: the FSR4 indicator now also sets MLFG_WATERMARK=1, so you can visually confirm it's active.",
+			},
+		},
+		{
+			Command:   "PROTON_NVIDIA_LIBS=1 %command%",
+			CommandEN: "PROTON_NVIDIA_LIBS=1 %command%",
+			Title: Localized{
+				PT: "Bibliotecas NVIDIA alternativas",
+				EN: "Alternative NVIDIA libraries",
+			},
+			Category: Localized{
+				PT: "GPU",
+				EN: "GPU",
+			},
+			Compat: Localized{
+				PT: "CachyOS e GE (GPU NVIDIA; só quando precisar)",
+				EN: "CachyOS and GE (NVIDIA GPU; only when needed)",
+			},
+			Description: Localized{
+				PT: "Habilita implementações alternativas das bibliotecas NVIDIA que o Proton não traz (projeto nvidia-libs): nvcuda, nvenc, nvml e nvoptix de uma vez. É o que faz o PhysX acelerado por hardware funcionar, entre outras coisas. Use SOMENTE quando precisar — o upstream é explícito nesse ponto, porque trocar DLL de kernel de vídeo por implementações reimplementadas é o tipo de coisa que quebra jogo sem erro claro. Incompatível com wow64: com PROTON_USE_WOW64=1 as libs são desligadas automaticamente. Se você quiser só uma, as variantes são PROTON_NVIDIA_NVCUDA, PROTON_NVIDIA_NVENC, PROTON_NVIDIA_NVML (que já vem ligada por padrão) e PROTON_NVIDIA_NVOPTIX. Em RTX 4000/5000 com crash ou queda de desempenho em jogo 32-bit, acrescente PROTON_NVIDIA_LIBS_NO_32BIT=1.",
+				EN: "Enables alternative implementations of the NVIDIA libraries Proton doesn't ship (the nvidia-libs project): nvcuda, nvenc, nvml and nvoptix all at once. That's what makes hardware-accelerated PhysX work, among other things. Use it ONLY when needed — upstream is blunt about this, because swapping video kernel driver DLLs for reimplementations is the kind of thing that breaks games with no clear error. Incompatible with wow64: with PROTON_USE_WOW64=1 the libraries are disabled automatically. If you only want one, the variants are PROTON_NVIDIA_NVCUDA, PROTON_NVIDIA_NVENC, PROTON_NVIDIA_NVML (already enabled by default) and PROTON_NVIDIA_NVOPTIX. On RTX 4000/5000, if you see crashes or a performance drop in 32-bit games, add PROTON_NVIDIA_LIBS_NO_32BIT=1.",
+			},
+		},
+		{
+			Command:   "PROTON_NVIDIA_LIBS_NO_32BIT=1 %command%",
+			CommandEN: "PROTON_NVIDIA_LIBS_NO_32BIT=1 %command%",
+			Title: Localized{
+				PT: "Bibliotecas NVIDIA só 64-bit",
+				EN: "NVIDIA libraries, 64-bit only",
+			},
+			Category: Localized{
+				PT: "GPU",
+				EN: "GPU",
+			},
+			Compat: Localized{
+				PT: "CachyOS e GE (RTX 4000/5000; use com PROTON_NVIDIA_LIBS)",
+				EN: "CachyOS and GE (RTX 4000/5000; use with PROTON_NVIDIA_LIBS)",
+			},
+			Description: Localized{
+				PT: "Use junto com PROTON_NVIDIA_LIBS=1 para habilitar só as bibliotecas NVIDIA de 64-bit, sem as de 32-bit. Existe para quem tem RTX 4000 ou 5000 e teve crash ou queda de desempenho ao ativar as libs em jogo 32-bit — é o caso mais comum de precisar dessa variável. Sozinha não faz nada.",
+				EN: "Use together with PROTON_NVIDIA_LIBS=1 to enable only the 64-bit NVIDIA libraries, skipping the 32-bit ones. It exists for people on RTX 4000 or 5000 who got crashes or a performance drop when enabling the libraries in 32-bit games — the most common reason to need it. On its own it does nothing.",
+			},
+		},
+		{
 			Command:   "PROTON_FFX3_UPGRADE=1 %command%",
 			CommandEN: "PROTON_FFX3_UPGRADE=1 %command%",
 			Title: Localized{

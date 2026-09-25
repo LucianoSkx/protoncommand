@@ -1,4 +1,16 @@
-# v0.5.8
+# Não publicado
+
+## 📚 Catálogo (91 comandos)
+
+- **Novos 4**: `PROTON_FFX4_UPGRADE` (nome atual do upgrade de FSR 4), `PROTON_MLFG_UPGRADE` (frame generation MLFG/Redstone), `PROTON_NVIDIA_LIBS` e `PROTON_NVIDIA_LIBS_NO_32BIT` (bibliotecas NVIDIA alternativas do nvidia-libs).
+
+## 🛠️ Por baixo do pano
+
+- Novo aviso de conflito: `PROTON_NVIDIA_LIBS` + `PROTON_USE_WOW64=1`, porque o Proton desliga as libs automaticamente quando o wow64 está ativo.
+
+## 📝 Correção de auditoria
+
+- A auditoria anterior acusou uma lacuna em `PROTON_VKREFLEX` que **não existe**: esse é o *compat config string* no README do Proton-CachyOS, não uma variável de ambiente. A variável é `DXVK_NVAPI_VKREFLEX`, que o catálogo já tinha. Nada foi criado a partir desse engano.
 
 ## 📚 Catálogo (87 comandos)
 

@@ -263,6 +263,21 @@ func TestConflictMesaAntiLagLayerComFsr4(t *testing.T) {
 	}
 }
 
+func TestConflictNvidiaLibsWow64(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("PROTON_NVIDIA_LIBS=1 %command%")] = true
+	g.selected[idxOf("PROTON_USE_WOW64=1 %command%")] = true
+	found := false
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "wow64") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected nvidia libs/wow64 conflict, got %v", g.conflicts())
+	}
+}
+
 func TestNoConflictMesaAntiLagLayerSozinho(t *testing.T) {
 	g := testGUI("pt", "steam")
 	g.selected[idxOf("ENABLE_LAYER_MESA_ANTI_LAG=1 %command%")] = true
@@ -358,6 +373,33 @@ var docsObrigatorias = map[string][]string{
 		"VKD3D_FRAME_RATE",
 		"PROTON_DXVK_LOWLATENCY=1",
 		"low-latency-vrr",
+	},
+	"PROTON_FFX4_UPGRADE=1 %command%": {
+		"PROTON_FFX3_UPGRADE",
+		"PROTON_FSR4_UPGRADE",
+		"DISABLE_LAYER_MESA_ANTI_LAG",
+		"PROTON_MLFG_UPGRADE=0",
+		"11.0-20260703",
+	},
+	"PROTON_MLFG_UPGRADE=1 %command%": {
+		"4.0.3",
+		"PROTON_MLFG_UPGRADE=0",
+		"wmma_rdna3_workaround",
+		"MLFG_WATERMARK=1",
+		"PROTON_FSR4_RDNA3_UPGRADE",
+	},
+	"PROTON_NVIDIA_LIBS=1 %command%": {
+		"nvcuda",
+		"nvenc",
+		"nvml",
+		"nvoptix",
+		"PROTON_USE_WOW64=1",
+		"PROTON_NVIDIA_LIBS_NO_32BIT",
+		"PROTON_NVIDIA_NVML",
+	},
+	"PROTON_NVIDIA_LIBS_NO_32BIT=1 %command%": {
+		"PROTON_NVIDIA_LIBS",
+		"RTX 4000",
 	},
 	`LOW_LATENCY_LAYER=1 LOW_LATENCY_LAYER_REFLEX=1 DXVK_CONFIG="dxgi.hideAmdGpu = True" %command%`: {
 		"VK_NV_low_latency2",
