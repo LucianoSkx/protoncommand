@@ -38,6 +38,9 @@ jobs:
             libx11-dev libxext-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxxf86vm-dev \
             libxkbcommon-dev libwayland-dev wayland-protocols
 
+      - name: Audit catalog invariants
+        run: python3 tools/auditar-catalogo.py --offline
+
       - name: gofmt
         run: |
           out=$(gofmt -l .)

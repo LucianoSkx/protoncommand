@@ -119,10 +119,42 @@ gofmt -l .          # tem que sair vazio
 go vet ./...
 go test -cover ./...
 go build -o /tmp/protoncommand .
+python3 tools/auditar-catalogo.py --offline
 ```
 
 Tudo limpo antes de considerar pronto. A cobertura está em **94%** e não deve
-cair. `go test` sozinho não basta: formatação é o que o CI reprova.
+cair. `go test` sozinho não basta: formatação é o que o CI reprova, e a
+auditoria do catálogo é o que impede o tipo de erro que o app mais sofre.
+
+## Auditar o catálogo contra o upstream
+
+`tools/auditar-catalogo.py` existe porque o app documenta variável de outros
+projetos e o upstream as remove sem avisar — foi assim que
+`DXVK_FRAME_RATE` (removida no DXVK 3.0) e `PROTON_FRAME_RATE` (que nunca
+existiu no Proton, só no Proton-EM) ficaram garantindo coisa que não acontece.
+
+```bash
+python3 tools/auditar-catalogo.py --offline   # invariantes locais, roda no CI
+python3 tools/auditar-catalogo.py --online    # baixa o upstream e compara
+```
+
+O `--offline` falha o build e confere: comando terminando em `%command%`,
+duplicata, PT/EN completo, env var repetida com valores diferentes, wrapper na
+primeira posição. É rápido e não usa rede.
+
+O `--online` baixa 10 fontes (script do Proton 11, README e CHANGELOG do
+Proton-CachyOS, README do GE, README e `dxvk.conf` do DXVK, README do
+low_latency_layer e dos dois forks, docs do lsfg-vk) e lista as env vars do
+catálogo que nenhuma delas menciona, dizendo onde cada uma deveria ser
+conferida. Ele **não** falha o build: variável sem menção é quase sempre
+normal, porque DXVK_*, MANGOHUD* e LOW_LATENCY_LAYER* vivem em outros
+repositórios. Ele também tem uma lista de `REMOVIDAS` que é atualizada à mão
+— ao descobrir que o upstream tirou ou renomeou uma variável, acrescente lá
+**e** corrija a entrada.
+
+Quando o `--online` acusar algo, não acredite no script: abra a fonte
+apontada. Se for mesmo um erro, corrija a descrição e chame a variável de
+removida no mapa `REMOVIDAS`, senão o aviso volta.
 
 ## Versionamento e release
 

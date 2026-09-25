@@ -13,6 +13,10 @@ Auditoria do catálogo inteiro contra as fontes primárias (script do Proton 11,
 
 - **Novo**: `DXVK_CONFIG="dxgi.maxFrameRate=60;d3d9.maxFrameRate=60"` — a forma suportada de limitar FPS no DXVK atual, já que a variável saiu do upstream.
 
+## 🛠️ Ferramenta
+
+- **`tools/auditar-catalogo.py`** — a auditoria que encontrou os erros acima, virada ferramenta. `tools/auditar-catalogo.py --offline` confere os invariantes do catálogo sem rede e **roda no CI** (comando duplicado, `%command%` faltando, PT/EN incompleto, env var repetida com valores diferentes, wrapper fora da primeira posição). `tools/auditar-catalogo.py --online` baixa 10 fontes do upstream e lista as env vars do catálogo que nenhuma menciona, apontando onde cada uma deveria ser conferida; não falha o build, porque variável sem menção é normal quando ela pertence a outro projeto (DXVK, MangoHud, Mesa). Tem também um mapa `REMOVIDAS` para o caso de o upstream tirar ou renomear uma variável.
+
 ## ✅ Verificados sem mudança
 
 - `RADV_DEBUG=nofastclears` e `DXVK_FILTER_DEVICE_NAME` confirmados no código e no README do upstream.

@@ -20,3 +20,6 @@
 # cobertura de testes
 coverage.out
 *.coverprofile
+
+# cache da auditoria do catálogo
+.auditoria-cache/
