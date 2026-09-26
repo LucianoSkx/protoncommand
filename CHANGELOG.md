@@ -1,3 +1,11 @@
+# v0.6.6
+
+## 🔧 Ferramenta de auditoria
+
+- **O parser lia o literal cru da descrição.** O padrão `"(.*?)"` não truncava — como o campo exigia `", EN: "`, ele avançava até a fronteira real — mas devolvia `"` em vez de aspa e `\n` em vez de quebra. Os checks de texto liam aquilo: depois da reestruturação em blocos, nenhum dos três invariantes de texto enxergava as quebras nem as aspas reais. Agora casa o literal inteiro e devolve o valor efetivo, com `desescapar_texto` convertendo `\n` e `\t`.
+- **Cinco âncoras novas travam o texto que vem depois de uma aspa escapada** (`PROTON_VKD3D_LOWLATENCY` → "Witchfire", `PROTON_FORCE_NVAPI` e `LOW_LATENCY_LAYER_SPOOF_NVIDIA` → "dxgi.hideAmdGpu", `DXVK_FRAME_RATE` → "d3d9.maxFrameRate", `PROTON_USE_OPTISCALER` → "Upscalers.Dx12Upscaler=dlss"). São as entradas que citam `DXVK_CONFIG="..."` ou a string de verificação do log. Nenhum outro check pega quando esse trecho some: a descrição continua parecendo completa.
+- **11ª fonte: as release notes do fork `dxvk-low-latency`.** O README do fork é praticamente o do DXVK upstream e não menciona `DXVK_FRAME_PACE`, nem o teto de 5% abaixo do refresh, nem o `DXVK_HUD=latencydetails` — tudo o que a descrição do `DXVK_FRAME_RATE` afirma. Sem essa fonte, quem roda `--online` não conseguia checar nada desse bloco.
+
 # v0.6.5
 
 ## 🐛 Aviso de conflito que faltava

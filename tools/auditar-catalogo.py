@@ -64,6 +64,10 @@ FONTES = {
     "dxvk_low_latency": "https://raw.githubusercontent.com/netborg-afps/dxvk-low-latency/master/README.md",
     "vkd3d_low_latency": "https://raw.githubusercontent.com/netborg-afps/vkd3d-low-latency/master/README.md",
     "lsfgvk": "https://raw.githubusercontent.com/xXJSONDeruloXx/lsfg-vk-arm64/v2-arm64-port/docs/Configuration.md",
+    # O README do fork dxvk-low-latency é praticamente o do DXVK upstream: não
+    # menciona DXVK_FRAME_PACE, nem o teto de 5%, nem o DXVK_HUD=latencydetails.
+    # Tudo isso está nas release notes, então é delas que a auditoria precisa.
+    "dxvk_low_latency_rel": "https://api.github.com/repos/netborg-afps/dxvk-low-latency/releases/tags/low-latency-framepacing-3.1.1",
 }
 
 # variável -> o que o upstream diz que aconteceu com ela
@@ -121,6 +125,32 @@ def desescapar(valor: str) -> str:
                  .replace("\x00", "\\"))
 
 
+def desescapar_texto(valor: str) -> str:
+    """Como desescapar, mas também resolve \\n e \\t.
+
+    As descrições longas foram quebradas em blocos com \\n dentro do literal,
+    então os checks de texto precisam ver a quebra de linha de verdade.
+    """
+    return (valor.replace('\\\\', "\x00")
+                 .replace('\\"', '"')
+                 .replace("\\n", "\n")
+                 .replace("\\t", "\t")
+                 .replace("\\\\", "\\")
+                 .replace("\x00", "\\"))
+
+
+# O conteúdo de um literal do Go: qualquer coisa que não seja aspa ou barra,
+# ou uma aspa/barra escapada.
+#
+# O padrão anterior era "(.*?)", e ele não truncava de verdade — como a
+# âncora do campo exigia `", EN: "`, ele avançava até a fronteira real. O que
+# ele fazia era devolver o literal CRU: `\"` em vez de aspa e \n em vez de
+# quebra. Os checks de texto liam aquilo, então não viam as quebras de bloco
+# nem as aspas reais. Este padrão casa o literal inteiro e desescapar_texto
+# entrega o valor efetivo.
+STRING_GO_CAMPO = r'"((?:[^"\\]|\\.)*)"'
+
+
 def entradas_do_catalogo() -> list[dict]:
     """Extrai Command/Title/Category/Compat/Description do commands.go."""
     fonte = ler(CATALOGO)
@@ -131,8 +161,12 @@ def entradas_do_catalogo() -> list[dict]:
         if not cmd:
             continue
         def campo(nome: str) -> tuple[str, str]:
-            m = re.search(nome + r': Localized\{\s*PT: "(.*?)",\s*EN: "(.*?)",', b, re.S)
-            return (m.group(1), m.group(2)) if m else ("", "")
+            m = re.search(
+                nome + r': Localized\{\s*PT:\s*' + STRING_GO_CAMPO
+                + r',\s*EN:\s*' + STRING_GO_CAMPO + r',', b, re.S)
+            if not m:
+                return ("", "")
+            return (desescapar_texto(m.group(1)), desescapar_texto(m.group(2)))
         achados.append({
             "command": desescapar(cmd.group(1)),
             "title": campo("Title"),
@@ -162,6 +196,21 @@ def destino_de(var: str) -> str:
 
 
 # --------------------------------------------------------------------------- offline
+
+# Texto que aparece DEPOIS de uma aspa escapada dentro do literal Go.
+#
+# São as entradas que citam DXVK_CONFIG="dxgi.hideAmdGpu = True" ou
+# "waitable dxgi swapchain present percentage". Servem para dois desvios que
+# nenhum outro check pega: um parser que corte a descrição na primeira aspa
+# escapada, e uma reescrita de descrição que apague este trecho. Nos dois casos
+# a descrição continua parecendo completa, então sem esta lista passaria.
+ANCORAS_APOS_ASPAS = {
+    "PROTON_VKD3D_LOWLATENCY=1 %command%": "Witchfire",
+    "PROTON_USE_OPTISCALER=1 %command%": "Upscalers.Dx12Upscaler=dlss",
+    "LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 %command%": "dxgi.hideAmdGpu",
+    "PROTON_FORCE_NVAPI=1 %command%": "dxgi.hideAmdGpu",
+    "DXVK_FRAME_RATE=60 %command%": "d3d9.maxFrameRate",
+}
 
 # Resto de edição em texto: aspas órfãos e asterisco colado em letra.
 # Já apareceu "o jogo se*''confundir" em commands.go por um replace mal
@@ -259,6 +308,17 @@ def auditar_offline(entradas: list[dict]) -> int:
             problemas.append(f"token depois de %command%: {cmd!r}")
 
     print(f"catálogo: {len(entradas)} entradas")
+    for cmd, ancora in ANCORAS_APOS_ASPAS.items():
+        e = next((x for x in entradas if x["command"] == cmd), None)
+        if e is None:
+            problemas.append(f"âncora de parser aponta para comando ausente: {cmd!r}")
+            continue
+        for i, lang in ((0, "PT"), (1, "EN")):
+            if ancora not in e["description"][i]:
+                problemas.append(
+                    f"descrição {lang} de {cmd!r} não chegou em {ancora!r} — "
+                    f"o texto depois da aspa escapada sumiu, ou o parser "
+                    f"truncou antes dela")
     if problemas:
         print(f"\n{len(problemas)} problema(s):")
         for p in problemas:
