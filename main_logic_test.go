@@ -648,7 +648,7 @@ var docsObrigatorias = map[string][]string{
 	"LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 %command%": {
 		"LOW_LATENCY_LAYER_REFLEX=1",
 		"PROTON_FORCE_NVAPI=1",
-		"WINE_HIDE_AMD_GPU",
+		"dxgi.hideAmdGpu",
 		"PROTON_FSR4_UPGRADE",
 		"anti-cheat",
 	},

@@ -1,3 +1,13 @@
+# v0.6.7
+
+## 🔎 Duas fontes a mais, e o que elas revelaram
+
+- **13 fontes agora.** A discussion #2 do `vkd3d-low-latency` e a issue #2 do `low_latency_layer` entraram na lista do `--online`. Nenhuma das duas está no README, e era por isso que as afirmações abaixo pareciam sem fonte: eu as tinha rebaixado ou não tinha conferido.
+- **A prioridade do `VKD3D_FRAME_RATE` voltou ao catálogo.** Na v0.6.5 eu tinha substituído "tem prioridade sobre o fps cap do Reflex, e o mantenedor é explícito" por "o upstream não afirma". O mantenedor afirma, textualmente, na discussion #2: *"VKD3D_FRAME_RATE takes priority over the Reflex fps cap if both are set"*. A parte que continua sem fonte — prioridade sobre o limite que o jogo impõe — segue registrada como tal.
+- **A estimativa de 20-30% é do mantenedor e é um palpite**, não uma medição: *"my guess would be 20-30%?"*. O texto agora diz isso. A lista de jogos verificados também era imprecisa: a discussion traz 10 na lista de "explicitly verified" e o `Witchfire` aparece só em comentário — o catálogo tratava os 11 como igualmente verificados.
+- **O defeito do `LOW_LATENCY_LAYER_SPOOF_NVIDIA` estava no motivo errado.** O catálogo dizia que ele é preferível ao `PROTON_FORCE_NVAPI` "porque não passa pelo `WINE_HIDE_AMD_GPU`". A fonte dá outro motivo: *"prefer `DXVK_CONFIG="dxgi.hideAmdGpu = True"`, as this option is known to break Proton's FSR4 upgrade path"* — ou seja, o mesmo defeito do FSR4, e o texto admitia isso na frase seguinte, o que o tornava autocontraditório. A âncora em `docsObrigatorias` que travava o texto errado foi trocada.
+- **O "FSR4 4.1.1+ cai para FSR3" e o custo em RDNA3 foram marcados como não confirmados.** Nenhuma das 13 fontes contém 4.1.1, FSR3 como fallback nem o custo em RDNA3. O que a issue #2 documenta é o FSR4 sumindo do menu e ficando inutilizável com a camada ativa, mais a combinação que funciona (FSR4 + Reflex + `dxgi.hideAmdGpu`). O texto passou a dizer isso e a apontar, entre parênteses, que as versões e o custo vêm de fóruns e não foram confirmados.
+
 # v0.6.6
 
 ## 🔧 Ferramenta de auditoria

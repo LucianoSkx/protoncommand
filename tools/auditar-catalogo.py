@@ -68,6 +68,15 @@ FONTES = {
     # menciona DXVK_FRAME_PACE, nem o teto de 5%, nem o DXVK_HUD=latencydetails.
     # Tudo isso está nas release notes, então é delas que a auditoria precisa.
     "dxvk_low_latency_rel": "https://api.github.com/repos/netborg-afps/dxvk-low-latency/releases/tags/low-latency-framepacing-3.1.1",
+    # A discussion #2 do vkd3d-low-latency é onde o mantenedor mantém a lista
+    # de jogos com waitable swapchain, a estimativa de 20-30% dos títulos DX12,
+    # a nota sobre r.OneFrameThreadLag no UE4 e a prioridade do
+    # VKD3D_FRAME_RATE sobre o fps cap do Reflex. Nada disso está no README.
+    "vkd3d_disc2": "https://github.com/netborg-afps/vkd3d-low-latency/discussions/2",
+    # Issue #2 do low_latency_layer é onde se documenta, caso a caso, que
+    # PROTON_FORCE_NVAPI e LOW_LATENCY_LAYER_SPOOF_NVIDIA quebram o FSR4, e
+    # qual é a combinação que funciona (FSR4 + Reflex + hideAmdGpu).
+    "low_latency_issue2": "https://github.com/Korthos-Software/low_latency_layer/issues/2",
 }
 
 # variável -> o que o upstream diz que aconteceu com ela
