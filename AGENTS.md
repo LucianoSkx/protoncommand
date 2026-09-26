@@ -161,15 +161,26 @@ O `--offline` falha o build e confere: comando terminando em `%command%`,
 duplicata, PT/EN completo, env var repetida com valores diferentes, wrapper na
 primeira posição. É rápido e não usa rede.
 
-O `--online` baixa 10 fontes (script do Proton 11, README e CHANGELOG do
-Proton-CachyOS, README do GE, README e `dxvk.conf` do DXVK, README do
-low_latency_layer e dos dois forks, docs do lsfg-vk) e lista as env vars do
-catálogo que nenhuma delas menciona, dizendo onde cada uma deveria ser
-conferida. Ele **não** falha o build: variável sem menção é quase sempre
-normal, porque DXVK_*, MANGOHUD* e LOW_LATENCY_LAYER* vivem em outros
-repositórios. Ele também tem uma lista de `REMOVIDAS` que é atualizada à mão
-— ao descobrir que o upstream tirou ou renomeou uma variável, acrescente lá
-**e** corrija a entrada.
+O `--online` baixa 15 fontes (script do Proton 11, README e CHANGELOG do
+Proton-CachyOS, README do GE, README e `dxvk.conf` do DXVK, release notes do
+DXVK 3.0, README do low_latency_layer e a issue #2 dele, README dos dois forks
+e as release notes do dxvk-low-latency, a discussion #2 do vkd3d-low-latency,
+o README do MangoHud e os docs do lsfg-vk) e lista as env vars do catálogo que
+nenhuma delas menciona, dizendo onde cada uma deveria ser conferida.
+
+Ele **falha** quando uma variável aparece sem fonte e sem justificativa. A
+lista do que é exceção está em `SEM_FONTE`, com o motivo de cada uma: são três
+(`DRI_PRIME` é do Mesa/X11 e não do Proton; `MESA_VK_WSI_PRESENT_MODE` é lida
+no código do Mesa, que está no GitLab atrás de anti-bot; `PROTON_FRAME_RATE`
+só existe no Proton-EM). Acrescentar uma variável nova ao catálogo sem
+acrescentar a fonte **ou** a justificativa quebra o `--online`. É esse
+mecanismo que fecha o buraco que a auditoria anterior tinha: `DXVK_FRAME_RATE` e
+`PROTON_FRAME_RATE` ficaram anos garantindo coisa que não acontecia, e nada
+reclamava porque o aviso era só informativo.
+
+O `--online` também tem uma lista de `REMOVIDAS` que é atualizada à mão — ao
+descobrir que o upstream tirou ou renomeou uma variável, acrescente lá **e**
+corrija a entrada.
 
 Quando o `--online` acusar algo, não acredite no script: abra a fonte
 apontada. Se for mesmo um erro, corrija a descrição e chame a variável de

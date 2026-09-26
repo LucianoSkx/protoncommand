@@ -1,3 +1,10 @@
+# v0.6.8
+
+## 🔧 O `--online` passou a falhar, não só a avisar
+
+- **Duas fontes a mais: README do MangoHud e as release notes do DXVK 3.0.** O MangoHud vive no GitLab (anti-bot), então entrou pelo espelho no GitHub; a remoção da `DXVK_FRAME_RATE` está nas release notes do 3.0. São 15 fontes agora, e a `DXVK_FRAME_RATE` saiu da lista de "sem menção".
+- **Variável sem fonte agora quebra o `--online`.** Antes ele só informava a lista, e foi exatamente por isso que seis variáveis passaram anos sem conferência: nada reclamava. Hoje há `SEM_FONTE`, com o motivo de cada exceção — `DRI_PRIME` é do Mesa/X11 e não do Proton, `MESA_VK_WSI_PRESENT_MODE` é lida no código do Mesa (GitLab com anti-bot, conferido à mão), `PROTON_FRAME_RATE` só existe no Proton-EM. Qualquer variável nova sem fonte e sem justificativa faz o comando sair com erro 1. Verificado: uma variável inventada no catálogo faz o `--online` falhar com mensagem dizendo o que fazer.
+
 # v0.6.7
 
 ## 🔎 Duas fontes a mais, e o que elas revelaram

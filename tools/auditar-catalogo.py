@@ -77,6 +77,11 @@ FONTES = {
     # PROTON_FORCE_NVAPI e LOW_LATENCY_LAYER_SPOOF_NVIDIA quebram o FSR4, e
     # qual é a combinação que funciona (FSR4 + Reflex + hideAmdGpu).
     "low_latency_issue2": "https://github.com/Korthos-Software/low_latency_layer/issues/2",
+    # MANGOHUD/MANGOHUD_CONFIG vivem no repositório do MangoHud, que é espelhado
+    # no GitHub (o canônico está no GitLab, atrás de anti-bot).
+    "mangohud": "https://raw.githubusercontent.com/flightlessmango/MangoHud/master/README.md",
+    # Release notes do DXVK 3.0, onde a remoção da DXVK_FRAME_RATE é declarada.
+    "dxvk_3_0_rel": "https://api.github.com/repos/doitsujin/dxvk/releases/tags/v3.0",
 }
 
 # variável -> o que o upstream diz que aconteceu com ela
@@ -203,6 +208,18 @@ def destino_de(var: str) -> str:
             return onde
     return "fonte não mapeada: adicione em DESTINO no auditor"
 
+
+# variável -> por que não aparece em nenhuma das fontes
+#
+# Antes o --online só *informava* essa lista e nunca falhava, e foi por isso que
+# seis variáveis passaram anos sem conferência. Agora qualquer variável sem
+# fonte que não esteja aqui faz o --online falhar: a lista conhecida fica
+# escrita, com o motivo, e o que for acrescentado sem fonte aparece na hora.
+SEM_FONTE = {
+    "DRI_PRIME": "do Mesa/X11, não é variável do Proton; nenhuma fonte do Proton vai mencionar",
+    "MESA_VK_WSI_PRESENT_MODE": "lida no código do Mesa (src/amd/vulkan), e o Mesa está no GitLab atrás de proteção anti-bot — conferido à mão, fora do script",
+    "PROTON_FRAME_RATE": "só existe no Proton-EM, que emula convertendo para a DXVK_CONFIG; não está no Proton upstream, nem no GE, nem no CachyOS",
+}
 
 # --------------------------------------------------------------------------- offline
 
@@ -361,12 +378,17 @@ def auditar_online(entradas: list[dict], cache: str) -> int:
 
     print("\n== env vars sem menção em nenhuma fonte ==")
     suspeitas = sorted(v for v in por_prefixo if v not in onde)
+    novas = [v for v in suspeitas if v not in SEM_FONTE]
     if not suspeitas:
         print("  (nenhuma)")
     for v in suspeitas:
-        onde_ = destino_de(v)
         print(f"  {v}")
-        print(f"      conferir em: {onde_}")
+        if v in SEM_FONTE:
+            print(f"      sem fonte por opção: {SEM_FONTE[v]}")
+        else:
+            print(f"      conferir em: {destino_de(v)}")
+            print(f"      SEM FONTE E SEM JUSTIFICATIVA — acrescentar em SEM_FONTE "
+                  f"ou incluir a fonte do projeto")
         for c in sorted(por_prefixo[v]):
             print(f"      entrada: {c}")
 
@@ -385,6 +407,13 @@ def auditar_online(entradas: list[dict], cache: str) -> int:
         print(f"  {v} -> {REMOVIDAS[v]}")
     if not citadas:
         print("  (nenhuma)")
+
+    if novas:
+        print(f"\n{len(novas)} variável(is) sem fonte e sem justificativa: "
+              f"{', '.join(novas)}", file=sys.stderr)
+        print("acrescente a fonte do projeto em FONTES, ou a variável em "
+              "SEM_FONTE com o motivo", file=sys.stderr)
+        return 1
 
     return 0
 
