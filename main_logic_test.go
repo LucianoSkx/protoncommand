@@ -796,6 +796,98 @@ func TestDocsObrigatorias(t *testing.T) {
 // versão anterior marcava selected[idxOf(...)]=true com índices -1 (WINE_ESYNC
 // e WINEFSYNC já tinham sido removidos do catálogo), que ninguém lê: o teste
 // passava mesmo com o detector quebrado.
+// Os dois spoofings juntos: o aviso precisa nomear os dois. Antes o segundo
+// sobrescrevia o primeiro e o usuário ficava sem saber que também havia
+// LOW_LATENCY_LAYER_SPOOF_NVIDIA marcado.
+func TestConflictFsr4DoisSpoofs(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("PROTON_FORCE_NVAPI=1 %command%")] = true
+	g.selected[idxOf("LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 %command%")] = true
+	g.selected[idxOf("PROTON_FSR4_UPGRADE=1 %command%")] = true
+	var found string
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "PROTON_FSR4_UPGRADE") {
+			found = w
+		}
+	}
+	if found == "" {
+		t.Fatalf("nenhum aviso: %v", g.conflicts())
+	}
+	// o cabeçalho é a parte que nomeia os culpados; o resto da mensagem
+	// cita PROTON_FORCE_NVAPI de qualquer forma, então ancorar no texto
+	// inteiro não distingue "um spoof" de "os dois".
+	cabecalho := found
+	if i := strings.Index(found, " não convivem"); i >= 0 {
+		cabecalho = found[:i]
+	}
+	for _, quer := range []string{"PROTON_FORCE_NVAPI", "LOW_LATENCY_LAYER_SPOOF_NVIDIA"} {
+		if !strings.Contains(cabecalho, quer) {
+			t.Errorf("cabeçalho do aviso não nomeia %s: %q", quer, cabecalho)
+		}
+	}
+	if !strings.Contains(cabecalho, " / ") {
+		t.Errorf("os dois spoofings deveriam vir juntos no cabeçalho: %q", cabecalho)
+	}
+}
+
+// varName devolve o nome da variável de um comando do catálogo, que é como
+// a mensagem de conflito identifica o culpado.
+func varName(cmd string) string {
+	if i := strings.IndexByte(cmd, '='); i >= 0 {
+		return cmd[:i]
+	}
+	return cmd
+}
+
+func TestConflictFsr4NvapiSpoof(t *testing.T) {
+	for _, spoof := range []string{
+		"PROTON_FORCE_NVAPI=1 %command%",
+		"LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 %command%",
+	} {
+		for _, upgrade := range []string{
+			"PROTON_FSR4_UPGRADE=1 %command%",
+			"PROTON_FSR4_RDNA3_UPGRADE=1 %command%",
+			"PROTON_FFX4_UPGRADE=1 %command%",
+		} {
+			g := testGUI("pt", "steam")
+			g.selected[idxOf(spoof)] = true
+			g.selected[idxOf(upgrade)] = true
+			var found []string
+			for _, w := range g.conflicts() {
+				// ancora nos dois nomes: ancorar so numa frase fixa deixa
+				// passar a mutacao que troca a variavel real por constante
+				// a mensagem traz os nomes das variáveis, sem valor nem
+				// %command%, então a ancora compara só o nome
+				if strings.Contains(w, varName(spoof)) && strings.Contains(w, varName(upgrade)) {
+					found = append(found, w)
+				}
+			}
+			if len(found) == 0 {
+				t.Errorf("%s + %s deveria avisar nomeando os dois, veio %v", spoof, upgrade, g.conflicts())
+			}
+		}
+	}
+}
+
+// TestSemConflictFsr4Sozinho: o spoof ou o upgrade sozinho não é conflito.
+func TestSemConflictFsr4Sozinho(t *testing.T) {
+	for _, so := range []string{
+		"PROTON_FORCE_NVAPI=1 %command%",
+		"LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 %command%",
+		"PROTON_FSR4_UPGRADE=1 %command%",
+		"PROTON_FSR4_RDNA3_UPGRADE=1 %command%",
+		"PROTON_FFX4_UPGRADE=1 %command%",
+	} {
+		g := testGUI("pt", "steam")
+		g.selected[idxOf(so)] = true
+		for _, w := range g.conflicts() {
+			if strings.Contains(w, "WINE_HIDE_AMD_GPU") {
+				t.Errorf("%s sozinho não deveria avisar: %q", so, w)
+			}
+		}
+	}
+}
+
 // upscalingSemAncora e a dívida conhecida: 14 entradas de upscaling não
 // têm âncora. Várias delas (integer scaling, FSR strength) não citam nenhum
 // identificador técnico na descrição, então "ancorar" seria fixar frase —

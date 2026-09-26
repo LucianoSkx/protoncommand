@@ -1,3 +1,28 @@
+# v0.6.5
+
+## 🐛 Aviso de conflito que faltava
+
+- **Spoofing de GPU junto com upgrade FSR4 era montado em silêncio.** O README do low_latency_layer diz, textualmente, que `PROTON_FORCE_NVAPI` e `LOW_LATENCY_LAYER_SPOOF_NVIDIA` quebram o caminho de upgrade do FSR 4 — "known to break", não é caso raro — e o motivo está no script do Proton: `PROTON_FORCE_NVAPI` define `WINE_HIDE_AMD_GPU=1` sem condição, e é justamente esconder a AMD que impede o upgrade. O app já avisava do conflito irmão (`DISABLE_LAYER_MESA_ANTI_LAG` × `PROTON_FSR4_UPGRADE`) e não deste: as seis combinações saíam com zero aviso, e em RDNA3 o jogo cai para FSR 3.1 sem o usuário entender por quê. A regra cobre as três variáveis de upgrade, incluindo `PROTON_FFX4_UPGRADE`, que é o nome atual no CachyOS 11+ e o caminho que a primeira versão da regra deixava passar. Os dois spoofings são somados em vez de sobrescritos, senão o segundo sumia do aviso.
+
+## 📝 Descrições reestruturadas
+
+Dez descrições longas (de 756 a 1496 caracteres) eram um parágrafo único com várias ideias espremidas — a pior tinha seis, entre elas "não use no D3D12" e "o que fazer em vez disso", sem separação. Agora são blocos rotulados, com o conteúdo verificado preservado por bloco (nenhum identificador técnico foi perdido na reescrita, checado por script) e paridade de blocos entre PT e EN.
+
+- O `LSFGVK_PROFILE` tinha o bloco de migração da v2.0.0 (Vulkan 1.2, FP16 2:1, incompatibilidade com a v1) **só em PT** — o usuário inglês perdia a informação de migração.
+- Três erros de fato foram corrigidos no caminho: `default_cpu_limit` tem **20** jogos, não 19; a implementação nativa de `VK_AMD_anti_lag` no RADV (MR 42048) está **em aberto**, não mergeada; e o teto de 5% do modo VRR é sobrescrito **por `DXVK_FRAME_RATE`**, não ajustado dentro do próprio modo.
+- A alternativa ao `PROTON_FORCE_NVAPI` estava com `DXVK_NVAPI_ALLOW_OTHER_DRIVERS=1` **dentro** das aspas do `DXVK_CONFIG` — o DXVK separa opções por `;`, então aquilo virava uma opção inválida e a variável nunca era definida. A variável fica fora das aspas.
+
+## 📝 Afirmação sem fonte, corrigida
+
+Duas descrições atribuíam ao mantenedor dos forks uma recomendação que não está no README de nenhum deles. Fui verificar na fonte primária antes de mexer, e o que a fonte diz é outra coisa:
+
+- `DXVK_FRAME_RATE` dizia, nos dois idiomas, que combinar com o `DXVK_FRAME_PACE` "sobrepõe dois limitadores, que é justamente o que piora a latência — o mantenedor do fork é explícito em usar um só". O release 3.1.1 do `dxvk-low-latency` diz outra coisa: *"The fps cap is set by default to 5% below maximum refresh rate and can be overridden by setting it manually"*. Existe teto interno e ele pode ser sobrescrito — mas o upstream **não** afirma nada sobre somar um segundo limitador. O texto passou a trazer o fato verificável e a dizer explicitamente que a soma não é coberta pelo upstream.
+- `VKD3D_FRAME_RATE` dizia que o limitador "tem prioridade sobre o fps cap do Reflex e sobre o in-game, e o mantenedor é explícito". O README do `vkd3d-low-latency` só diz *"FPS limiting is fully integrated into the frame pacing logic"* — integrated, sim; com prioridade declarada, não. A afirmação órfã que sobrava no `PROTON_VKD3D_LOWLATENCY` vizinho foi corrigida pelo mesmo motivo.
+
+## ⚠️ Dívida registrada
+
+14 entradas de **Upscaling** não têm âncora em `docsObrigatorias`, contra 7 de 7 de Latência. Várias (integer scaling, FSR strength) não citam identificador técnico na descrição, então "ancorar" seria fixar frase — o que o AGENTS.md proíbe. Enquanto isso não for resolvido reescrevendo as descrições com fonte, `upscalingSemAncora` congela a lista: entrada nova sem âncora reprova o teste.
+
 # v0.6.4
 
 ## 🐛 Análise do estado atual

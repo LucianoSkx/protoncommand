@@ -24,6 +24,21 @@ func (g *gui) wrapperBin(c Command) string {
 	return ""
 }
 
+// uniq preserva a ordem de-appearance e remove repetidos, para não
+// duplicar aviso quando a mesma variável vem em receitas diferentes.
+func uniq(in []string) []string {
+	visto := map[string]bool{}
+	var out []string
+	for _, v := range in {
+		if visto[v] {
+			continue
+		}
+		visto[v] = true
+		out = append(out, v)
+	}
+	return out
+}
+
 func (g *gui) isWrapper(c Command) bool {
 	return g.wrapperBin(c) != ""
 }
@@ -124,6 +139,8 @@ func (g *gui) conflicts() []string {
 	var antiLagSo, reflexSo, antiLagComReflex bool
 	hasMesaAntiLag, hasFsr4Upgrade := false, false
 	hasNvidiaLibs, hasWow64 := false, false
+	var spoofNvidia []string
+	var fsr4Upgrades []string
 	wrapperVisto := map[string]string{}
 	for i := range g.all {
 		if !g.selected[i] {
@@ -146,10 +163,21 @@ func (g *gui) conflicts() []string {
 				hasMesaAntiLag = true
 			case "PROTON_FSR4_UPGRADE":
 				hasFsr4Upgrade = true
+				fsr4Upgrades = append(fsr4Upgrades, name)
+			case "PROTON_FSR4_RDNA3_UPGRADE", "PROTON_FFX4_UPGRADE":
+				// PROTON_FFX4_UPGRADE é o nome atual do upgrade de FSR 4 no
+				// CachyOS 11+ e controla as mesmas versões (CHANGELOG do
+				// CachyOS). Sem ele aqui, a regra pegava o nome antigo e
+				// deixava passar o caminho que está em uso hoje.
+				fsr4Upgrades = append(fsr4Upgrades, name)
 			case "PROTON_NVIDIA_LIBS":
 				hasNvidiaLibs = true
 			case "PROTON_USE_WOW64":
 				hasWow64 = true
+			case "PROTON_FORCE_NVAPI":
+				spoofNvidia = append(spoofNvidia, "PROTON_FORCE_NVAPI=1")
+			case "LOW_LATENCY_LAYER_SPOOF_NVIDIA":
+				spoofNvidia = append(spoofNvidia, "LOW_LATENCY_LAYER_SPOOF_NVIDIA=1")
 			}
 			if tok == "%command%" || tok == "--" {
 				continue
@@ -203,6 +231,16 @@ func (g *gui) conflicts() []string {
 	}
 	if hasMesaAntiLag && hasFsr4Upgrade {
 		out = append(out, g.tr("conflictMesaAntiLagFsr4"))
+	}
+	// Spoofing de GPU + upgrade FSR4: o README do low_latency_layer diz que
+	// PROTON_FORCE_NVAPI e LOW_LATENCY_LAYER_SPOOF_NVIDIA quebram o caminho
+	// de upgrade FSR4, e não é caso raro. Sem esta regra o app montava a
+	// combinação sem aviso e o jogo caía para FSR 3.1 sozinho.
+	if len(spoofNvidia) > 0 {
+		spoofs := uniq(spoofNvidia)
+		for _, up := range uniq(fsr4Upgrades) {
+			out = append(out, fmt.Sprintf(g.tr("conflictFsr4NvapiSpoof"), strings.Join(spoofs, " / "), up))
+		}
 	}
 	if hasNvidiaLibs && hasWow64 {
 		out = append(out, g.tr("conflictNvidiaLibsWow64"))
