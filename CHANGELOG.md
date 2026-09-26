@@ -1,9 +1,43 @@
 # v0.6.8
 
-## 🔧 O `--online` passou a falhar, não só a avisar
+O valor do app é a descrição técnica estar correta: uma variável descrita
+errado faz o usuário gastar tempo com uma configuração que não funciona, ou
+que derruba o desempenho. `tools/auditar-catalogo.py` existe para isso, e esta
+release fecha a lacuna que fazia a auditoria parecer mais forte do que era.
 
-- **Duas fontes a mais: README do MangoHud e as release notes do DXVK 3.0.** O MangoHud vive no GitLab (anti-bot), então entrou pelo espelho no GitHub; a remoção da `DXVK_FRAME_RATE` está nas release notes do 3.0. São 15 fontes agora, e a `DXVK_FRAME_RATE` saiu da lista de "sem menção".
-- **Variável sem fonte agora quebra o `--online`.** Antes ele só informava a lista, e foi exatamente por isso que seis variáveis passaram anos sem conferência: nada reclamava. Hoje há `SEM_FONTE`, com o motivo de cada exceção — `DRI_PRIME` é do Mesa/X11 e não do Proton, `MESA_VK_WSI_PRESENT_MODE` é lida no código do Mesa (GitLab com anti-bot, conferido à mão), `PROTON_FRAME_RATE` só existe no Proton-EM. Qualquer variável nova sem fonte e sem justificativa faz o comando sair com erro 1. Verificado: uma variável inventada no catálogo faz o `--online` falhar com mensagem dizendo o que fazer.
+**O que a auditoria promete conferir**
+
+- Cada entrada termina em `%command%`, é única e tem PT e EN em título,
+  categoria, compatibilidade e descrição.
+- Nenhuma env var aparece duas vezes com valores diferentes, wrapper fica na
+  primeira posição e env var nunca entra entre flags ou depois de `--`.
+- Nenhuma variável do catálogo afirma comportamento sem fonte. O `--online`
+  cruza 15 fontes upstream (script do Proton 11, GE, Proton-CachyOS, DXVK e
+  suas release notes, low_latency_layer e a issue dele, os dois forks e as
+  release notes do dxvk-low-latency, a discussion do vkd3d-low-latency, o
+  MangoHud e o lsfg-vk) e **falha** se uma variável nova aparecer sem menção
+  em nenhuma delas e sem justificativa escrita em `SEM_FONTE`. Antes ele só
+  imprimia um aviso — foi por isso que `DXVK_FRAME_RATE` e `PROTON_FRAME_RATE`
+  ficaram anos garantindo coisa que não acontecia sem ninguém ser obrigado a
+  agir.
+- Texto corrompido, verbo inglês na descrição PT e palavra portuguesa na
+  descrição EN reprovam o `--offline` no CI.
+
+**O que mudou nesta release**
+
+- Duas fontes a mais: README do MangoHud (entrou pelo espelho no GitHub, já
+  que o canônico está no GitLab atrás de anti-bot) e as release notes do
+  DXVK 3.0, onde a remoção da `DXVK_FRAME_RATE` é declarada. São 15 fontes, e
+  a `DXVK_FRAME_RATE` saiu da lista de "sem menção".
+- As três exceções que restam estão escritas com o motivo, não escondidas:
+  `DRI_PRIME` é do Mesa/X11 e não do Proton; `MESA_VK_WSI_PRESENT_MODE` é
+  lida no código do Mesa, que está no GitLab atrás de anti-bot, então é
+  conferida à mão; `PROTON_FRAME_RATE` só existe no Proton-EM, que emula
+  convertendo para a `DXVK_CONFIG`.
+- O parser lia o literal cru da descrição, então os checks de texto não viam
+  as quebras de bloco nem as aspas reais. Cinco âncoras travam agora o texto
+  que vem depois de uma aspa escapada, que é justamente o que sumiria sem
+  ninguém perceber.
 
 # v0.6.7
 
