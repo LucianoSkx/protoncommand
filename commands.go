@@ -506,8 +506,8 @@ func commands() []Command {
 				EN: "GE (Wine-Wayland; replace with your .exe name)",
 			},
 			Description: Localized{
-				PT: "Sob Wine-Wayland, força o winex11.drv (XWayland) só para o executável que você nomear, deixando o resto no Wayland nativo. Aceita o basename exato, como Launcher.exe, ou um fragmento de caminho Windows sem distinção de maiúsculas, tipo Vendor\\Launcher.exe. É para quando um launcher ou um jogo específico abre janela branca no Wayland mas o resto do título funciona bem lá — o oposto de PROTON_ENABLE_WINED3D, que joga o jogo inteiro no XWayland. Troque o valor pelo seu executável antes de colar.",
-				EN: "Under Wine-Wayland, forces winex11.drv (XWayland) only for the executable you name, leaving everything else on native Wayland. It takes an exact basename such as Launcher.exe, or a case-insensitive Windows path fragment like Vendor\\Launcher.exe. It's for when a specific launcher or game shows a white window on Wayland while the rest of the title works fine there — the opposite of PROTON_ENABLE_WINED3D, which sends the whole game to XWayland. Replace the value with your executable before pasting.",
+				PT: "Sob Wine-Wayland, força o winex11.drv (XWayland) só para o executável que você nomear, deixando o resto no Wayland nativo. Aceita o basename exato, como Launcher.exe, ou um fragmento de caminho Windows sem distinção de maiúsculas, tipo Vendor\\Launcher.exe. É para quando um launcher ou um jogo específico abre janela branca no Wayland mas o resto do título funciona bem lá. Só tem efeito sob Wine-Wayland (PROTON_ENABLE_WAYLAND ligado) — sem ela o jogo inteiro já está no winex11.drv e este comando não muda nada. Troque o valor pelo seu executável antes de colar.",
+				EN: "Under Wine-Wayland, forces winex11.drv (XWayland) only for the executable you name, leaving everything else on native Wayland. It takes an exact basename such as Launcher.exe, or a case-insensitive Windows path fragment like Vendor\\Launcher.exe. It's for when a specific launcher or game shows a white window on Wayland while the rest of the title works fine there. Only takes effect under Wine-Wayland (PROTON_ENABLE_WAYLAND on) — without it the whole game is already on winex11.drv and this changes nothing. Replace the value with your executable before pasting.",
 			},
 		},
 		{
@@ -658,7 +658,7 @@ func commands() []Command {
 				EN: "GE",
 			},
 			Description: Localized{
-				PT: "Ligado por padrão, e por isso o comando aqui é o inverso: PROTON_SONY_AUTO_XINPUT=0 desliga. Ele substitui a lista geral de forçar XInput por jogo, oferecendo um fallback XInput da Sony com VID/PID de DirectInput Xbox correspondentes, mantendo o HID nativo disponível; e recolhe o fallback automático e a projeção de identidade desse controle quando o processo consome entrada HID nativa. Onde houver suporte, o Steam Input reporta identidade e origem dos botões como DS4 ou DS5. Steam Input real e as sobreposições explícitas de compatibilidade Sony têm prioridade. Desligue quando o jogo se*''confundir com o controle ou quando você já usa o Steam Input. Mais detalhes em docs/CONTROLLERS.md do Proton-GE.",
+				PT: "Ligado por padrão, e por isso o comando aqui é o inverso: PROTON_SONY_AUTO_XINPUT=0 desliga. Ele substitui a lista geral de forçar XInput por jogo, oferecendo um fallback XInput da Sony com VID/PID de DirectInput Xbox correspondentes, mantendo o HID nativo disponível; e recolhe o fallback automático e a projeção de identidade desse controle quando o processo consome entrada HID nativa. Onde houver suporte, o Steam Input reporta identidade e origem dos botões como DS4 ou DS5. Steam Input real e as sobreposições explícitas de compatibilidade Sony têm prioridade. Desligue quando o jogo se confundir com o controle ou quando você já usa o Steam Input. Mais detalhes em docs/CONTROLLERS.md do Proton-GE.",
 				EN: "Enabled by default, which is why the command here is the inverse: PROTON_SONY_AUTO_XINPUT=0 turns it off. It replaces the general per-game forced-XInput list, providing a Sony XInput fallback with matching Xbox DirectInput VID/PID while keeping native HID available; and it withdraws that controller's automatic fallback and identity projection when the process consumes native HID input. Where available, Steam Input reports DS4 or DS5 identity and button origins. Real Steam Input and explicit Sony compatibility overrides take priority. Turn it off when the game gets confused about the controller, or when you already use Steam Input. More detail in Proton-GE's docs/CONTROLLERS.md.",
 			},
 		},
@@ -1417,8 +1417,8 @@ func commands() []Command {
 				EN: "GE (NVIDIA GPU)",
 			},
 			Description: Localized{
-				PT: "Desativa a biblioteca NVAPI dentro do Proton. Use se o NVAPI (PROTON_ENABLE_NVAPI=1) estiver causando crashes ou bugs em algum jogo.",
-				EN: "Disables the NVAPI library inside Proton. Use if NVAPI (PROTON_ENABLE_NVAPI=1) is causing crashes or bugs in some game.",
+				PT: "Desativa a biblioteca NVAPI dentro do Proton. Ela vem ligada por padrão — o script do Proton só não define DXVK_ENABLE_NVAPI=1 quando o compat config traz disablenvapi —, então use este comando quando a NVAPI estiver causando crashes ou bugs em algum jogo.",
+				EN: "Disables the NVAPI library inside Proton. It is on by default — the Proton script only skips DXVK_ENABLE_NVAPI=1 when the compat config carries disablenvapi — so use this when NVAPI is causing crashes or bugs in some game.",
 			},
 		},
 		{
@@ -1639,7 +1639,7 @@ func commands() []Command {
 				EN: "CachyOS 11+ (AMD GPU)",
 			},
 			Description: Localized{
-				PT: "Nome atual do upgrade de FSR 4 no Proton-CachyOS 11+, no mesmo movimento em que PROTON_FSR3_UPGRADE virou PROTON_FFX3_UPGRADE. As versões são as mesmas controladas por PROTON_FSR4_UPGRADE — o FFX4 só muda o nome; e, segundo o CHANGELOG, quando o OptiScaler está ativo as duas continuam controlling as mesmas versões, para não quebrar configuração existente. Use este se quiser o nome novo. Atenção: vem com DISABLE_LAYER_MESA_ANTI_LAG=1 (a camada Anti-Lag 2 do Mesa é desligada junto, por causa da issue 47), e o frame generation MLFG liga por padrão nesse caso — desligue com PROTON_MLFG_UPGRADE=0. O README do Proton-CachyOS lista a variável sem descrição, então a fonte aqui é o CHANGELOG da release 11.0-20260703.",
+				PT: "Nome atual do upgrade de FSR 4 no Proton-CachyOS 11+, no mesmo movimento em que PROTON_FSR3_UPGRADE virou PROTON_FFX3_UPGRADE. As versões são as mesmas controladas por PROTON_FSR4_UPGRADE — o FFX4 só muda o nome; e, segundo o CHANGELOG, quando o OptiScaler está ativo as duas continuam controlando as mesmas versões, para não quebrar configuração existente. Use este se quiser o nome novo. Atenção: vem com DISABLE_LAYER_MESA_ANTI_LAG=1 (a camada Anti-Lag 2 do Mesa é desligada junto, por causa da issue 47), e o frame generation MLFG liga por padrão nesse caso — desligue com PROTON_MLFG_UPGRADE=0. O README do Proton-CachyOS lista a variável sem descrição, então a fonte aqui é o CHANGELOG da release 11.0-20260703.",
 				EN: "Current name of the FSR 4 upgrade in Proton-CachyOS 11+, in the same move that renamed PROTON_FSR3_UPGRADE to PROTON_FFX3_UPGRADE. The versions are the same ones PROTON_FSR4_UPGRADE controls — FFX4 only changes the name; and per the changelog, when OptiScaler is active both still control the same versions so existing setups keep working. Use this if you prefer the new name. Note that it ships with DISABLE_LAYER_MESA_ANTI_LAG=1 (the Mesa Anti-Lag 2 layer gets turned off too, because of issue 47), and MLFG frame generation turns on by default in that case — turn it off with PROTON_MLFG_UPGRADE=0. The Proton-CachyOS README lists the variable with no description, so the source here is the changelog for release 11.0-20260703.",
 			},
 		},

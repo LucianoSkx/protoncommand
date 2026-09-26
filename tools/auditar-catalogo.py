@@ -163,6 +163,35 @@ def destino_de(var: str) -> str:
 
 # --------------------------------------------------------------------------- offline
 
+# Resto de edição em texto: aspas órfãos e asterisco colado em letra.
+# Já apareceu "o jogo se*''confundir" em commands.go por um replace mal
+# feito, e nenhum teste pegou — o texto é lido por gente, não compilado.
+GLITCH = re.compile(r"[A-Za-z]''|\*''|[A-Za-z]\*[A-Za-z']")
+
+# Inflexão gramatical inglesa dentro do texto em português. Já apareceu
+# "as duas continuam controlling as mesmas versões". Termo técnico de
+# área (timing, pacing, spoofing, clipping, rendering) é aceito: a lista
+# é só de verbo em inglês conjugado, que em PT sairia como gerúndio.
+INGLES_NO_PT = re.compile(
+    r"\b(controlling|enabling|disabling|running|using|setting|getting|"
+    r"turning|showing|making|giving|taking|leaving|allowing|forcing|"
+    r"replacing|removing|adding|meaning|working|looking|keeping|"
+    r"putting|calling|reading|writing)\b",
+    re.I,
+)
+
+# Palavra gramatical portuguesa dentro do texto em inglês, o caminho
+# inverso do erro anterior. Identificador técnico não entra aqui.
+# O sufixo -ção/-ções precisa de \w* antes: \b não existe à esquerda do
+# ç, então a forma simples casa só a palavra isolada e nunca aparece.
+PT_NO_EN = re.compile(
+    r"\b\w*(?:ção|ções)\b|"
+    r"\b(não|quando|você|está|sempre|assim|jogo|cada|também|"
+    r"porque|entre|antes|depois|mesma|mesmo|outro|outra)\b",
+    re.I,
+)
+
+
 def auditar_offline(entradas: list[dict]) -> int:
     problemas: list[str] = []
     vistas: dict[str, str] = {}
@@ -180,6 +209,23 @@ def auditar_offline(entradas: list[dict]) -> int:
                         f"{nome}.{'PT' if idioma == 0 else 'EN'} vazio em {cmd!r}")
         if not e["compat"][0].strip():
             problemas.append(f"compat vazio em {cmd!r}")
+        for nome in ("title", "category", "compat", "description"):
+            for idioma, rotulo in ((0, "PT"), (1, "EN")):
+                achado = GLITCH.search(e[nome][idioma])
+                if achado:
+                    problemas.append(
+                        f"{nome}.{rotulo} com resto de edição em {cmd!r}: "
+                        f"{achado.group()!r}")
+        for nome in ("title", "category", "compat", "description"):
+            achado = INGLES_NO_PT.search(e[nome][0])
+            if achado:
+                problemas.append(
+                    f"{nome}.PT com verbo inglês em {cmd!r}: {achado.group()!r}")
+            achado = PT_NO_EN.search(e[nome][1])
+            if achado:
+                problemas.append(
+                    f"{nome}.EN com palavra portuguesa em {cmd!r}: "
+                    f"{achado.group()!r}")
         toks = cmd.split()
         idx_flags = [i for i, t in enumerate(toks) if t.startswith("-") and t != "--"]
         sep = toks.index("--") if "--" in toks else None

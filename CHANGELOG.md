@@ -1,3 +1,20 @@
+# v0.6.4
+
+## 🐛 Análise do estado atual
+
+Uma revisão independente do repositório inteiro (não só de um diff) encontrou seis defeitos. Três eram de conteúdo — a regra de ouro do app — e três de teste.
+
+- **A descrição de `PROTON_USE_X11_EXCLUSIVE` citava `PROTON_ENABLE_WINED3D`, variável que não existe em nenhuma das 10 fontes auditadas.** Existe só `PROTON_USE_WINED3D` (renderizador OpenGL) e `PROTON_ENABLE_WAYLAND`. O texto agora diz o que de fato acontece: sob Wine-Wayland o comando isola o `winex11.drv` no executável nomeado, e sem `PROTON_ENABLE_WAYLAND` o jogo inteiro já está no `winex11.drv`, então o comando não muda nada — a pré-condição, que faltava.
+- **A descrição de `PROTON_DISABLE_NVAPI` mandava usar `PROTON_ENABLE_NVAPI=1`**, comando que o próprio catálogo removeu e que `TestNoObsoleteCommands` proíbe. A referência saiu, e o texto passou a registrar a pré-condição verificada no script do Proton 11: `DXVK_ENABLE_NVAPI=1` é definido por padrão, a menos que o compat config traga `disablenvapi`.
+- **Texto PT corrompido (`se*''confundir`) e palavra inglesa no PT (`controlling`).** Nenhum teste pegava as duas — e nem pegaria, porque o texto é lido por gente. O `--offline` do auditor ganhou três invariantes: resto de edição em qualquer campo, verbo inglês na descrição PT e palavra portuguesa na descrição EN (as três com zero falso positivo hoje, calibradas contra o catálogo inteiro).
+- **`TestNoConflictSameValue` era tautológico.** Marcava `selected[idxOf(...)]=true` para `WINE_ESYNC` e `WINEFSYNC`, comandos já removidos do catálogo — `idxOf` devolvia `-1` e `conflicts()` varre `g.all`, então ninguém lia a chave. O teste passava mesmo com o detector quebrado. Virou catálogo sintético, e a mutação (`len(vals[k]) >= 1`) agora o derruba.
+- **`TestConflictSemConflitoDeAspas` era cópia literal de `TestConflictDuplicate`**, com o nome prometendo o contrário do corpo: nenhum teste de aspas existia no detector de conflitos. Virou `TestConflictValoresComAspas`, que quebra se o tokenizador ceder àspa.
+- **O import de favoritos não migrava a chave antiga.** `carregarFavs` já migrava `Command\x00Título` desde a v0.6.3, mas `hasKnownFavKey` e `filterNewFavKey` continuavam rejeitando: um backup exportado na v0.6.2 era lido como arquivo inválido, e numa lista mista as chaves antigas sumiam sem aviso. A migração foi centralizada em `normalizeFavKey` e aplicada nos três pontos, com teste para chave nova, chave conhecida e chave já favorita.
+
+## 📋 Dívida registrada
+
+14 entradas de **Upscaling** não têm âncora em `docsObrigatorias`, contra 7 de 7 de Latência. Várias (integer scaling, FSR strength) não citam nenhum identificador técnico na descrição, então "ancorar" seria fixar frase — o que o AGENTS.md proíbe. Enquanto isso não é resolvido reescrevendo as descrições com verificação de fonte, `upscalingSemAncora` congela a lista: entrada nova de upscaling sem âncora reprova o teste, e entrada que ganhar âncora precisa sair da lista.
+
 # v0.6.3
 
 ## 🐛 Correções da segunda rodada (revisão das correções anteriores)

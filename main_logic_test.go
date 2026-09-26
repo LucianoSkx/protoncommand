@@ -598,6 +598,13 @@ func TestCombinationLowLatenciaVrr(t *testing.T) {
 // extensão, arquivo ou número de versão — não prosa — então o teste
 // protege os fatos sem travar a redação.
 var docsObrigatorias = map[string][]string{
+	"DXVK_NVAPI_VKREFLEX=1 %command%": {
+		"dxvk-nvapi",
+		"Portal RTX",
+		"Path of Exile 1/2",
+		"Doom TDA",
+		"Vulkan",
+	},
 	"PROTON_VKD3D_LOWLATENCY=1 %command%": {
 		"waitable dxgi swapchain present percentage",
 		"PROTON_LOG=1",
@@ -783,12 +790,78 @@ func TestDocsObrigatorias(t *testing.T) {
 	}
 }
 
+// TestNoConflictSameValue: duas receitas com a mesma variável e o mesmo
+// valor não são conflito — só valores diferentes da mesma chave brigam.
+// O teste usa catálogo sintético porque conflicts() varre g.all, e a
+// versão anterior marcava selected[idxOf(...)]=true com índices -1 (WINE_ESYNC
+// e WINEFSYNC já tinham sido removidos do catálogo), que ninguém lê: o teste
+// passava mesmo com o detector quebrado.
+// upscalingSemAncora e a dívida conhecida: 14 entradas de upscaling não
+// têm âncora. Várias delas (integer scaling, FSR strength) não citam nenhum
+// identificador técnico na descrição, então "ancorar" seria fixar frase —
+// justamente o que o AGENTS.md proíbe. Enquanto isso não é resolvido
+// reescrevendo as descrições com verificação de fonte, a lista congela a
+// dívida: qualquer entrada NOVA de upcaling sem âncora reprova o teste.
+var upscalingSemAncora = map[string]bool{
+	"WINE_FULLSCREEN_FSR=1 %command%":             true,
+	"WINE_FULLSCREEN_INTEGER_SCALING=1 %command%": true,
+	"PROTON_DLSS_UPGRADE=1 %command%":             true,
+	"PROTON_USE_OPTISCALER=1 %command%":           true,
+	"WINE_FULLSCREEN_FSR_STRENGTH=2 %command%":    true,
+	"gamescope -e -f -F fsr -- %command%":         true,
+	"PROTON_FSR4_INDICATOR=1 %command%":           true,
+	"PROTON_FSR4_RDNA3_UPGRADE=1 %command%":       true,
+	"PROTON_FSR3_UPGRADE=1 %command%":             true,
+	"PROTON_FFX3_UPGRADE=1 %command%":             true,
+	"PROTON_XESS_UPGRADE=1 %command%":             true,
+	"PROTON_DLSS_INDICATOR=1 %command%":           true,
+	"PROTON_OPTISCALER_NAME=dxgi.dll %command%":   true,
+	"PROTON_OPTISCALER_CONFIG=\"Upscalers.Dx11Upscaler=fsr31;Upscalers.Dx12Upscaler=dlss\" %command%": true,
+}
+
+// TestTodasLatenciaAncoradas executa a regra do AGENTS.md. Sem isto,
+// apagar um pedaço de descrição não quebra nada — a regra existia só no
+// texto, e foi assim que DXVK_NVAPI_VKREFLEX ficou sem âncora: eram 6 de
+// 7 entradas de latência cobertas (docsObrigatorias tem 25 chaves no total,
+// espalhadas por várias categorias, não só latência).
+func TestTodasLatenciaAncoradas(t *testing.T) {
+	for i, c := range commands() {
+		_, ancorada := docsObrigatorias[c.Command]
+		switch c.Category.PT {
+		case "Latência":
+			if !ancorada {
+				t.Errorf("latência sem âncora: [%d] %q", i, c.Command)
+			}
+		case "Upscaling":
+			if !ancorada && !upscalingSemAncora[c.Command] {
+				t.Errorf("upscaling nova sem âncora: [%d] %q", i, c.Command)
+			}
+			if ancorada && upscalingSemAncora[c.Command] {
+				t.Errorf("entrada já ancorada ficou na lista de dívida, tire de upscalingSemAncora: %q", c.Command)
+			}
+		}
+	}
+	// e a lista não pode envelhecer: se uma sair do catálogo, apaga daqui.
+	validas := make(map[string]bool)
+	for _, c := range commands() {
+		validas[c.Command] = true
+	}
+	for cmd := range upscalingSemAncora {
+		if !validas[cmd] {
+			t.Errorf("dívida referencia comando inexistente: %q", cmd)
+		}
+	}
+}
+
 func TestNoConflictSameValue(t *testing.T) {
 	g := testGUI("pt", "steam")
-	g.selected[idxOf("WINE_ESYNC=1 %command%")] = true
-	g.selected[idxOf("WINEFSYNC=1 %command%")] = true
+	g.all = []Command{
+		{Command: "FOO=1 %command%"},
+		{Command: "FOO=1 %command%"},
+	}
+	g.selected = map[int]bool{0: true, 1: true}
 	if warns := g.conflicts(); len(warns) != 0 {
-		t.Fatalf("expected no conflict, got %v", warns)
+		t.Fatalf("mesmo valor não pode conflitar, got %v", warns)
 	}
 }
 
@@ -1204,22 +1277,38 @@ func TestCombinationWrappersPorUltimo(t *testing.T) {
 	}
 }
 
-// TestConflictSemConflitoDeAspas verifica que valores entre aspas
-// não geram falsos positivos.
-func TestConflictSemConflitoDeAspas(t *testing.T) {
+// TestConflictValoresComAspas: valor entre aspas tem que ser um token só.
+// Se o tokenizador ceder àspa, `DXVK_CONFIG="a = 1"` vira `DXVK_CONFIG="a`,
+// `=` e `1"` e a chave nem aparece — o conflito deixa de ser detectado em
+// silêncio. Antes isto era uma cópia literal de TestConflictDuplicate com
+// outro nome, ou seja, nenhum teste de aspas existia.
+func TestConflictValoresComAspas(t *testing.T) {
 	g := testGUI("pt", "steam")
-	// Seleciona dois comandos com PROTON_LOG (mesmo valor, sem conflito)
-	g.selected[idxOf("PROTON_LOG=1 %command%")] = true
-	g.selected[idxOf("PROTON_LOG=warn+pipewire,warn+mmdevapi %command%")] = true
-	warns := g.conflicts()
+	g.all = []Command{
+		{Command: `DXVK_CONFIG="dxgi.maxFrameRate = 60" %command%`},
+		{Command: `DXVK_CONFIG="dxgi.maxFrameRate = 144" %command%`},
+	}
+	g.selected = map[int]bool{0: true, 1: true}
 	found := false
-	for _, w := range warns {
-		if strings.Contains(w, "PROTON_LOG") {
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "DXVK_CONFIG") {
 			found = true
 		}
 	}
 	if !found {
-		t.Fatal("deveria detectar conflito de PROTON_LOG com valores diferentes")
+		t.Fatalf("deveria conflitar por valor diferente, got %v", g.conflicts())
+	}
+
+	g2 := testGUI("pt", "steam")
+	g2.all = []Command{
+		{Command: `DXVK_CONFIG="dxgi.maxFrameRate = 60" %command%`},
+		{Command: `DXVK_CONFIG="dxgi.maxFrameRate = 60" %command%`},
+	}
+	g2.selected = map[int]bool{0: true, 1: true}
+	for _, w := range g2.conflicts() {
+		if strings.Contains(w, "DXVK_CONFIG") {
+			t.Fatalf("mesmo valor entre aspas não pode conflitar: %q", w)
+		}
 	}
 }
 
@@ -1675,6 +1764,44 @@ func TestProcessFavImport(t *testing.T) {
 	added, ok = processFavImport([]string{}, valid, map[string]bool{})
 	if ok || added != 0 {
 		t.Fatalf("processFavImport lista vazia: added=%d ok=%v, esperado 0/false", added, ok)
+	}
+}
+
+// TestImportFavoritosAntigos: backup exportado na v0.6.2 ou anterior traz
+// "Command\x00Título". carregarFavs já migrava, mas o import não — o
+// arquivo velho era rejeitado como inválido (favsInvalidFile) e, numa
+// lista mista, as chaves antigas sumiam sem aviso. Mesmo defeito, outro
+// caminho.
+func TestImportFavoritosAntigos(t *testing.T) {
+	g := testGUI("pt", "steam")
+	valid := g.validFavKeys()
+	var cmd string
+	for k := range valid {
+		cmd = k
+		break
+	}
+	velha := cmd + "\x00Título antigo"
+
+	if !hasKnownFavKey([]string{velha}, valid) {
+		t.Fatal("hasKnownFavKey não reconheceu chave antiga")
+	}
+	existing := map[string]bool{}
+	added := filterNewFavs([]string{velha}, valid, existing)
+	if added == nil || len(added) != 1 || added[0] != cmd {
+		t.Fatalf("filterNewFavs devolveu %q, esperava [%q]", added, cmd)
+	}
+	n, ok := processFavImport([]string{velha}, valid, map[string]bool{})
+	if !ok || n != 1 {
+		t.Fatalf("processFavImport: added=%d ok=%v, esperado 1/true", n, ok)
+	}
+	if !existing[cmd] {
+		t.Fatal("filterNewFavs não marcou a chave normalizada como existente")
+	}
+	// Chave antiga que JÁ está nos favoritos atuais: tem que contar como
+	// duplicata (nada novo), não como arquivo inválido nem como nova.
+	n, ok = processFavImport([]string{velha}, valid, map[string]bool{cmd: true})
+	if !ok || n != 0 {
+		t.Fatalf("chave antiga já favorita: added=%d ok=%v, esperado 0/true", n, ok)
 	}
 }
 

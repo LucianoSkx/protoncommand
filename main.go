@@ -726,24 +726,34 @@ func processFavImport(imported []string, valid, existing map[string]bool) (added
 // poda elas somem da UI, porque o filtro só olha comandos existentes, mas
 // continuam no arquivo e são reexportadas.
 //
-// A chave antiga era "Command\x00Título em português". Quem salvou com a
-// v0.6.2 ou anterior tem isso no disco, então a entrada é migrada cortando
-// no \x00 antes da poda — sem isso o upgrade apagaria os favoritos de
-// todo mundo, em silêncio.
+// Quem salvou com a v0.6.2 ou anterior tem a chave antiga no disco; a
+// normalização é compartilhada com o import para que nenhum dos dois
+// caminhos descarte favorito velho sem avisar.
 func carregarFavs(chaves []string, validas map[string]bool) map[string]bool {
 	favs := make(map[string]bool, len(chaves))
 	for _, c := range chaves {
-		if validas[c] {
-			favs[c] = true
-			continue
-		}
-		if i := strings.IndexByte(c, 0); i >= 0 {
-			if cmd := c[:i]; validas[cmd] {
-				favs[cmd] = true
-			}
+		if k, ok := normalizeFavKey(c, validas); ok {
+			favs[k] = true
 		}
 	}
 	return favs
+}
+
+// normalizeFavKey devolve a chave de favorito na forma atual, ou ok=false
+// se nem a chave nova nem a antiga correspondem a um comando do catálogo.
+// A chave antiga era "Command\x00Título em português"; tanto o arquivo em
+// disco quanto um backup exportado na v0.6.2 ou anterior podem trazer essa
+// forma, e descartá-la sem avisar é perder favorito em silêncio.
+func normalizeFavKey(chave string, validas map[string]bool) (string, bool) {
+	if validas[chave] {
+		return chave, true
+	}
+	if i := strings.IndexByte(chave, 0); i >= 0 {
+		if cmd := chave[:i]; validas[cmd] {
+			return cmd, true
+		}
+	}
+	return "", false
 }
 
 // validFavKeys retorna o conjunto de chaves de favorito válidas,
@@ -768,7 +778,7 @@ func decodeFavImport(r io.Reader) ([]string, error) {
 // hasKnownFavKey diz se ao menos uma chave da lista é reconhecida.
 func hasKnownFavKey(imported []string, valid map[string]bool) bool {
 	for _, k := range imported {
-		if valid[k] {
+		if _, ok := normalizeFavKey(k, valid); ok {
 			return true
 		}
 	}
@@ -780,7 +790,8 @@ func hasKnownFavKey(imported []string, valid map[string]bool) bool {
 func filterNewFavs(imported []string, valid, existing map[string]bool) []string {
 	var out []string
 	for _, k := range imported {
-		if valid[k] && !existing[k] {
+		k, ok := normalizeFavKey(k, valid)
+		if ok && !existing[k] {
 			existing[k] = true
 			out = append(out, k)
 		}
