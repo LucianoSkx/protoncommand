@@ -221,8 +221,8 @@ func commands() []Command {
 				EN: "All (Vulkan via DXVK)",
 			},
 			Description: Localized{
-				PT: "Ativa o upscaling FSR 1 da AMD no modo fullscreen: o jogo renderiza em resolução menor e o FSR sobe a imagem, ganhando FPS em placas mais fracas. Combine com WINE_FULLSCREEN_FSR_STRENGTH=2 para ajustar a nitidez (0 = máxima, 5 = mínima). Funciona nos jogos renderizados via Vulkan — inclui títulos D3D11/D3D12 traduzidos pelo DXVK/VKD3D; não funciona em OpenGL (wined3d). Recurso legado: prefira o Gamescope (-F fsr) ou o upgrade FSR 4.",
-				EN: "Enables AMD FSR 1 upscaling in fullscreen: the game renders at a lower resolution and FSR upscales the image, gaining FPS on weaker GPUs. Combine with WINE_FULLSCREEN_FSR_STRENGTH=2 for sharpness (0 = max, 5 = min). Works in games rendered through Vulkan — including D3D11/D3D12 titles translated by DXVK/VKD3D; does not work in OpenGL (wined3d). Legacy feature: prefer Gamescope (-F fsr) or the FSR 4 upgrade.",
+				PT: "Ativa o upscaling FSR 1 da AMD no modo fullscreen: o jogo renderiza em resolução menor e o FSR sobe a imagem, ganhando FPS em placas mais fracas. Combine com WINE_FULLSCREEN_FSR_STRENGTH=2 para ajustar a nitidez (0 = máxima, 5 = mínima). Funciona nos jogos renderizados via Vulkan — inclui títulos D3D11/D3D12 traduzidos pelo DXVK/VKD3D; não funciona em OpenGL (wined3d). Recurso legado: prefira o Gamescope (-F fsr) ou o upgrade FSR 4. Fonte: README do GE/Proton (WINE_FULLSCREEN_FSR).",
+				EN: "Enables AMD FSR 1 upscaling in fullscreen: the game renders at a lower resolution and FSR upscales the image, gaining FPS on weaker GPUs. Combine with WINE_FULLSCREEN_FSR_STRENGTH=2 for sharpness (0 = max, 5 = min). Works in games rendered through Vulkan — including D3D11/D3D12 titles translated by DXVK/VKD3D; does not work in OpenGL (wined3d). Legacy feature: prefer Gamescope (-F fsr) or the FSR 4 upgrade. Source: GE/Proton README (WINE_FULLSCREEN_FSR).",
 			},
 		},
 		{
@@ -259,8 +259,8 @@ func commands() []Command {
 				EN: "GE and CachyOS (AMD RDNA3+/RDNA4 GPU)",
 			},
 			Description: Localized{
-				PT: "Baixa automaticamente a amdxcffx64.dll e atualiza jogos com FSR 3.1 para FSR 4. Versão customizável: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 no GE, 4.1.1 no CachyOS). Para RDNA3 use PROTON_FSR4_RDNA3_UPGRADE. No Proton-CachyOS esta variável vem acompanhada de DISABLE_LAYER_MESA_ANTI_LAG=1, ou seja, ela desliga a camada Anti-Lag 2 do Mesa — porque as duas brigavam por causa da issue 47. O flag já foi removido uma vez (10.0-20250919, quando acharam que o Anti-Lag 2 tinha melhorado) e voltou no 10.0-20251007, então espere por ele. Isso NÃO afeta o low_latency_layer: o Reflex/Anti-Lag 2 do LOW_LATENCY_LAYER=1 continua funcionando, porque é outra camada.",
-				EN: "Automatically downloads amdxcffx64.dll and upgrades games with FSR 3.1 to FSR 4. Custom version: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 on GE, 4.1.1 on CachyOS). For RDNA3 use PROTON_FSR4_RDNA3_UPGRADE. On Proton-CachyOS this variable ships alongside DISABLE_LAYER_MESA_ANTI_LAG=1, i.e. it turns off the Mesa Anti-Lag 2 layer — the two used to clash over issue 47. The flag was removed once (10.0-20250919, when Anti-Lag 2 looked fixed) and came back in 10.0-20251007, so expect it. This does NOT affect low_latency_layer: the Reflex/Anti-Lag 2 from LOW_LATENCY_LAYER=1 keeps working, because that's a different layer.",
+				PT: "Baixa automaticamente a amdxcffx64.dll e atualiza jogos com FSR 3.1 para FSR 4. Versão customizável: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 no GE, 4.1.1 no CachyOS). Para RDNA3 use PROTON_FSR4_RDNA3_UPGRADE. No Proton-CachyOS esta variável vem acompanhada de DISABLE_LAYER_MESA_ANTI_LAG=1, ou seja, ela desliga a camada Anti-Lag 2 do Mesa — porque as duas brigavam por causa da issue 47. O flag já foi removido uma vez (10.0-20250919, quando acharam que o Anti-Lag 2 tinha melhorado) e voltou no 10.0-20251007, então espere por ele. Isso NÃO afeta o low_latency_layer: o Reflex/Anti-Lag 2 do LOW_LATENCY_LAYER=1 continua funcionando, porque é outra camada. Fonte: README do CachyOS (fsr4) e CHANGELOG 11.0-20260703.",
+				EN: "Automatically downloads amdxcffx64.dll and upgrades games with FSR 3.1 to FSR 4. Custom version: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 on GE, 4.1.1 on CachyOS). For RDNA3 use PROTON_FSR4_RDNA3_UPGRADE. On Proton-CachyOS this variable ships alongside DISABLE_LAYER_MESA_ANTI_LAG=1, i.e. it turns off the Mesa Anti-Lag 2 layer — the two used to clash over issue 47. The flag was removed once (10.0-20250919, when Anti-Lag 2 looked fixed) and came back in 10.0-20251007, so expect it. This does NOT affect low_latency_layer: the Reflex/Anti-Lag 2 from LOW_LATENCY_LAYER=1 keeps working, because that's a different layer. Source: CachyOS README (fsr4) and changelog 11.0-20260703.",
 			},
 		},
 		{
@@ -278,8 +278,8 @@ func commands() []Command {
 				EN: "GE and CachyOS (NVIDIA GPU)",
 			},
 			Description: Localized{
-				PT: "Baixa automaticamente versões mais novas das DLLs nvngx_dlss e substitui as do jogo. Fixe a versão: PROTON_DLSS_UPGRADE=\"310.2\". Também define DXVK_NVAPI_DRS_SETTINGS para o preset mais recente.",
-				EN: "Automatically downloads newer nvngx_dlss DLLs and replaces the game's. Pin version: PROTON_DLSS_UPGRADE=\"310.2\". Also sets DXVK_NVAPI_DRS_SETTINGS to latest preset.",
+				PT: "Baixa automaticamente versões mais novas das DLLs nvngx_dlss e substitui as do jogo. Fixe a versão: PROTON_DLSS_UPGRADE=\"310.2\". Também define DXVK_NVAPI_DRS_SETTINGS para o preset mais recente. Fonte: README do GE/CachyOS (dlss).",
+				EN: "Automatically downloads newer nvngx_dlss DLLs and replaces the game's. Pin version: PROTON_DLSS_UPGRADE=\"310.2\". Also sets DXVK_NVAPI_DRS_SETTINGS to latest preset. Source: GE/CachyOS README (dlss).",
 			},
 		},
 		{
@@ -792,8 +792,8 @@ func commands() []Command {
 				EN: "CachyOS",
 			},
 			Description: Localized{
-				PT: "Ativa a injeção automática do OptiScaler, permitindo FSR/DLSS/XeSS em jogos sem suporte nativo. Configure a DLL com PROTON_OPTISCALER_NAME (dxgi.dll, d3d11.dll, d3d12.dll) e o upscaler via PROTON_OPTISCALER_CONFIG=\"Upscalers.Dx11Upscaler=fsr31;Upscalers.Dx12Upscaler=dlss\". Em desenvolvimento: nem todos os jogos funcionam.",
-				EN: "Enables automatic OptiScaler injection, letting you use FSR/DLSS/XeSS in games without native support. Configure DLL with PROTON_OPTISCALER_NAME (dxgi.dll, d3d11.dll, d3d12.dll) and upscaler via PROTON_OPTISCALER_CONFIG=\"Upscalers.Dx11Upscaler=fsr31;Upscalers.Dx12Upscaler=dlss\". Work in progress: not all games work.",
+				PT: "Ativa a injeção automática do OptiScaler, permitindo FSR/DLSS/XeSS em jogos sem suporte nativo. Configure a DLL com PROTON_OPTISCALER_NAME (dxgi.dll, d3d11.dll, d3d12.dll) e o upscaler via PROTON_OPTISCALER_CONFIG=\"Upscalers.Dx11Upscaler=fsr31;Upscalers.Dx12Upscaler=dlss\". Em desenvolvimento: nem todos os jogos funcionam. Fonte: README do CachyOS (PROTON_USE_OPTISCALER).",
+				EN: "Enables automatic OptiScaler injection, letting you use FSR/DLSS/XeSS in games without native support. Configure DLL with PROTON_OPTISCALER_NAME (dxgi.dll, d3d11.dll, d3d12.dll) and upscaler via PROTON_OPTISCALER_CONFIG=\"Upscalers.Dx11Upscaler=fsr31;Upscalers.Dx12Upscaler=dlss\". Work in progress: not all games work. Source: CachyOS README (PROTON_USE_OPTISCALER).",
 			},
 		},
 		{
@@ -925,8 +925,8 @@ func commands() []Command {
 				EN: "All (use with WINE_FULLSCREEN_FSR=1)",
 			},
 			Description: Localized{
-				PT: "Ajusta a nitidez do FSR em fullscreen: 0 = nitidez máxima, 5 = mínima (2 é o recomendado pela AMD). Sem essa variável, o FSR usa o valor padrão. Só tem efeito com WINE_FULLSCREEN_FSR=1.",
-				EN: "Adjusts FSR sharpness in fullscreen: 0 = maximum sharpness, 5 = minimum (2 is AMD's recommendation). Without this variable, FSR uses the default. Only has effect with WINE_FULLSCREEN_FSR=1.",
+				PT: "Ajusta a nitidez do FSR em fullscreen: 0 = nitidez máxima, 5 = mínima (2 é o recomendado pela AMD). Sem essa variável, o FSR usa o valor padrão. Só tem efeito com WINE_FULLSCREEN_FSR=1. Fonte: README do GE (WINE_FULLSCREEN_FSR_STRENGTH).",
+				EN: "Adjusts FSR sharpness in fullscreen: 0 = maximum sharpness, 5 = minimum (2 is AMD's recommendation). Without this variable, FSR uses the default. Only has effect with WINE_FULLSCREEN_FSR=1. Source: GE README (WINE_FULLSCREEN_FSR_STRENGTH).",
 			},
 		},
 		{
@@ -1517,8 +1517,8 @@ func commands() []Command {
 				EN: "All (requires gamescope)",
 			},
 			Description: Localized{
-				PT: "Roda o jogo em modo exclusivo (sem compositor) dentro do gamescope com FSR integrado: o jogo renderiza na resolução interna e o FSR sobe a imagem para a resolução da tela. Ajuste a resolução com -w/-h (interna) e -W/-H (tela).",
-				EN: "Runs the game in exclusive mode (no compositor) inside gamescope with built-in FSR: the game renders at its internal resolution and FSR upscales to the screen resolution. Tune with -w/-h (internal) and -W/-H (screen).",
+				PT: "Roda o jogo em modo exclusivo (sem compositor) dentro do gamescope com FSR integrado: o jogo renderiza na resolução interna e o FSR sobe a imagem para a resolução da tela. Ajuste a resolução com -w/-h (interna) e -W/-H (tela). Fonte: README do Gamescope (FSR).",
+				EN: "Runs the game in exclusive mode (no compositor) inside gamescope with built-in FSR: the game renders at its internal resolution and FSR upscales to the screen resolution. Tune with -w/-h (internal) and -W/-H (screen). Source: Gamescope README (FSR).",
 			},
 		},
 		{
@@ -1597,8 +1597,8 @@ func commands() []Command {
 				EN: "GE (AMD RDNA 3 GPU)",
 			},
 			Description: Localized{
-				PT: "Upgrade FSR 3.1 para FSR 4 em GPUs RDNA 3 (RX 7000). Aplica workarounds específicos RDNA 3. Versão customizável: PROTON_FSR4_RDNA3_UPGRADE=\"4.0.2\". Removida no Proton-CachyOS 11+ (workaround não mais necessário).",
-				EN: "FSR 3.1 to FSR 4 upgrade on RDNA 3 GPUs (RX 7000). Applies RDNA 3-specific workarounds. Custom version: PROTON_FSR4_RDNA3_UPGRADE=\"4.0.2\". Removed in Proton-CachyOS 11+ (workaround no longer needed).",
+				PT: "Upgrade FSR 3.1 para FSR 4 em GPUs RDNA 3 (RX 7000). Aplica workarounds específicos RDNA 3. Versão customizável: PROTON_FSR4_RDNA3_UPGRADE=\"4.0.2\". Removida no Proton-CachyOS 11+ (workaround não mais necessário). Fonte: CachyOS CHANGELOG 11.0-20260519.",
+				EN: "FSR 3.1 to FSR 4 upgrade on RDNA 3 GPUs (RX 7000). Applies RDNA 3-specific workarounds. Custom version: PROTON_FSR4_RDNA3_UPGRADE=\"4.0.2\". Removed in Proton-CachyOS 11+ (workaround no longer needed). Source: CachyOS changelog 11.0-20260519.",
 			},
 		},
 		{
@@ -1898,7 +1898,8 @@ func commands() []Command {
 			},
 			Description: Localized{
 				PT: "Habilita a layer Vulkan Reflex do dxvk-nvapi para jogos como Portal RTX, Path of Exile 1/2, Doom TDA. Requer GPU NVIDIA e jogo com suporte nativo a Reflex em Vulkan. Fonte: README do dxvk-nvapi (Vulkan Reflex layer) e GE (vkreflex).",
-				EN: "Enables dxvk-nvapi's Vulkan Reflex layer for games like Portal RTX, Path of Exile 1/2, Doom TDA. Requires NVIDIA GPU and game with native Vulkan Reflex support. Source: dxvk-nvapi README (Vulkan Reflex layer) and GE README (vkreflex)."},
+				EN: "Enables dxvk-nvapi's Vulkan Reflex layer for games like Portal RTX, Path of Exile 1/2, Doom TDA. Requires NVIDIA GPU and game with native Vulkan Reflex support. Source: dxvk-nvapi README (Vulkan Reflex layer) and GE README (vkreflex).",
+			},
 		},
 		{
 			Command:   "PROTON_USE_WAYLAND=1 %command%",
