@@ -240,8 +240,8 @@ func commands() []Command {
 				EN: "Standard Proton",
 			},
 			Description: Localized{
-				PT: "Ativa a escala inteira em fullscreen: pixels nítidos e quadradinhos ao subir a resolução, sem blur. Útil em jogos antigos ou pixel art.",
-				EN: "Enables integer scaling in fullscreen: sharp, blocky pixels when upscaling, no blur. Useful in old or pixel-art games.",
+				PT: "Ativa a escala inteira em fullscreen: pixels nítidos e quadradinhos ao subir a resolução, sem blur. Útil em jogos antigos ou pixel art. Só age em Vulkan (DXVK/VKD3D). Fonte: README do Proton padrão (WINE_FULLSCREEN_INTEGER_SCALING).",
+				EN: "Enables integer scaling in fullscreen: sharp, blocky pixels when upscaling, no blur. Useful in old or pixel-art games. Only applies to Vulkan (DXVK/VKD3D). Source: standard Proton README (WINE_FULLSCREEN_INTEGER_SCALING).",
 			},
 		},
 		{
@@ -753,8 +753,8 @@ func commands() []Command {
 				EN: "GE and CachyOS",
 			},
 			Description: Localized{
-				PT: "Usa o input do SDL em vez de HIDRAW/Steam Input. Resolve problemas de controle que não é detectado ou se comporta mal (comum com o driver Wayland).",
-				EN: "Uses SDL input instead of HIDRAW/Steam Input. Fixes controllers that are not detected or behave badly (common with the Wayland driver).",
+				PT: "Usa o input do SDL em vez de HIDRAW/Steam Input. Resolve problemas de controle que não é detectado ou se comporta mal (comum com o driver Wayland). Pode ser obrigatório em alguns jogos para hotplug de controle. Fonte: README do CachyOS (sdlinput).",
+				EN: "Uses SDL input instead of HIDRAW/Steam Input. Fixes controllers that aren't detected or behave badly (common with the Wayland driver). May be required for controller hotplug in some games. Source: CachyOS README (sdlinput).",
 			},
 		},
 		{
@@ -925,8 +925,8 @@ func commands() []Command {
 				EN: "All (use with WINE_FULLSCREEN_FSR=1)",
 			},
 			Description: Localized{
-				PT: "Ajusta a nitidez do FSR em fullscreen: 0 = nitidez máxima, 5 = mínima (2 é o recomendado pela AMD). Sem essa variável, o FSR usa o valor padrão.",
-				EN: "Adjusts FSR sharpness in fullscreen: 0 = maximum sharpness, 5 = minimum (2 is AMD's recommendation). Without this variable, FSR uses the default value.",
+				PT: "Ajusta a nitidez do FSR em fullscreen: 0 = nitidez máxima, 5 = mínima (2 é o recomendado pela AMD). Sem essa variável, o FSR usa o valor padrão. Só tem efeito com WINE_FULLSCREEN_FSR=1.",
+				EN: "Adjusts FSR sharpness in fullscreen: 0 = maximum sharpness, 5 = minimum (2 is AMD's recommendation). Without this variable, FSR uses the default. Only has effect with WINE_FULLSCREEN_FSR=1.",
 			},
 		},
 		{
@@ -1097,8 +1097,8 @@ func commands() []Command {
 				EN: "Standard Proton",
 			},
 			Description: Localized{
-				PT: "Espera um depurador anexar ao steam.exe antes de iniciar o processo do jogo. Para anexar ao jogo no início, configure o depurador para seguir processos filhos.",
-				EN: "Waits for a debugger to attach to steam.exe before launching the game process. To attach to the game at startup, set debuggers to follow child processes.",
+				PT: "Espera um depurador anexar ao steam.exe antes de iniciar o processo do jogo. Para anexar ao jogo no início, configure o depurador para seguir processos filhos. Só útil para desenvolvimento; atrapalha o fluxo de jogo se deixado ligado. Fonte: README padrão do Proton (PROTON_WAIT_ATTACH).",
+				EN: "Waits for a debugger to attach to steam.exe before launching the game process. To attach to the game at startup, set debuggers to follow child processes. Only useful for development; leaving it on disrupts normal play. Source: standard Proton README (PROTON_WAIT_ATTACH).",
 			},
 		},
 		{
@@ -1337,8 +1337,8 @@ func commands() []Command {
 				EN: "Standard Proton, GE and CachyOS",
 			},
 			Description: Localized{
-				PT: "Ativa o Xalia, que adiciona UI de gamepad para algumas interfaces de teclado/mouse. Por padrão o Proton decide dinamicamente; use 0 para desativar.",
-				EN: "Enables Xalia, which adds a gamepad UI for some keyboard/mouse interfaces. The default is dynamic; set to 0 to disable.",
+				PT: "Ativa o Xalia, que adiciona UI de gamepad para algumas interfaces de teclado/mouse. Por padrão o Proton decide dinamicamente; use 0 para desativar; use 1 para forçar. Só funciona em interfaces suportadas. Fonte: README do CachyOS (xalia).",
+				EN: "Enables Xalia, which adds a gamepad UI to some keyboard/mouse interfaces. The default is dynamic; set to 0 to disable, 1 to force. Works only on supported interfaces. Source: CachyOS README (xalia).",
 			},
 		},
 		{
@@ -1457,8 +1457,8 @@ func commands() []Command {
 				EN: "All",
 			},
 			Description: Localized{
-				PT: "Impede o DXVK de escrever o arquivo de log (d3d11.log / dxgi.log). Reduz escrita no disco e ganha um pouco de desempenho; útil quando o log não é necessário.",
-				EN: "Prevents DXVK from writing its log file (d3d11.log / dxgi.log). Reduces disk writes and slightly improves performance; useful when the log isn't needed.",
+				PT: "Impede o DXVK de escrever o arquivo de log (d3d11.log / dxgi.log). Reduz escrita no disco e ganha um pouco de desempenho; útil quando o log não é necessário. Use 'none', 'error', 'warn' ou 'info' (padrão 'info'); 'none' é o silêncio total. Fonte: dxvk.conf do DXVK.",
+				EN: "Prevents DXVK from writing its log file (d3d11.log / dxgi.log). Reduces disk writes and slightly improves performance; useful when the log isn't needed. Values: 'none', 'error', 'warn' or 'info' (default 'info'); 'none' is fully silent. Source: DXVK dxvk.conf.",
 			},
 		},
 		{
@@ -1857,8 +1857,8 @@ func commands() []Command {
 				EN: "CachyOS (with PROTON_USE_OPTISCALER=1)",
 			},
 			Description: Localized{
-				PT: "Define qual DLL o OptiScaler deve injetar. Opções: dxgi.dll, d3d11.dll, d3d12.dll. Combine com PROTON_OPTISCALER_CONFIG para configuração completa.",
-				EN: "Sets which DLL OptiScaler should inject. Options: dxgi.dll, d3d11.dll, d3d12.dll. Combine with PROTON_OPTISCALER_CONFIG for full configuration.",
+				PT: "Define qual DLL o OptiScaler deve injetar. Opções: dxgi.dll, d3d11.dll, d3d12.dll. Combine com PROTON_OPTISCALER_CONFIG para configuração completa. dxgi.dll cobre a maioria dos jogos: mude só se o jogo tiver problema. Fonte: README do CachyOS (PROTON_OPTISCALER_NAME).",
+				EN: "Sets which DLL OptiScaler should inject. Options: dxgi.dll, d3d11.dll, d3d12.dll. Combine with PROTON_OPTISCALER_CONFIG for full configuration. dxgi.dll covers most games; change it only if the game has issues. Source: CachyOS README (PROTON_OPTISCALER_NAME).",
 			},
 		},
 		{
@@ -2325,6 +2325,121 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Faz o downmix espacial correto no winealsa, incluindo os canais de altura (height). Use 1 para ativar, 0 para desativar (padrão). Recomendado só quando há erros de áudio espacial com WINEALSA_CHANNELS. Fonte: README do CachyOS (WINEALSA_SPATIAL).",
 				EN: "Performs proper spatial downmix in winealsa, including height channels. Use 1 to enable, 0 to disable (default). Recommended only when there are spatial-audio errors with WINEALSA_CHANNELS. Source: CachyOS README (WINEALSA_SPATIAL).",
+			},
+		},
+
+		{
+			Command: "PROTON_NVIDIA_NVCUDA=1 %command%",
+			Title: Localized{
+				PT: "CUDA (nvidia-libs)",
+				EN: "CUDA (nvidia-libs)",
+			},
+			Category: Localized{
+				PT: "GPU",
+				EN: "GPU",
+			},
+			Compat: Localized{
+				PT: "GE e CachyOS (GPU NVIDIA)",
+				EN: "GE and CachyOS (NVIDIA GPU)",
+			},
+			Description: Localized{
+				PT: "Habilita apenas o nvcuda.dll alternativo (nvidia-libs), em vez do conjunto completo do PROTON_NVIDIA_LIBS. Útil quando só o suporte a CUDA é necessário (ex.: PhysX/algumas ferramentas). Fonte: README do CachyOS (nvcuda).",
+				EN: "Enables only the alternative nvcuda.dll (nvidia-libs), instead of the whole PROTON_NVIDIA_LIBS set. Useful when only CUDA support is needed (e.g. PhysX/some tools). Source: CachyOS README (nvcuda).",
+			},
+		},
+		{
+			Command: "PROTON_NVIDIA_NVENC=1 %command%",
+			Title: Localized{
+				PT: "NVENC (nvidia-libs)",
+				EN: "NVENC (nvidia-libs)",
+			},
+			Category: Localized{
+				PT: "GPU",
+				EN: "GPU",
+			},
+			Compat: Localized{
+				PT: "GE e CachyOS (GPU NVIDIA)",
+				EN: "GE and CachyOS (NVIDIA GPU)",
+			},
+			Description: Localized{
+				PT: "Habilita apenas o nvcencodeapi(64).dll alternativo (nvidia-libs). Útil para jogos que precisam de encode de vídeo por hardware via NVENC. Fonte: README do CachyOS (nvenc).",
+				EN: "Enables only the alternative nvcencodeapi(64).dll (nvidia-libs). Useful for games needing hardware video encoding via NVENC. Source: CachyOS README (nvenc).",
+			},
+		},
+		{
+			Command: "PROTON_NVIDIA_NVML=0 %command%",
+			Title: Localized{
+				PT: "Desativar NVML",
+				EN: "Disable NVML",
+			},
+			Category: Localized{
+				PT: "GPU",
+				EN: "GPU",
+			},
+			Compat: Localized{
+				PT: "GE e CachyOS (GPU NVIDIA)",
+				EN: "GE and CachyOS (NVIDIA GPU)",
+			},
+			Description: Localized{
+				PT: "O CachyOS liga o wine-nvml por padrão (utilização de GPU). Defina 0 para desativar, quando houver conflito ou instabilidade. Fonte: README do CachyOS (nvml) e changelog 10.0-20260312.",
+				EN: "CachyOS enables wine-nvml by default (GPU utilization). Set to 0 to disable it when there is conflict or instability. Source: CachyOS README (nvml) and changelog 10.0-20260312.",
+			},
+		},
+		{
+			Command: "PROTON_NVIDIA_NVOPTIX=1 %command%",
+			Title: Localized{
+				PT: "OptiX (nvidia-libs)",
+				EN: "OptiX (nvidia-libs)",
+			},
+			Category: Localized{
+				PT: "GPU",
+				EN: "GPU",
+			},
+			Compat: Localized{
+				PT: "GE e CachyOS (GPU NVIDIA)",
+				EN: "GE and CachyOS (NVIDIA GPU)",
+			},
+			Description: Localized{
+				PT: "Habilita apenas o nvoptix.dll alternativo (nvidia-libs). Útil quando o jogo precisa de ray tracing via OptiX. Fonte: README do CachyOS (nvoptix).",
+				EN: "Enables only the alternative nvoptix.dll (nvidia-libs). Useful when the game needs ray tracing via OptiX. Source: CachyOS README (nvoptix).",
+			},
+		},
+		{
+			Command: "WAYLANDDRV_PRIMARY_MONITOR=eDP-1 %command%",
+			Title: Localized{
+				PT: "Monitor primário (Wayland)",
+				EN: "Primary monitor (Wayland)",
+			},
+			Category: Localized{
+				PT: "Wayland",
+				EN: "Wayland",
+			},
+			Compat: Localized{
+				PT: "GE e CachyOS (driver Wayland)",
+				EN: "GE and CachyOS (Wayland driver)",
+			},
+			Description: Localized{
+				PT: "Especifica o monitor primário (ex.: eDP-1) quando se usa o driver Wayland. Substitua pelo nome real do monitor. Requer driver Wayland ativo. Fonte: README do GE (WAYLANDDRV_PRIMARY_MONITOR).",
+				EN: "Specifies the primary monitor (e.g. eDP-1) when using the Wayland driver. Replace with the actual monitor name. Requires the Wayland driver. Source: GE README (WAYLANDDRV_PRIMARY_MONITOR).",
+			},
+		},
+		{
+			Command: "WAYLANDDRV_RAWINPUT=0 %command%",
+			Title: Localized{
+				PT: "Raw input (Wayland)",
+				EN: "Raw input (Wayland)",
+			},
+			Category: Localized{
+				PT: "Wayland",
+				EN: "Wayland",
+			},
+			Compat: Localized{
+				PT: "GE e CachyOS (driver Wayland)",
+				EN: "GE and CachyOS (Wayland driver)",
+			},
+			Description: Localized{
+				PT: "0 desativa o raw input não acelerado e usa o acelerado; um valor real positivo (ex.: 0.5) ajusta a sensibilidade do raw input. Só faz sentido sob driver Wayland. Fonte: README do GE (WAYLANDDRV_RAWINPUT).",
+				EN: "0 disables unaccelerated input and uses accelerated input; a positive real value (e.g. 0.5) adjusts raw input sensitivity. Only meaningful under the Wayland driver. Source: GE README (WAYLANDDRV_RAWINPUT).",
 			},
 		},
 	}
