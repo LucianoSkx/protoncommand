@@ -1077,8 +1077,8 @@ func commands() []Command {
 				EN: "CachyOS",
 			},
 			Description: Localized{
-				PT: "Ativa o rpc-bridge, que permite jogos rodando no Proton exibirem Rich Presence (\"jogando X\") no Discord.",
-				EN: "Enables rpc-bridge, letting games running in Proton show Rich Presence (\"playing X\") on Discord.",
+				PT: "Ativa o rpc-bridge, que permite jogos rodando no Proton exibirem Rich Presence (\"jogando X\") no Discord. Desativado por padrão; o serviço só sobe quando a variável está ligada. Fonte: README do CachyOS (PROTON_DISCORD_BRIDGE).",
+				EN: "Enables rpc-bridge, letting games running in Proton show Rich Presence (\"playing X\") on Discord. Disabled by default; the service only starts when the variable is set. Source: CachyOS README (PROTON_DISCORD_BRIDGE).",
 			},
 		},
 		{
@@ -1197,8 +1197,8 @@ func commands() []Command {
 				EN: "Standard Proton, GE and CachyOS",
 			},
 			Description: Localized{
-				PT: "Atrasa a liberação de parte da memória para contornar bugs de use-after-free em alguns jogos.",
-				EN: "Delays freeing some memory to work around use-after-free bugs in some games.",
+				PT: "Atrasa a liberação de parte da memória para contornar bugs de use-after-free em alguns jogos. Só contorna, não corrige: se o jogo rodar bem sem ela, deixe desativada. Fonte: README padrão do Proton (heapdelayfree).",
+				EN: "Delays freeing part of memory to work around use-after-free bugs in some games. It only works around them, it does not fix them: if the game runs fine without it, leave it disabled. Source: standard Proton README (heapdelayfree).",
 			},
 		},
 		{
@@ -1217,8 +1217,8 @@ func commands() []Command {
 				EN: "Standard Proton, GE and CachyOS",
 			},
 			Description: Localized{
-				PT: "Cria uma unidade S: apontando para a biblioteca Steam que contém o jogo. Útil para jogos que procuram arquivos em caminhos fixos.",
-				EN: "Creates an S: drive pointing to the Steam Library which contains the game. Useful for games that look for files in fixed paths.",
+				PT: "Cria uma unidade S: apontando para a biblioteca Steam que contém o jogo. Útil para jogos que procuram arquivos em caminhos fixos, e para launchers que esperam um caminho absoluto dentro da biblioteca. Fonte: README padrão do Proton (gamedrive).",
+				EN: "Creates an S: drive pointing to the Steam Library containing the game. Useful for games that look for files in fixed paths, and for launchers expecting an absolute path into that library. Source: standard Proton README (gamedrive).",
 			},
 		},
 		{
@@ -1257,8 +1257,8 @@ func commands() []Command {
 				EN: "Standard Proton, GE and CachyOS",
 			},
 			Description: Localized{
-				PT: "Hack para contornar problemas de vídeo em alguns jogos causados por suporte incompleto a IMFDXGIDeviceManager.",
-				EN: "Hack to work around video issues in some games due to incomplete IMFDXGIDeviceManager support.",
+				PT: "Hack para contornar problemas de vídeo (às vezes imagem rosa) em alguns jogos causados por suporte incompleto a IMFDXGIDeviceManager. Não afeta jogos em que o driver já oferece suporte completo. Fonte: README padrão do Proton (nomfdxgiman).",
+				EN: "Hack to work around video issues (sometimes a pink picture) in some games due to incomplete IMFDXGIDeviceManager support. It does nothing on games whose driver support is complete. Source: standard Proton README (nomfdxgiman).",
 			},
 		},
 		{
@@ -1317,8 +1317,8 @@ func commands() []Command {
 				EN: "Standard Proton (KDE)",
 			},
 			Description: Localized{
-				PT: "Ativa hacks específicos do KDE que melhoram a experiência com KDE mais antigo que 6.4 no Wayland e 6.6 no X11.",
-				EN: "Enables KDE-specific windowing hacks that may improve experience with KDE older than 6.4 on Wayland and 6.6 on X11.",
+				PT: "Ativa hacks específicos do KDE que melhoram a experiência com KDE mais antigo que 6.4 no Wayland e 6.6 no X11. Inútil fora do KDE; no Wayland e no X11 modernos não muda nada. Fonte: README do CachyOS (WINE_USE_KWIN_HACKS).",
+				EN: "Enables KDE-specific windowing hacks that may improve experience with KDE older than 6.4 on Wayland and 6.6 on X11. Useless outside KDE; on modern Wayland/X11 it changes nothing. Source: CachyOS README (WINE_USE_KWIN_HACKS).",
 			},
 		},
 		{
@@ -1577,8 +1577,8 @@ func commands() []Command {
 				EN: "GE and CachyOS (AMD GPU)",
 			},
 			Description: Localized{
-				PT: "Mostra um watermark no canto da tela confirmando que o FSR 4 está ativo. Útil para verificar se o PROTON_FSR4_UPGRADE funcionou.",
-				EN: "Shows a watermark in the corner confirming FSR 4 is active. Useful to verify PROTON_FSR4_UPGRADE worked.",
+				PT: "Mostra um watermark no canto da tela confirmando que o FSR 4 está ativo. É atalho para FSR_WATERMARK=1 e FSR_FG_WATERMARK=1 (watermark do FSR 4 e do MLFG). Útil para verificar se o PROTON_FSR4_UPGRADE funcionou. Fonte: README do CachyOS (fsr4hud).",
+				EN: "Shows a corner watermark confirming FSR 4 is active. It is shorthand for FSR_WATERMARK=1 and FSR_FG_WATERMARK=1 (FSR 4 and MLFG watermarks). Useful to verify PROTON_FSR4_UPGRADE worked. Source: CachyOS README (fsr4hud).",
 			},
 		},
 		{
@@ -1817,8 +1817,8 @@ func commands() []Command {
 				EN: "CachyOS",
 			},
 			Description: Localized{
-				PT: "Força o uso do GStreamer para reprodução de vídeo/áudio em cutscenes. Corrige problemas de mídia em alguns jogos.",
-				EN: "Forces GStreamer for video/audio playback in cutscenes. Fixes media issues in some games.",
+				PT: "Força o uso do GStreamer para reprodução de vídeo/áudio em cutscenes. Corrige problemas de mídia em alguns jogos. Renomeada a partir de PROTON_MEDIA_USE_GST, para que os protonfixes deixem de ativar a antiga sozinhos. Use só se cutscenes falharem. Fonte: README do CachyOS (PROTON_MEDIA_FORCE_GST).",
+				EN: "Forces GStreamer for video/audio playback in cutscenes. Fixes media issues in some games. Renamed from PROTON_MEDIA_USE_GST so protonfixes no longer turn the old one on by themselves. Use only if cutscenes fail. Source: CachyOS README (PROTON_MEDIA_FORCE_GST).",
 			},
 		},
 		{
@@ -1957,8 +1957,8 @@ func commands() []Command {
 				EN: "CachyOS",
 			},
 			Description: Localized{
-				PT: "Desabilita completamente o Steam Input no Proton. Útil quando o Steam Input conflita com o controle nativo do jogo.",
-				EN: "Completely disables Steam Input in Proton. Useful when Steam Input conflicts with the game's native controller support.",
+				PT: "Desabilita completamente o Steam Input no Proton. Útil quando o Steam Input conflita com o controle nativo do jogo. Não adianta quando o Steam Input estiver ligado nas propriedades do jogo no Steam; nesse caso desative lá. Fonte: README do CachyOS (PROTON_NO_STEAMINPUT).",
+				EN: "Completely disables Steam Input in Proton. Useful when Steam Input conflicts with the game's native controller support. It does nothing if Steam Input is still enabled in the game's Steam properties; disable it there first. Source: CachyOS README (PROTON_NO_STEAMINPUT).",
 			},
 		},
 		{
