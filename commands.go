@@ -2041,5 +2041,291 @@ func commands() []Command {
 				EN: "Configures MangoHUD via environment variable. Replace 60 with desired FPS. Other options: \"fps_limit=60,120\" (list), \"toggle_fps_limit=Shift_L+F1\" (hotkey). MangoHUD must be installed on the system.",
 			},
 		},
+
+		{
+			Command: "DXVK_NO_HDR=1 %command%",
+			Title: Localized{
+				PT: "Desativa HDR no DXVK",
+				EN: "Disable HDR in DXVK",
+			},
+			Category: Localized{
+				PT: "Renderização",
+				EN: "Rendering",
+			},
+			Compat: Localized{
+				PT: "Proton padrão, GE e CachyOS",
+				EN: "Standard Proton, GE and CachyOS",
+			},
+			Description: Localized{
+				PT: "Desativa a divulgação de HDR nos dois drivers de exibição do Wine, inclusive em DX12, que compartilha a implementação DXGI com o D3D11. Tem precedência sobre DXVK_HDR=1 e PROTON_FORCE_HDR. Use quando o compositor ou o driver anunciam HDR que o monitor ou o jogo não suportam, causando brilho errado ou travamento. Fonte: README do GE (DXVK_NO_HDR).",
+				EN: "Disables HDR reporting on both Wine display drivers, including DX12, which shares the DXGI implementation with D3D11. Takes precedence over DXVK_HDR=1 and PROTON_FORCE_HDR. Use when the compositor or driver advertises HDR the monitor or game does not support, causing wrong brightness or hangs. Source: GE README (DXVK_NO_HDR).",
+			},
+		},
+		{
+			Command: "PROTON_FORCE_HDR=1 %command%",
+			Title: Localized{
+				PT: "Forçar HDR (Wayland)",
+				EN: "Force HDR (Wayland)",
+			},
+			Category: Localized{
+				PT: "Wayland",
+				EN: "Wayland",
+			},
+			Compat: Localized{
+				PT: "CachyOS e GE (driver Wayland)",
+				EN: "CachyOS and GE (Wayland driver)",
+			},
+			Description: Localized{
+				PT: "Relata HDR em toda saída do Wine Wayland mesmo quando o compositor anuncia SDR. Útil para contornar KDE Plasma com brilho SDR no pico do monitor ou Hyprland com render:cm_auto_hdr. Pode causar cores desbotadas ou travamento em monitores SDR reais; DXVK_NO_HDR=1 tem precedência. Fonte: README do GE (PROTON_FORCE_HDR).",
+				EN: "Reports HDR on every Wine Wayland output even when the compositor reports SDR. Useful to work around KDE Plasma with SDR brightness at the panel peak or Hyprland with render:cm_auto_hdr. Can cause faded colors or hangs on real SDR monitors; DXVK_NO_HDR=1 takes precedence. Source: GE README (PROTON_FORCE_HDR).",
+			},
+		},
+		{
+			Command: "PROTON_NO_D3D12=1 %command%",
+			Title: Localized{
+				PT: "Desativa D3D12",
+				EN: "Disable D3D12",
+			},
+			Category: Localized{
+				PT: "Renderização",
+				EN: "Rendering",
+			},
+			Compat: Localized{
+				PT: "GE e CachyOS",
+				EN: "GE and CachyOS",
+			},
+			Description: Localized{
+				PT: "Desativa o Direct3D 12, forçando o jogo a usar outro caminho se oferecer D3D11 ou D3D9. Útil para contornar bugs de renderização em jogos DX12. Fonte: README do GE (nod3d12).",
+				EN: "Disables Direct3D 12, forcing the game to use another path if it offers D3D11 or D3D9. Useful to work around rendering bugs in DX12 games. Source: GE README (nod3d12).",
+			},
+		},
+		{
+			Command: "PROTON_NO_WRITE_WATCH=1 %command%",
+			Title: Localized{
+				PT: "Desativa write watches",
+				EN: "Disable write watches",
+			},
+			Category: Localized{
+				PT: "Renderização",
+				EN: "Rendering",
+			},
+			Compat: Localized{
+				PT: "GE",
+				EN: "GE",
+			},
+			Description: Localized{
+				PT: "Desativa o suporte a memory write watches no ntdll. Só deve ser usado quando for verificado que o jogo funciona sem write watches; pode melhorar o desempenho em alguns títulos específicos. Fonte: README do GE (nowritewatch).",
+				EN: "Disables memory write-watch support in ntdll. Should only be used when the game is known to work without write watches; it can improve performance in a few specific titles. Source: GE README (nowritewatch).",
+			},
+		},
+		{
+			Command: "WINE_DISABLE_EXE_ASLR=1 %command%",
+			Title: Localized{
+				PT: "Desativa ASLR dos executáveis",
+				EN: "Disable executable ASLR",
+			},
+			Category: Localized{
+				PT: "Renderização",
+				EN: "Rendering",
+			},
+			Compat: Localized{
+				PT: "GE",
+				EN: "GE",
+			},
+			Description: Localized{
+				PT: "Desativa o ASLR apenas para as imagens executáveis, mantendo o relocation das DLLs ativo. Útil para aplicações 32-bit que armazenam dados em bits de ponteiro de código inutilizados, exigindo endereço base preferido. Fonte: README do GE (WINE_DISABLE_EXE_ASLR).",
+				EN: "Disables ASLR for executable images only, while leaving DLL relocation enabled. Useful for 32-bit applications that store data in otherwise unused code-pointer bits and need their preferred base address. Source: GE README (WINE_DISABLE_EXE_ASLR).",
+			},
+		},
+		{
+			Command: "WINE_FULLSCREEN_FSR_CUSTOM_MODE=1920x1080 %command%",
+			Title: Localized{
+				PT: "Resolução falsa do FSR (fullscreen)",
+				EN: "Fake fullscreen FSR resolution",
+			},
+			Category: Localized{
+				PT: "Upscaling",
+				EN: "Upscaling",
+			},
+			Compat: Localized{
+				PT: "GE",
+				EN: "GE",
+			},
+			Description: Localized{
+				PT: "Define uma resolução falsa da tela para o FSR em tela cheia. Útil em jogos que renderizam sempre na resolução nativa, independentemente do valor selecionado. Formato WIDTHxHEIGHT (ex.: 1920x1080). Fonte: README do GE (WINE_FULLSCREEN_FSR_CUSTOM_MODE).",
+				EN: "Sets a fake screen resolution for fullscreen FSR. Useful in games that always render at native resolution regardless of the selected option. Format WIDTHxHEIGHT (e.g. 1920x1080). Source: GE README (WINE_FULLSCREEN_FSR_CUSTOM_MODE).",
+			},
+		},
+		{
+			Command: "PROTON_STREAMLINE_UPGRADE=1 %command%",
+			Title: Localized{
+				PT: "Upgrade do Streamline (NVIDIA)",
+				EN: "Streamline upgrade (NVIDIA)",
+			},
+			Category: Localized{
+				PT: "Upscaling",
+				EN: "Upscaling",
+			},
+			Compat: Localized{
+				PT: "GE (GPU NVIDIA)",
+				EN: "GE (NVIDIA GPU)",
+			},
+			Description: Localized{
+				PT: "Baixa um Streamline mais novo da NVIDIA (sl.*.dll) e o carrega no lugar do, para títulos cujo Streamline é antigo demais para o override de DLSS do driver (ex.: DLSS Multi Frame Generation). Aceita versão específica em vez de 1. Não se combina com o OptiScaler. Fonte: README do GE (streamline).",
+				EN: "Downloads a newer NVIDIA Streamline (sl.*.dll) and loads it instead of the game's copy, for titles whose Streamline is too old for driver DLSS overrides (e.g. DLSS Multi Frame Generation). Accepts a specific version instead of 1. Not combined with OptiScaler. Source: GE README (streamline).",
+			},
+		},
+		{
+			Command: "PROTON_ENABLE_WINEBTH=1 %command%",
+			Title: Localized{
+				PT: "Habilitar winebth (Bluetooth LE)",
+				EN: "Enable winebth (Bluetooth LE)",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE (requer BlueZ)",
+				EN: "GE (requires BlueZ)",
+			},
+			Description: Localized{
+				PT: "Habilita o winebth.sys, driver Bluetooth do Wine, desativado por padrão. Necessário para dispositivos Bluetooth LE como smart trainers e controles em Zwift/Rouvy; requer BlueZ. Fonte: README do GE (winebth).",
+				EN: "Enables winebth.sys, Wine's Bluetooth driver, disabled by default. Needed for Bluetooth LE devices such as smart trainers and controllers in Zwift/Rouvy; requires BlueZ. Source: GE README (winebth).",
+			},
+		},
+		{
+			Command: "PROTON_DUALSENSE_BT_AS_USB=0 %command%",
+			Title: Localized{
+				PT: "Manter DualSense BT no layout Bluetooth",
+				EN: "Keep DualSense BT in Bluetooth layout",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE (DualSense/DualSense Edge)",
+				EN: "GE (DualSense/DualSense Edge)",
+			},
+			Description: Localized{
+				PT: "Por padrão, com Steam Input desativado, um DualSense/DualSense Edge conectado por Bluetooth é apresentado ao jogo como controle USB (triggers adaptativos, lightbar, rumble, motion e touchpad sob Bluetooth). Defina 0 para manter o layout Bluetooth. Fonte: README do GE (PROTON_DUALSENSE_BT_AS_USB).",
+				EN: "By default, with Steam Input disabled, a DualSense/DualSense Edge connected over Bluetooth is presented to the game as a USB controller (adaptive triggers, lightbar, rumble, motion and touchpad over Bluetooth). Set to 0 to keep the Bluetooth layout. Source: GE README (PROTON_DUALSENSE_BT_AS_USB).",
+			},
+		},
+		{
+			Command: "PROTON_DUALSENSE_BT_HAPTICS=0 %command%",
+			Title: Localized{
+				PT: "Desativar haptics HD do DualSense BT",
+				EN: "Disable DualSense BT HD haptics",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE (DualSense/DualSense Edge)",
+				EN: "GE (DualSense/DualSense Edge)",
+			},
+			Description: Localized{
+				PT: "Por padrão habilitado junto com PROTON_DUALSENSE_BT_AS_USB: o jogo recebe o endpoint de áudio de quatro canais do controle e os haptics HD dos canais 3 e 4 são enviados ao Bluetooth. O áudio do speaker do controle não é enviado por Bluetooth. Defina 0 para desativar. Fonte: README do GE (PROTON_DUALSENSE_BT_HAPTICS).",
+				EN: "Enabled by default together with PROTON_DUALSENSE_BT_AS_USB: the game gets the controller's four-channel audio endpoint and HD haptics from channels 3 and 4 are sent over Bluetooth. Controller speaker audio is not sent over Bluetooth. Set to 0 to disable. Source: GE README (PROTON_DUALSENSE_BT_HAPTICS).",
+			},
+		},
+		{
+			Command: "PROTON_DUALSHOCK4_BT_AS_USB=0 %command%",
+			Title: Localized{
+				PT: "Manter DualShock 4 BT no layout Bluetooth",
+				EN: "Keep DualShock 4 BT in Bluetooth layout",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE (DualShock 4)",
+				EN: "GE (DualShock 4)",
+			},
+			Description: Localized{
+				PT: "Por padrão, com Steam Input desativado, um DualShock 4 conectado por Bluetooth é apresentado ao jogo como controle USB, com rumble, lightbar, motion e touchpad sob Bluetooth. Defina 0 para manter o layout Bluetooth. Fonte: README do GE (PROTON_DUALSHOCK4_BT_AS_USB).",
+				EN: "By default, with Steam Input disabled, a Bluetooth-connected DualShock 4 is presented to the game as a USB controller, with rumble, lightbar, motion and touchpad over Bluetooth. Set to 0 to keep the Bluetooth layout. Source: GE README (PROTON_DUALSHOCK4_BT_AS_USB).",
+			},
+		},
+		{
+			Command: "PROTON_DUALSHOCK4_BT_AUDIO=0 %command%",
+			Title: Localized{
+				PT: "Desativar áudio BT do DualShock 4",
+				EN: "Disable DualShock 4 BT audio",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE (DualShock 4)",
+				EN: "GE (DualShock 4)",
+			},
+			Description: Localized{
+				PT: "Por padrão habilitado junto com PROTON_DUALSHOCK4_BT_AS_USB: o jogo recebe os endpoints de speaker estéreo e do microfone do headset. O áudio do speaker é enviado ao speaker Bluetooth do controle ou ao headset conectado a ele, e o microfone de um headset plugado é capturado por Bluetooth. Defina 0 para desativar. Fonte: README do GE (PROTON_DUALSHOCK4_BT_AUDIO).",
+				EN: "Enabled by default together with PROTON_DUALSHOCK4_BT_AS_USB: the game receives the stereo speaker and headset microphone endpoints. Speaker audio is sent to the controller's Bluetooth speaker, or to a plugged-in headset, and a plugged-in headset microphone is captured over Bluetooth. Set to 0 to disable. Source: GE README (PROTON_DUALSHOCK4_BT_AUDIO).",
+			},
+		},
+		{
+			Command: "PROTON_STEAM_INPUT_XBOX_PROMPTS=1 %command%",
+			Title: Localized{
+				PT: "Controle Steam como Xbox (prompts)",
+				EN: "Steam controller as Xbox (prompts)",
+			},
+			Category: Localized{
+				PT: "Input",
+				EN: "Input",
+			},
+			Compat: Localized{
+				PT: "GE",
+				EN: "GE",
+			},
+			Description: Localized{
+				PT: "Relata um Steam Deck ou Steam Controller ao jogo como controle Xbox One pelo Steam Input, para jogos que de outra forma mostram prompts de teclado. Habilitado por padrão no Rune Factory 5. Fonte: README do GE (PROTON_STEAM_INPUT_XBOX_PROMPTS).",
+				EN: "Reports a Steam Deck or Steam Controller to the game as an Xbox One controller through Steam Input, for games that otherwise show keyboard prompts. Enabled by default for Rune Factory 5. Source: GE README (PROTON_STEAM_INPUT_XBOX_PROMPTS).",
+			},
+		},
+		{
+			Command: "WINEALSA_CHANNELS=2 %command%",
+			Title: Localized{
+				PT: "Canais do winealsa",
+				EN: "winealsa channels",
+			},
+			Category: Localized{
+				PT: "Áudio",
+				EN: "Audio",
+			},
+			Compat: Localized{
+				PT: "CachyOS (driver winealsa)",
+				EN: "CachyOS (winealsa driver)",
+			},
+			Description: Localized{
+				PT: "Permite selecionar mais de dois canais no driver winealsa e forçar o desligamento do áudio espacial. Valor = número de alto-falantes (2 para desativar o espacial, 4, 6 ou 8 para 5.1/7.1). Útil com configurações surround ou som com posição errada. Fonte: README do CachyOS (WINEALSA_CHANNELS).",
+				EN: "Lets you select more than two channels with the winealsa driver and force-disable spatial audio. Value = number of speakers (2 to disable spatial audio, 4, 6 or 8 for 5.1/7.1). Useful with surround setups or positional audio errors. Source: CachyOS README (WINEALSA_CHANNELS).",
+			},
+		},
+		{
+			Command: "WINEALSA_SPATIAL=1 %command%",
+			Title: Localized{
+				PT: "Downmix espacial do winealsa",
+				EN: "winealsa spatial downmix",
+			},
+			Category: Localized{
+				PT: "Áudio",
+				EN: "Audio",
+			},
+			Compat: Localized{
+				PT: "CachyOS (driver winealsa)",
+				EN: "CachyOS (winealsa driver)",
+			},
+			Description: Localized{
+				PT: "Faz o downmix espacial correto no winealsa, incluindo os canais de altura (height). Use 1 para ativar, 0 para desativar (padrão). Recomendado só quando há erros de áudio espacial com WINEALSA_CHANNELS. Fonte: README do CachyOS (WINEALSA_SPATIAL).",
+				EN: "Performs proper spatial downmix in winealsa, including height channels. Use 1 to enable, 0 to disable (default). Recommended only when there are spatial-audio errors with WINEALSA_CHANNELS. Source: CachyOS README (WINEALSA_SPATIAL).",
+			},
+		},
 	}
 }
