@@ -1,3 +1,29 @@
+# v0.7.0
+
+Revisão ampla do catálogo: 21 comandos novos verificados nas fontes primárias (GE e CachyOS), descrições enriquecidas e fontes registradas.
+
+**Comandos novos**
+
+- HDR: `DXVK_NO_HDR=1`, `PROTON_FORCE_HDR=1` e `PROTON_USE_HDR=1` (legado).
+- Renderização: `PROTON_NO_D3D12=1`, `PROTON_NO_WRITE_WATCH=1`, `WINE_DISABLE_EXE_ASLR=1`.
+- Áudio: `WINEALSA_CHANNELS=`, `WINEALSA_SPATIAL=`, `PROTON_ENABLE_MEDIACONV=1` (depuração).
+- Input: `PROTON_ENABLE_WINEBTH=1`, DualSense/DualShock 4 Bluetooth como USB, `PROTON_STEAM_INPUT_XBOX_PROMPTS=1`, `PROTON_NO_STEAMINPUT=1`.
+- Wayland: `WAYLANDDRV_PRIMARY_MONITOR=`, `WAYLANDDRV_RAWINPUT=`.
+- Upscaling: `WINE_FULLSCREEN_FSR_CUSTOM_MODE=`, `PROTON_STREAMLINE_UPGRADE=1`.
+- GPU: `PROTON_NVIDIA_NVCUDA=1`, `PROTON_NVIDIA_NVENC=1`, `PROTON_NVIDIA_NVML=0`, `PROTON_NVIDIA_NVOPTIX=1`.
+
+**Documentação**
+
+- Descrições das 15 entradas mais curtas e das 7 de latência/baixa latência restantes enriquecidas com pré-requisitos, limitações e fonte primária.
+- README atualizado para 127 comandos.
+
+**Verificação**
+
+- `gofmt`, `go vet`, 103 testes (`go test ./...`) e build verdes.
+- `tools/auditar-catalogo.py --offline` (127 entradas) e `--online` (15/15 fontes; sem variável sem fonte fora das 3 exceções conhecidas).
+
+---
+
 # v0.6.8
 
 O valor do app é a descrição técnica estar correta: uma variável descrita
