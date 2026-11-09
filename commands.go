@@ -2442,5 +2442,44 @@ func commands() []Command {
 				EN: "0 disables unaccelerated input and uses accelerated input; a positive real value (e.g. 0.5) adjusts raw input sensitivity. Only meaningful under the Wayland driver. Source: GE README (WAYLANDDRV_RAWINPUT).",
 			},
 		},
+
+		{
+			Command: "PROTON_USE_HDR=1 %command%",
+			Title: Localized{
+				PT: "HDR legado (PROTON_USE_HDR)",
+				EN: "Legacy HDR override (PROTON_USE_HDR)",
+			},
+			Category: Localized{
+				PT: "Wayland",
+				EN: "Wayland",
+			},
+			Compat: Localized{
+				PT: "GE e CachyOS (legado)",
+				EN: "GE and CachyOS (legacy)",
+			},
+			Description: Localized{
+				PT: "Override legado de HDR. Não é mais necessário para detecção automática em DX11/DX12 e 1 não força mais o HDR no Wayland (use PROTON_FORCE_HDR para isso). Defina 0 para desligar a divulgação de HDR. Use apenas em builds antigos; PROTON_ENABLE_HDR tenta o mesmo e também está obsoleta. Fonte: README do GE (hdr).",
+				EN: "Legacy HDR override. No longer required for automatic detection on DX11/DX12, and 1 no longer forces HDR on Wayland (use PROTON_FORCE_HDR for that). Set to 0 to disable HDR reporting. Use only on old builds; PROTON_ENABLE_HDR tries the same thing and is also obsolete. Source: GE README (hdr).",
+			},
+		},
+		{
+			Command: "PROTON_ENABLE_MEDIACONV=1 %command%",
+			Title: Localized{
+				PT: "Media converter (depuração)",
+				EN: "Media converter (debug)",
+			},
+			Category: Localized{
+				PT: "Áudio",
+				EN: "Audio",
+			},
+			Compat: Localized{
+				PT: "CachyOS e GE",
+				EN: "CachyOS and GE",
+			},
+			Description: Localized{
+				PT: "Habilita o converter de mídia do winegstreamer. Marcado como depuração nos próprios READMEs: não use em jogo, só para diagnóstico de reprodução de cutscene. Fonte: README do CachyOS/GE (mediaconv).",
+				EN: "Enables the winegstreamer media converter. The READMEs mark it as debugging: not for in-game use, only for cutscene playback diagnosis. Source: CachyOS/GE README (mediaconv).",
+			},
+		},
 	}
 }
