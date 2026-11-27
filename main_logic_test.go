@@ -560,6 +560,21 @@ func TestConflictMesaAntiLagLayerComFsr4(t *testing.T) {
 	}
 }
 
+func TestConflictMesaAntiLagLayerComFfx4(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("ENABLE_LAYER_MESA_ANTI_LAG=1 %command%")] = true
+	g.selected[idxOf("PROTON_FFX4_UPGRADE=1 %command%")] = true
+	found := false
+	for _, w := range g.conflicts() {
+		if strings.Contains(w, "DISABLE_LAYER_MESA_ANTI_LAG") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected mesa layer/ffx4 conflict, got %v", g.conflicts())
+	}
+}
+
 func TestConflictNvidiaLibsWow64(t *testing.T) {
 	g := testGUI("pt", "steam")
 	g.selected[idxOf("PROTON_NVIDIA_LIBS=1 %command%")] = true
@@ -638,6 +653,34 @@ var docsObrigatorias = map[string][]string{
 		"42048",
 		"25.3",
 	},
+	"DISABLE_LSFGVK=1 %command%": {
+		"DISABLE_LSFGVK",
+		"lsfg-vk-cli",
+	},
+	"LSFGVK_ENV=1 LSFGVK_MULTIPLIER=3 %command%": {
+		"LSFGVK_ENV=1",
+		"LSFGVK_MULTIPLIER",
+		"Multiplier",
+	},
+	"LSFGVK_ENV=1 LSFGVK_FLOW_SCALE=0.85 %command%": {
+		"LSFGVK_ENV=1",
+		"LSFGVK_FLOW_SCALE",
+		"Flow Scale",
+	},
+	"LSFGVK_ENV=1 LSFGVK_PERFORMANCE_MODE=1 %command%": {
+		"LSFGVK_ENV=1",
+		"LSFGVK_PERFORMANCE_MODE",
+		"Performance Mode",
+	},
+	"LSFGVK_ENV=1 LSFGVK_NO_FP16=1 %command%": {
+		"LSFGVK_ENV=1",
+		"LSFGVK_NO_FP16",
+		"allow_fp16",
+	},
+	"DISABLE_LOW_LATENCY_LAYER=1 %command%": {
+		"DISABLE_LOW_LATENCY_LAYER",
+		"LOW_LATENCY_LAYER=1",
+	},
 	"LOW_LATENCY_LAYER=1 %command%": {
 		"VK_AMD_anti_lag",
 		"Cyberpunk 2077",
@@ -673,13 +716,6 @@ var docsObrigatorias = map[string][]string{
 		"LOW_LATENCY_LAYER=1",
 		"10.0-20251007",
 	},
-	"DXVK_FRAME_RATE=60 %command%": {
-		"VKD3D_FRAME_RATE",
-		"PROTON_DXVK_LOWLATENCY=1",
-		"DXVK_FRAME_PACE",
-		"dxvk.maxFrameRate",
-		"3.0",
-	},
 	`DXVK_CONFIG="dxgi.maxFrameRate=60;d3d9.maxFrameRate=60" %command%`: {
 		"dxvk.maxFrameRate",
 		"dxgi.maxFrameRate",
@@ -694,10 +730,6 @@ var docsObrigatorias = map[string][]string{
 		"VKD3D_FRAME_RATE",
 		"Proton-EM",
 	},
-	"RADV_DEBUG=nofastclears %command%": {
-		"nofastclears",
-		"RADV_DEBUG",
-	},
 	"PROTON_FFX4_UPGRADE=1 %command%": {
 		"PROTON_FFX3_UPGRADE",
 		"PROTON_FSR4_UPGRADE",
@@ -710,7 +742,6 @@ var docsObrigatorias = map[string][]string{
 		"PROTON_MLFG_UPGRADE=0",
 		"wmma_rdna3_workaround",
 		"MLFG_WATERMARK=1",
-		"PROTON_FSR4_RDNA3_UPGRADE",
 	},
 	"PROTON_NVIDIA_LIBS=1 %command%": {
 		"nvcuda",
@@ -846,7 +877,6 @@ func TestConflictFsr4NvapiSpoof(t *testing.T) {
 	} {
 		for _, upgrade := range []string{
 			"PROTON_FSR4_UPGRADE=1 %command%",
-			"PROTON_FSR4_RDNA3_UPGRADE=1 %command%",
 			"PROTON_FFX4_UPGRADE=1 %command%",
 		} {
 			g := testGUI("pt", "steam")
@@ -875,7 +905,6 @@ func TestSemConflictFsr4Sozinho(t *testing.T) {
 		"PROTON_FORCE_NVAPI=1 %command%",
 		"LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 %command%",
 		"PROTON_FSR4_UPGRADE=1 %command%",
-		"PROTON_FSR4_RDNA3_UPGRADE=1 %command%",
 		"PROTON_FFX4_UPGRADE=1 %command%",
 	} {
 		g := testGUI("pt", "steam")
@@ -888,35 +917,30 @@ func TestSemConflictFsr4Sozinho(t *testing.T) {
 	}
 }
 
-// upscalingSemAncora e a dívida conhecida: 14 entradas de upscaling não
-// têm âncora. Várias delas (integer scaling, FSR strength) não citam nenhum
+// upscalingSemAncora e a dívida conhecida: 11 entradas de upscaling não
+// têm âncora. Várias delas (integer scaling) não citam nenhum
 // identificador técnico na descrição, então "ancorar" seria fixar frase —
 // justamente o que o AGENTS.md proíbe. Enquanto isso não é resolvido
 // reescrevendo as descrições com verificação de fonte, a lista congela a
 // dívida: qualquer entrada NOVA de upcaling sem âncora reprova o teste.
 var upscalingSemAncora = map[string]bool{
-	"WINE_FULLSCREEN_FSR=1 %command%":                     true,
-	"WINE_FULLSCREEN_INTEGER_SCALING=1 %command%":         true,
-	"PROTON_DLSS_UPGRADE=1 %command%":                     true,
-	"PROTON_USE_OPTISCALER=1 %command%":                   true,
-	"WINE_FULLSCREEN_FSR_STRENGTH=2 %command%":            true,
-	"WINE_FULLSCREEN_FSR_CUSTOM_MODE=1920x1080 %command%": true,
-	"PROTON_STREAMLINE_UPGRADE=1 %command%":               true,
-	"gamescope -e -f -F fsr -- %command%":                 true,
-	"PROTON_FSR4_INDICATOR=1 %command%":                   true,
-	"PROTON_FSR4_RDNA3_UPGRADE=1 %command%":               true,
-	"PROTON_FSR3_UPGRADE=1 %command%":                     true,
-	"PROTON_FFX3_UPGRADE=1 %command%":                     true,
-	"PROTON_XESS_UPGRADE=1 %command%":                     true,
-	"PROTON_DLSS_INDICATOR=1 %command%":                   true,
-	"PROTON_OPTISCALER_NAME=dxgi.dll %command%":           true,
+	"WINE_FULLSCREEN_INTEGER_SCALING=1 %command%": true,
+	"PROTON_DLSS_UPGRADE=1 %command%":             true,
+	"PROTON_USE_OPTISCALER=1 %command%":           true,
+	"PROTON_STREAMLINE_UPGRADE=1 %command%":       true,
+	"gamescope -e -f -F fsr -- %command%":         true,
+	"PROTON_FSR4_INDICATOR=1 %command%":           true,
+	"PROTON_FFX3_UPGRADE=1 %command%":             true,
+	"PROTON_XESS_UPGRADE=1 %command%":             true,
+	"PROTON_DLSS_INDICATOR=1 %command%":           true,
+	"PROTON_OPTISCALER_NAME=dxgi.dll %command%":   true,
 	"PROTON_OPTISCALER_CONFIG=\"Upscalers.Dx11Upscaler=fsr31;Upscalers.Dx12Upscaler=dlss\" %command%": true,
 }
 
 // TestTodasLatenciaAncoradas executa a regra do AGENTS.md. Sem isto,
 // apagar um pedaço de descrição não quebra nada — a regra existia só no
 // texto, e foi assim que DXVK_NVAPI_VKREFLEX ficou sem âncora: eram 6 de
-// 7 entradas de latência cobertas (docsObrigatorias tem 25 chaves no total,
+// 7 entradas de latência cobertas (docsObrigatorias tem 29 chaves no total,
 // espalhadas por várias categorias, não só latência).
 func TestTodasLatenciaAncoradas(t *testing.T) {
 	for i, c := range commands() {
@@ -1037,6 +1061,9 @@ func TestCommandsValid(t *testing.T) {
 		if c.Category.PT == "" || c.Category.EN == "" {
 			t.Errorf("comando %q: categoria PT/EN incompleta", c.Command)
 		}
+		if c.Compat.PT == "" || c.Compat.EN == "" {
+			t.Errorf("comando %q: compatibilidade PT/EN incompleta", c.Command)
+		}
 	}
 }
 
@@ -1059,6 +1086,9 @@ func TestNoObsoleteCommands(t *testing.T) {
 		"FNA3D_FORCE_DRIVER",
 		"DRI_CONFIG",
 		"PROTON_ENABLE_HDR",
+		"DXVK_FRAME_RATE",
+		"PROTON_FSR3_UPGRADE",
+		"PROTON_FSR4_RDNA3_UPGRADE",
 	}
 	cmds := commands()
 	for _, c := range cmds {
@@ -1368,6 +1398,27 @@ func TestCombinationWrappersPorUltimo(t *testing.T) {
 	idxGamescope := strings.Index(got, "gamescope")
 	if idxLog > idxMango || idxLog > idxGamescope {
 		t.Fatalf("PROTON_LOG deveria estar antes dos wrappers, got %q", got)
+	}
+}
+
+// TestCombinationWrapperComSeparadorPorUltimo: gamescope termina em "--",
+// então o que vem depois dele é o executável do jogo. game-performance
+// precisa ficar antes, com ou sem %command%.
+func TestCombinationWrapperComSeparadorPorUltimo(t *testing.T) {
+	g := testGUI("pt", "steam")
+	g.selected[idxOf("game-performance %command%")] = true
+	g.selected[idxOf("gamescope -e -f -F fsr -- %command%")] = true
+	want := "game-performance gamescope -e -f -F fsr -- %command%"
+	if got := g.buildCombination(); got != want {
+		t.Fatalf("got %q want %q", got, want)
+	}
+
+	g = testGUI("pt", "heroic")
+	g.selected[idxOf("game-performance %command%")] = true
+	g.selected[idxOf("gamescope -e -f -F fsr -- %command%")] = true
+	want = "game-performance gamescope -e -f -F fsr"
+	if got := g.buildCombination(); got != want {
+		t.Fatalf("heroic: got %q want %q", got, want)
 	}
 }
 

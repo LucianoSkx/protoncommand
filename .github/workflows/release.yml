@@ -11,7 +11,11 @@ permissions:
   contents: write
 
 jobs:
+  check:
+    uses: ./.github/workflows/ci.yml
+
   appimage:
+    needs: check
     runs-on: ubuntu-latest
     env:
       GOPROXY: https://proxy.golang.org,direct

@@ -1,9 +1,11 @@
 name: CI
 
 on:
+  # O workflow de release chama este como job de gate; disparo direto só em
+  # branch/PR para não rodar duas vezes na mesma tag.
+  workflow_call:
   push:
     branches: ["**"]
-    tags: ["v*"]
   pull_request:
 
 jobs:

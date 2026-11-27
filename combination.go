@@ -97,23 +97,31 @@ func (g *gui) adapt(s string) string {
 }
 
 func (g *gui) buildCombination() string {
-	var wrappers, envs []string
+	var wrappers, envs, comSeparador []string
 	for i := range g.all {
 		if !g.selected[i] {
 			continue
 		}
 		c := g.all[i]
-		base := strings.TrimSpace(strings.TrimSuffix(g.cmd(c), "%command%"))
+		bruto := strings.TrimSpace(strings.TrimSuffix(g.cmd(c), "%command%"))
+		base := bruto
 		if !g.launcher().HasCmd {
 			base = strings.TrimSpace(strings.TrimSuffix(base, "--"))
 		}
 		if g.isWrapper(c) {
-			wrappers = append(wrappers, base)
+			// Tudo depois de "--" é o executável do jogo: um wrapper com
+			// separador precisa vir depois dos outros, não antes deles.
+			if strings.HasSuffix(bruto, "--") {
+				comSeparador = append(comSeparador, base)
+			} else {
+				wrappers = append(wrappers, base)
+			}
 		} else {
 			envs = append(envs, base)
 		}
 	}
 	parts := append(envs, wrappers...)
+	parts = append(parts, comSeparador...)
 	if len(parts) == 0 {
 		return ""
 	}
@@ -164,7 +172,8 @@ func (g *gui) conflicts() []string {
 			case "PROTON_FSR4_UPGRADE":
 				hasFsr4Upgrade = true
 				fsr4Upgrades = append(fsr4Upgrades, name)
-			case "PROTON_FSR4_RDNA3_UPGRADE", "PROTON_FFX4_UPGRADE":
+			case "PROTON_FFX4_UPGRADE":
+				hasFsr4Upgrade = true
 				// PROTON_FFX4_UPGRADE é o nome atual do upgrade de FSR 4 no
 				// CachyOS 11+ e controla as mesmas versões (CHANGELOG do
 				// CachyOS). Sem ele aqui, a regra pegava o nome antigo e

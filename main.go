@@ -907,7 +907,6 @@ func (g *gui) applyFilter() {
 		if g.favOnly && !g.favs[g.favKey(i)] {
 			continue
 		}
-		hay := strings.ToLower(c.Command + " " + c.CommandEN + " " + g.t(c.Title) + " " + g.t(c.Category) + " " + g.t(c.Description) + " " + g.t(c.Compat))
 		if query == "" {
 			g.filtered = append(g.filtered, i)
 			continue
@@ -931,8 +930,11 @@ func (g *gui) applyFilter() {
 			if cmdQ == "" || strings.Contains(cmdLower, cmdQ) {
 				g.filtered = append(g.filtered, i)
 			}
-		} else if strings.Contains(hay, query) {
-			g.filtered = append(g.filtered, i)
+		} else {
+			hay := strings.ToLower(c.Command + " " + c.CommandEN + " " + g.t(c.Title) + " " + g.t(c.Category) + " " + g.t(c.Description) + " " + g.t(c.Compat))
+			if strings.Contains(hay, query) {
+				g.filtered = append(g.filtered, i)
+			}
 		}
 	}
 	g.selID = -1

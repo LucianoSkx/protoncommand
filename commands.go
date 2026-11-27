@@ -207,25 +207,6 @@ func commands() []Command {
 			},
 		},
 		{
-			Command: "WINE_FULLSCREEN_FSR=1 %command%",
-			Title: Localized{
-				PT: "FidelityFX Super Resolution (FSR)",
-				EN: "FidelityFX Super Resolution (FSR)",
-			},
-			Category: Localized{
-				PT: "Upscaling",
-				EN: "Upscaling",
-			},
-			Compat: Localized{
-				PT: "Todos (Vulkan via DXVK)",
-				EN: "All (Vulkan via DXVK)",
-			},
-			Description: Localized{
-				PT: "Ativa o upscaling FSR 1 da AMD no modo fullscreen: o jogo renderiza em resolução menor e o FSR sobe a imagem, ganhando FPS em placas mais fracas. Combine com WINE_FULLSCREEN_FSR_STRENGTH=2 para ajustar a nitidez (0 = máxima, 5 = mínima). Funciona nos jogos renderizados via Vulkan — inclui títulos D3D11/D3D12 traduzidos pelo DXVK/VKD3D; não funciona em OpenGL (wined3d). Recurso legado: prefira o Gamescope (-F fsr) ou o upgrade FSR 4. Fonte: README do GE/Proton (WINE_FULLSCREEN_FSR).",
-				EN: "Enables AMD FSR 1 upscaling in fullscreen: the game renders at a lower resolution and FSR upscales the image, gaining FPS on weaker GPUs. Combine with WINE_FULLSCREEN_FSR_STRENGTH=2 for sharpness (0 = max, 5 = min). Works in games rendered through Vulkan — including D3D11/D3D12 titles translated by DXVK/VKD3D; does not work in OpenGL (wined3d). Legacy feature: prefer Gamescope (-F fsr) or the FSR 4 upgrade. Source: GE/Proton README (WINE_FULLSCREEN_FSR).",
-			},
-		},
-		{
 			Command: "WINE_FULLSCREEN_INTEGER_SCALING=1 %command%",
 			Title: Localized{
 				PT: "Escala inteira (pixels nítidos)",
@@ -259,8 +240,8 @@ func commands() []Command {
 				EN: "GE and CachyOS (AMD RDNA3+/RDNA4 GPU)",
 			},
 			Description: Localized{
-				PT: "Baixa automaticamente a amdxcffx64.dll e atualiza jogos com FSR 3.1 para FSR 4. Versão customizável: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 no GE, 4.1.1 no CachyOS). Para RDNA3 use PROTON_FSR4_RDNA3_UPGRADE. No Proton-CachyOS esta variável vem acompanhada de DISABLE_LAYER_MESA_ANTI_LAG=1, ou seja, ela desliga a camada Anti-Lag 2 do Mesa — porque as duas brigavam por causa da issue 47. O flag já foi removido uma vez (10.0-20250919, quando acharam que o Anti-Lag 2 tinha melhorado) e voltou no 10.0-20251007, então espere por ele. Isso NÃO afeta o low_latency_layer: o Reflex/Anti-Lag 2 do LOW_LATENCY_LAYER=1 continua funcionando, porque é outra camada. Fonte: README do CachyOS (fsr4) e CHANGELOG 11.0-20260703.",
-				EN: "Automatically downloads amdxcffx64.dll and upgrades games with FSR 3.1 to FSR 4. Custom version: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 on GE, 4.1.1 on CachyOS). For RDNA3 use PROTON_FSR4_RDNA3_UPGRADE. On Proton-CachyOS this variable ships alongside DISABLE_LAYER_MESA_ANTI_LAG=1, i.e. it turns off the Mesa Anti-Lag 2 layer — the two used to clash over issue 47. The flag was removed once (10.0-20250919, when Anti-Lag 2 looked fixed) and came back in 10.0-20251007, so expect it. This does NOT affect low_latency_layer: the Reflex/Anti-Lag 2 from LOW_LATENCY_LAYER=1 keeps working, because that's a different layer. Source: CachyOS README (fsr4) and changelog 11.0-20260703.",
+				PT: "Baixa automaticamente a amdxcffx64.dll e atualiza jogos com FSR 3.1 para FSR 4. Versão customizável: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 no GE, 4.1.1 no CachyOS). Em RDNA3 o workaround específico foi removido no CachyOS 11+, então use esta variável. No Proton-CachyOS esta variável vem acompanhada de DISABLE_LAYER_MESA_ANTI_LAG=1, ou seja, ela desliga a camada Anti-Lag 2 do Mesa — porque as duas brigavam por causa da issue 47. O flag já foi removido uma vez (10.0-20250919, quando acharam que o Anti-Lag 2 tinha melhorado) e voltou no 10.0-20251007, então espere por ele. Isso NÃO afeta o low_latency_layer: o Reflex/Anti-Lag 2 do LOW_LATENCY_LAYER=1 continua funcionando, porque é outra camada. Fonte: README do CachyOS (fsr4) e CHANGELOG 11.0-20260703.",
+				EN: "Automatically downloads amdxcffx64.dll and upgrades games with FSR 3.1 to FSR 4. Custom version: PROTON_FSR4_UPGRADE=\"4.0.2\" (default 4.0.2 on GE, 4.1.1 on CachyOS). On RDNA3 the dedicated workaround was removed in CachyOS 11+, so use this variable. On Proton-CachyOS this variable ships alongside DISABLE_LAYER_MESA_ANTI_LAG=1, i.e. it turns off the Mesa Anti-Lag 2 layer — the two used to clash over issue 47. The flag was removed once (10.0-20250919, when Anti-Lag 2 looked fixed) and came back in 10.0-20251007, so expect it. This does NOT affect low_latency_layer: the Reflex/Anti-Lag 2 from LOW_LATENCY_LAYER=1 keeps working, because that's a different layer. Source: CachyOS README (fsr4) and changelog 11.0-20260703.",
 			},
 		},
 		{
@@ -373,8 +354,8 @@ func commands() []Command {
 				EN: "CachyOS (requires PROTON_DXVK_LOWLATENCY=1 and a VRR monitor)",
 			},
 			Description: Localized{
-				PT: "Ativa o modo de VRR do dxvk-low-latency 3.1.1+, que usa VK_EXT_present_timing para usar timings de VBlank precisos e detectar o refresh do monitor automaticamente: elimina o buffer de V-Sync e mantém o pacing suave. Exige PROTON_DXVK_LOWLATENCY=1 e o monitor configurado em frequência variável. O limite de fps é fixado em 5% abaixo do refresh máximo e pode ser ajustado com DXVK_FRAME_RATE (ex.: 225 em 240 Hz). No Wayland precisa de wp_presentation v2, que a maioria dos compositors já oferece. Em versões anteriores à 3.1.1 o modo equivalente era low-latency-vrr-<refresh>, ex.: low-latency-vrr-240. Diagnóstico: DXVK_HUD=latencydetails. Fonte: release notes do dxvk-low-latency 3.1.1 (VK_EXT_present_timing).",
-				EN: "Enables the VRR mode of dxvk-low-latency 3.1.1+, which uses VK_EXT_present_timing for precise VBlank timings and automatic refresh rate detection: it removes V-Sync buffering while keeping pacing smooth. Requires PROTON_DXVK_LOWLATENCY=1 and a monitor configured for variable refresh rate. The fps cap is fixed at 5% below the max refresh rate and can be overridden with DXVK_FRAME_RATE (e.g. 225 on 240 Hz). On Wayland it needs wp_presentation v2, which most compositors already provide. Before 3.1.1 the equivalent mode was low-latency-vrr-<refresh>, e.g. low-latency-vrr-240. Diagnostics: DXVK_HUD=latencydetails. Source: dxvk-low-latency release notes 3.1.1 (VK_EXT_present_timing).",
+				PT: "Ativa o modo de VRR do dxvk-low-latency 3.1.1+, que usa VK_EXT_present_timing para usar timings de VBlank precisos e detectar o refresh do monitor automaticamente: elimina o buffer de V-Sync e mantém o pacing suave. Exige PROTON_DXVK_LOWLATENCY=1 e o monitor configurado em frequência variável. O limite de fps é fixado em 5% abaixo do refresh máximo e pode ser sobrescrito à mão com DXVK_FRAME_RATE (ex.: 225 em 240 Hz) — a variável saiu do DXVK 3.0, mas segue no fork dxvk-low-latency. No Wayland precisa de wp_presentation v2, que a maioria dos compositors já oferece. Em versões anteriores à 3.1.1 o modo equivalente era low-latency-vrr-<refresh>, ex.: low-latency-vrr-240. Diagnóstico: DXVK_HUD=latencydetails. Fonte: release notes do dxvk-low-latency 3.1.1 (VK_EXT_present_timing).",
+				EN: "Enables the VRR mode of dxvk-low-latency 3.1.1+, which uses VK_EXT_present_timing for precise VBlank timings and automatic refresh rate detection: it removes V-Sync buffering while keeping pacing smooth. Requires PROTON_DXVK_LOWLATENCY=1 and a monitor configured for variable refresh rate. The fps cap is fixed at 5% below the max refresh rate and can be overridden by hand with DXVK_FRAME_RATE (e.g. 225 on 240 Hz) — the variable was removed in DXVK 3.0 but remains in the dxvk-low-latency fork. On Wayland it needs wp_presentation v2, which most compositors already provide. Before 3.1.1 the equivalent mode was low-latency-vrr-<refresh>, e.g. low-latency-vrr-240. Diagnostics: DXVK_HUD=latencydetails. Source: dxvk-low-latency release notes 3.1.1 (VK_EXT_present_timing).",
 			},
 		},
 		{
@@ -525,8 +506,8 @@ func commands() []Command {
 				EN: "CachyOS",
 			},
 			Description: Localized{
-				PT: "Desliga a decoração de janela que o gerenciador de janelas desenha e usa a decoração própria do Wine. Ajuda quando a moldura fica com tamanho errado, aparece duplicada ou some ao redimensionar, especialmente em Wayland e XWayland. Se o problema for só a posição/tamanho da janela, o caminho costuma ser outro: WINE_FULLSCREEN_FSR=1 ou a remoção do overlay.",
-				EN: "Turns off the window decorations drawn by the window manager and uses Wine's own. It helps when the frame gets the wrong size, shows up duplicated, or disappears on resize, especially on Wayland and XWayland. If the problem is only the window position/size, the usual path is different: WINE_FULLSCREEN_FSR=1 or dropping the overlay.",
+				PT: "Desliga a decoração de janela que o gerenciador de janelas desenha e usa a decoração própria do Wine. Ajuda quando a moldura fica com tamanho errado, aparece duplicada ou some ao redimensionar, especialmente em Wayland e XWayland. Se o problema for só a posição/tamanho da janela, o caminho costuma ser remover o overlay.",
+				EN: "Turns off the window decorations drawn by the window manager and uses Wine's own. It helps when the frame gets the wrong size, shows up duplicated, or disappears on resize, especially on Wayland and XWayland. If the problem is only the window position/size, the usual path is to drop the overlay.",
 			},
 		},
 		{
@@ -835,6 +816,25 @@ func commands() []Command {
 			},
 		},
 		{
+			Command: "DISABLE_LOW_LATENCY_LAYER=1 %command%",
+			Title: Localized{
+				PT: "low_latency_layer: desligar a camada",
+				EN: "low_latency_layer: disable the layer",
+			},
+			Category: Localized{
+				PT: "Latência",
+				EN: "Latency",
+			},
+			Compat: Localized{
+				PT: "Todos (exige low_latency_layer instalado)",
+				EN: "All (requires low_latency_layer installed)",
+			},
+			Description: Localized{
+				PT: "Desativa a camada low_latency_layer mesmo que LOW_LATENCY_LAYER=1 esteja ligada no sistema: a variável de desligar tem precedência. Assim você desliga só neste jogo, sem alterar o ambiente global. Fonte: README do low_latency_layer (tabela de variáveis de ambiente, DISABLE_LOW_LATENCY_LAYER).",
+				EN: "Disables the low_latency_layer even when LOW_LATENCY_LAYER=1 is set globally: the disable variable takes precedence. This disables it for this game only, without changing the global environment. Source: low_latency_layer README (environment variable table, DISABLE_LOW_LATENCY_LAYER).",
+			},
+		},
+		{
 			Command: "LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 %command%",
 			Title: Localized{
 				PT: "Spoofing NVIDIA no low_latency_layer",
@@ -911,25 +911,6 @@ func commands() []Command {
 			},
 		},
 		{
-			Command: "WINE_FULLSCREEN_FSR_STRENGTH=2 %command%",
-			Title: Localized{
-				PT: "Nitidez do FSR",
-				EN: "FSR sharpness",
-			},
-			Category: Localized{
-				PT: "Upscaling",
-				EN: "Upscaling",
-			},
-			Compat: Localized{
-				PT: "Todos (use junto com WINE_FULLSCREEN_FSR=1)",
-				EN: "All (use with WINE_FULLSCREEN_FSR=1)",
-			},
-			Description: Localized{
-				PT: "Ajusta a nitidez do FSR em fullscreen: 0 = nitidez máxima, 5 = mínima (2 é o recomendado pela AMD). Sem essa variável, o FSR usa o valor padrão. Só tem efeito com WINE_FULLSCREEN_FSR=1. Fonte: README do GE (WINE_FULLSCREEN_FSR_STRENGTH).",
-				EN: "Adjusts FSR sharpness in fullscreen: 0 = maximum sharpness, 5 = minimum (2 is AMD's recommendation). Without this variable, FSR uses the default. Only has effect with WINE_FULLSCREEN_FSR=1. Source: GE README (WINE_FULLSCREEN_FSR_STRENGTH).",
-			},
-		},
-		{
 			Command: "VKD3D_CONFIG=dxr %command%",
 			Title: Localized{
 				PT: "Ray tracing (DXR) via vkd3d",
@@ -984,25 +965,6 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Desativa a d3d10.dll e a dxgi.dll, para jogos D3D10 que conseguem cair para D3D9 com mais desempenho. Se o jogo não tiver fallback, não abre.",
 				EN: "Disables d3d10.dll and dxgi.dll, for D3D10 games that can fall back to D3D9 with better performance. If the game has no fallback, it won't start.",
-			},
-		},
-		{
-			Command: "RADV_DEBUG=nofastclears %command%",
-			Title: Localized{
-				PT: "RADV: corrigir artefatos (nofastclears)",
-				EN: "RADV: fix artifacts (nofastclears)",
-			},
-			Category: Localized{
-				PT: "GPU",
-				EN: "GPU",
-			},
-			Compat: Localized{
-				PT: "Todos (GPU AMD / Mesa RADV)",
-				EN: "All (AMD GPU / Mesa RADV)",
-			},
-			Description: Localized{
-				PT: "Desativa os fast clears no driver RADV, corrigindo artefatos visuais (tela piscando, linhas estranhas) em alguns jogos AMD. Se o jogo sumir no HUD, é sintoma de fast clear. A variável é RADV_DEBUG e nofastclears é a primeira opção da tabela radv_debug_options do driver, e a lista tem várias outras que resolvem artefatos parecidos (nodcc, nohiz, zerovram, nongg, noumr, nodma, nofmask) — se uma não servir, tente a próxima. É opção de debug: use só para diagnosticar e tire depois, porque ligar flag de debug sempre custa algum desempenho.",
-				EN: "Disables fast clears in the RADV driver, fixing visual artifacts (flickering, weird lines) in some AMD games. If a game disappears from the HUD, it's a fast clear symptom. The variable is RADV_DEBUG, and nofastclears is the first entry in the driver's radv_debug_options table, and the list has several others that fix similar artifacts (nodcc, nohiz, zerovram, nongg, noumr, nodma, nofmask) — if one doesn't do it, try the next. It's a debug option: use it only to diagnose and remove it afterwards, because a debug flag always costs some performance.",
 			},
 		},
 		{
@@ -1079,26 +1041,6 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Ativa o rpc-bridge, que permite jogos rodando no Proton exibirem Rich Presence (\"jogando X\") no Discord. Desativado por padrão; o serviço só sobe quando a variável está ligada. Fonte: README do CachyOS (PROTON_DISCORD_BRIDGE).",
 				EN: "Enables rpc-bridge, letting games running in Proton show Rich Presence (\"playing X\") on Discord. Disabled by default; the service only starts when the variable is set. Source: CachyOS README (PROTON_DISCORD_BRIDGE).",
-			},
-		},
-		{
-			Command:   "PROTON_WAIT_ATTACH=1 %command%",
-			CommandEN: "PROTON_WAIT_ATTACH=1 %command%",
-			Title: Localized{
-				PT: "Esperar depurador anexar",
-				EN: "Wait for debugger attach",
-			},
-			Category: Localized{
-				PT: "Diagnóstico",
-				EN: "Diagnostics",
-			},
-			Compat: Localized{
-				PT: "Proton padrão",
-				EN: "Standard Proton",
-			},
-			Description: Localized{
-				PT: "Espera um depurador anexar ao steam.exe antes de iniciar o processo do jogo. Para anexar ao jogo no início, configure o depurador para seguir processos filhos. Só útil para desenvolvimento; atrapalha o fluxo de jogo se deixado ligado. Fonte: README padrão do Proton (PROTON_WAIT_ATTACH).",
-				EN: "Waits for a debugger to attach to steam.exe before launching the game process. To attach to the game at startup, set debuggers to follow child processes. Only useful for development; leaving it on disrupts normal play. Source: standard Proton README (PROTON_WAIT_ATTACH).",
 			},
 		},
 		{
@@ -1482,26 +1424,6 @@ func commands() []Command {
 			},
 		},
 		{
-			Command:   "DXVK_FRAME_RATE=60 %command%",
-			CommandEN: "DXVK_FRAME_RATE=60 %command%",
-			Title: Localized{
-				PT: "Limite de FPS (DXVK)",
-				EN: "FPS cap (DXVK)",
-			},
-			Category: Localized{
-				PT: "Overlay e desempenho",
-				EN: "Overlay & Performance",
-			},
-			Compat: Localized{
-				PT: "Fork dxvk-low-latency (PROTON_DXVK_LOWLATENCY=1) ou Proton-EM; removido do DXVK 3.0",
-				EN: "dxvk-low-latency fork (PROTON_DXVK_LOWLATENCY=1) or Proton-EM; removed in DXVK 3.0",
-			},
-			Description: Localized{
-				PT: "Removida no DXVK 3.0: a partir dessa versão a variável não faz nada no DXVK upstream, e o próprio release note manda usar limitador externo (Gamescope, MangoHud) ou a opção de configuração.\nOnde ainda funciona: no fork dxvk-low-latency, sempre junto com PROTON_DXVK_LOWLATENCY=1; e no Proton-EM, por emulação. Sem nenhum dos dois, troque por DXVK_CONFIG=\"dxgi.maxFrameRate=60;d3d9.maxFrameRate=60\" — dxgi.maxFrameRate para D3D10/11, d3d9.maxFrameRate para D3D9, dxvk.maxFrameRate para todos de uma vez.\nNão vale para D3D12: nesses use VKD3D_FRAME_RATE.\nNo fork: em DXVK_FRAME_PACE=low-latency-vrr o próprio DXVK já põe teto de 5% abaixo do refresh, e esse teto pode ser sobrescrito manualmente por aqui mesmo (ex.: 225 em 240 Hz) — o DXVK_HUD=latencydetails mostra o buffer de V-Sync, que é como se acha o valor (release 3.1.1). O upstream não diz o que acontece ao somar um segundo limitador em cima disso: trate a soma como não testada.\nÚtil em telas de 60 Hz, ou para reduzir consumo/ruído quando o jogo passa folgado do refresh.",
-				EN: "Removed in DXVK 3.0: as of that version the variable does nothing on upstream DXVK, and the release note itself tells you to use an external limiter (Gamescope, MangoHud) or the configuration option instead.\nWhere it still works: in the dxvk-low-latency fork, always paired with PROTON_DXVK_LOWLATENCY=1; and on Proton-EM, through emulation. With neither, use DXVK_CONFIG=\"dxgi.maxFrameRate=60;d3d9.maxFrameRate=60\" — dxgi.maxFrameRate for D3D10/11, d3d9.maxFrameRate for D3D9, dxvk.maxFrameRate for everything at once.\nIt does not apply to D3D12: use VKD3D_FRAME_RATE there.\nIn the fork: in DXVK_FRAME_PACE=low-latency-vrr mode DXVK itself already caps at 5% below refresh, and that cap can be overridden manually from here (e.g. 225 on a 240 Hz panel) — DXVK_HUD=latencydetails shows the V-Sync buffer, which is how you find the value (release 3.1.1). Upstream says nothing about what happens when a second limiter is stacked on top: treat the combination as untested.\nUseful on 60 Hz displays, or to cut power/noise when the game runs well past refresh.",
-			},
-		},
-		{
 			Command:   "gamescope -e -f -F fsr -- %command%",
 			CommandEN: "gamescope -e -f -F fsr -- %command%",
 			Title: Localized{
@@ -1562,6 +1484,101 @@ func commands() []Command {
 			},
 		},
 		{
+			Command: "DISABLE_LSFGVK=1 %command%",
+			Title: Localized{
+				PT: "lsfg-vk: desligar a geração de quadros",
+				EN: "lsfg-vk: disable frame generation",
+			},
+			Category: Localized{
+				PT: "Overlay e desempenho",
+				EN: "Overlay & Performance",
+			},
+			Compat: Localized{
+				PT: "Todos (exige lsfg-vk instalado)",
+				EN: "All (requires lsfg-vk installed)",
+			},
+			Description: Localized{
+				PT: "Desliga o lsfg-vk por completo neste jogo sem apagar perfil nem arquivo de configuração. A doc de troubleshooting manda rodar lsfg-vk-cli validate e healthcheck quando o lsfg-vk não faz nada — confira isso antes de desligar. Com a variável ativa o jogo volta ao comportamento normal. Fonte: docs oficiais do lsfg-vk (Environment Variables, DISABLE_LSFGVK).",
+				EN: "Disables lsfg-vk entirely for this game without deleting the profile or config file. The troubleshooting docs say to run lsfg-vk-cli validate and healthcheck when lsfg-vk does nothing — check that before turning it off. With the variable set the game returns to normal behavior. Source: official lsfg-vk docs (Environment Variables, DISABLE_LSFGVK).",
+			},
+		},
+		{
+			Command: "LSFGVK_ENV=1 LSFGVK_MULTIPLIER=3 %command%",
+			Title: Localized{
+				PT: "lsfg-vk: multiplicador de quadros",
+				EN: "lsfg-vk: frame multiplier",
+			},
+			Category: Localized{
+				PT: "Overlay e desempenho",
+				EN: "Overlay & Performance",
+			},
+			Compat: Localized{
+				PT: "Todos (exige lsfg-vk instalado)",
+				EN: "All (requires lsfg-vk installed)",
+			},
+			Description: Localized{
+				PT: "Define quantos quadros são gerados para cada quadro renderizado: com 3, o lsfg-vk gera 2 quadros extras (padrão 2). A variável é LSFGVK_MULTIPLIER. Só tem efeito com LSFGVK_ENV=1, que habilita as opções por variável em vez do arquivo de configuração, e pode ser recarregado em quente sem reiniciar o jogo. Fonte: docs oficiais do lsfg-vk (Environment Variables; Configuration Options, Multiplier).",
+				EN: "Sets how many frames are generated for each rendered frame: with 3, lsfg-vk generates 2 extra frames (default 2). The variable is LSFGVK_MULTIPLIER. It only works with LSFGVK_ENV=1, which enables options through variables instead of the config file, and can be hot-reloaded without restarting the game. Source: official lsfg-vk docs (Environment Variables; Configuration Options, Multiplier).",
+			},
+		},
+		{
+			Command: "LSFGVK_ENV=1 LSFGVK_FLOW_SCALE=0.85 %command%",
+			Title: Localized{
+				PT: "lsfg-vk: escala dos vetores de movimento",
+				EN: "lsfg-vk: motion vector scale",
+			},
+			Category: Localized{
+				PT: "Overlay e desempenho",
+				EN: "Overlay & Performance",
+			},
+			Compat: Localized{
+				PT: "Todos (exige lsfg-vk instalado)",
+				EN: "All (requires lsfg-vk installed)",
+			},
+			Description: Localized{
+				PT: "Controla a resolução em que os vetores de movimento são calculados. Valores abaixo de 1.0 dão mais desempenho e pior qualidade; 0.85 aparece no arquivo de exemplo da doc; o padrão é 1.0. A variável é LSFGVK_FLOW_SCALE. Exige LSFGVK_ENV=1 e recarrega em quente. Fonte: docs oficiais do lsfg-vk (Configuration Options, Flow Scale; Configuration, arquivo de exemplo).",
+				EN: "Controls the resolution at which motion vectors are calculated. Values below 1.0 trade quality for performance; 0.85 appears in the documented example file; the default is 1.0. The variable is LSFGVK_FLOW_SCALE. Requires LSFGVK_ENV=1 and hot-reloads. Source: official lsfg-vk docs (Configuration Options, Flow Scale; Configuration, example file).",
+			},
+		},
+		{
+			Command: "LSFGVK_ENV=1 LSFGVK_PERFORMANCE_MODE=1 %command%",
+			Title: Localized{
+				PT: "lsfg-vk: modo de desempenho",
+				EN: "lsfg-vk: performance mode",
+			},
+			Category: Localized{
+				PT: "Overlay e desempenho",
+				EN: "Overlay & Performance",
+			},
+			Compat: Localized{
+				PT: "Todos (exige lsfg-vk instalado)",
+				EN: "All (requires lsfg-vk installed)",
+			},
+			Description: Localized{
+				PT: "Usa um modelo de geração bem mais leve: pequena perda de qualidade e ganho grande de desempenho. O padrão é desligado (false). A variável é LSFGVK_PERFORMANCE_MODE. Exige LSFGVK_ENV=1 e muda em quente. Use quando o modelo padrão derrubar os FPS. Fonte: docs oficiais do lsfg-vk (Configuration Options, Performance Mode).",
+				EN: "Uses a much lighter generation model: minor quality impact, large performance gain. It is off by default (false). The variable is LSFGVK_PERFORMANCE_MODE. Requires LSFGVK_ENV=1 and hot-reloads. Use when the default model drops FPS. Source: official lsfg-vk docs (Configuration Options, Performance Mode).",
+			},
+		},
+		{
+			Command: "LSFGVK_ENV=1 LSFGVK_NO_FP16=1 %command%",
+			Title: Localized{
+				PT: "lsfg-vk: desligar meia precisão",
+				EN: "lsfg-vk: disable half precision",
+			},
+			Category: Localized{
+				PT: "Overlay e desempenho",
+				EN: "Overlay & Performance",
+			},
+			Compat: Localized{
+				PT: "Todos (exige lsfg-vk instalado)",
+				EN: "All (requires lsfg-vk installed)",
+			},
+			Description: Localized{
+				PT: "Desliga as operações em meia precisão (allow_fp16) com LSFGVK_NO_FP16=1. Por padrão elas ficam ligadas e dão ganho enorme em AMD, não mudam nada em NVIDIA, mas pioram o desempenho em GTX 1000 ou mais antigas; a qualidade não muda. Exige LSFGVK_ENV=1. Use só nesses casos ou para isolar um problema. Fonte: docs oficiais do lsfg-vk (Configuration Options, Allow half-precision / allow_fp16).",
+				EN: "Disables half-precision operations (allow_fp16) with LSFGVK_NO_FP16=1. By default they are enabled and give a huge uplift on AMD, do not affect NVIDIA, but decrease performance on GTX 1000-series and older; quality is unchanged. Requires LSFGVK_ENV=1. Use only in those cases or to isolate a problem. Source: official lsfg-vk docs (Configuration Options, Allow half-precision / allow_fp16).",
+			},
+		},
+		{
 			Command:   "PROTON_FSR4_INDICATOR=1 %command%",
 			CommandEN: "PROTON_FSR4_INDICATOR=1 %command%",
 			Title: Localized{
@@ -1579,46 +1596,6 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Mostra um watermark no canto da tela confirmando que o FSR 4 está ativo. É atalho para FSR_WATERMARK=1 e FSR_FG_WATERMARK=1 (watermark do FSR 4 e do MLFG). Útil para verificar se o PROTON_FSR4_UPGRADE funcionou. Fonte: README do CachyOS (fsr4hud).",
 				EN: "Shows a corner watermark confirming FSR 4 is active. It is shorthand for FSR_WATERMARK=1 and FSR_FG_WATERMARK=1 (FSR 4 and MLFG watermarks). Useful to verify PROTON_FSR4_UPGRADE worked. Source: CachyOS README (fsr4hud).",
-			},
-		},
-		{
-			Command:   "PROTON_FSR4_RDNA3_UPGRADE=1 %command%",
-			CommandEN: "PROTON_FSR4_RDNA3_UPGRADE=1 %command%",
-			Title: Localized{
-				PT: "Upgrade FSR 4 para RDNA 3",
-				EN: "FSR 4 upgrade for RDNA 3",
-			},
-			Category: Localized{
-				PT: "Upscaling",
-				EN: "Upscaling",
-			},
-			Compat: Localized{
-				PT: "GE (GPU AMD RDNA 3)",
-				EN: "GE (AMD RDNA 3 GPU)",
-			},
-			Description: Localized{
-				PT: "Upgrade FSR 3.1 para FSR 4 em GPUs RDNA 3 (RX 7000). Aplica workarounds específicos RDNA 3. Versão customizável: PROTON_FSR4_RDNA3_UPGRADE=\"4.0.2\". Removida no Proton-CachyOS 11+ (workaround não mais necessário). Fonte: CachyOS CHANGELOG 11.0-20260519.",
-				EN: "FSR 3.1 to FSR 4 upgrade on RDNA 3 GPUs (RX 7000). Applies RDNA 3-specific workarounds. Custom version: PROTON_FSR4_RDNA3_UPGRADE=\"4.0.2\". Removed in Proton-CachyOS 11+ (workaround no longer needed). Source: CachyOS changelog 11.0-20260519.",
-			},
-		},
-		{
-			Command:   "PROTON_FSR3_UPGRADE=1 %command%",
-			CommandEN: "PROTON_FSR3_UPGRADE=1 %command%",
-			Title: Localized{
-				PT: "Upgrade para FSR 3.1",
-				EN: "FSR 3.1 upgrade",
-			},
-			Category: Localized{
-				PT: "Upscaling",
-				EN: "Upscaling",
-			},
-			Compat: Localized{
-				PT: "GE e CachyOS (GPU AMD)",
-				EN: "GE and CachyOS (AMD GPU)",
-			},
-			Description: Localized{
-				PT: "Baixa automaticamente a DLL do FSR 3.1 e atualiza jogos para usá-la. Versão customizável via PROTON_FSR3_UPGRADE=\"versão\". Renomeada para PROTON_FFX3_UPGRADE no Proton-CachyOS 11+.",
-				EN: "Automatically downloads the FSR 3.1 DLL and upgrades games to use it. Custom version via PROTON_FSR3_UPGRADE=\"version\". Renamed to PROTON_FFX3_UPGRADE in Proton-CachyOS 11+.",
 			},
 		},
 		{
@@ -1982,6 +1959,25 @@ func commands() []Command {
 			},
 		},
 		{
+			Command: "DXVK_FILTER_DEVICE_UUID=00000000000000000000000000000001 %command%",
+			Title: Localized{
+				PT: "DXVK: filtrar GPU por UUID",
+				EN: "DXVK: filter GPU by UUID",
+			},
+			Category: Localized{
+				PT: "GPU",
+				EN: "GPU",
+			},
+			Compat: Localized{
+				PT: "Todos (DXVK)",
+				EN: "All (DXVK)",
+			},
+			Description: Localized{
+				PT: "Seleciona a GPU pelo UUID do Vulkan, mais preciso que DXVK_FILTER_DEVICE_NAME quando há duas placas idênticas. Substitua o exemplo pelo UUID da sua placa: 32 caracteres hexadecimais sem hífens, obtidos com vulkaninfo. Se o UUID estiver errado, o jogo não consegue criar dispositivo D3D — remova a variável nesse caso. Fonte: README do DXVK (Device filter).",
+				EN: "Selects the GPU by its Vulkan UUID, more precise than DXVK_FILTER_DEVICE_NAME when two identical cards are installed. Replace the example with your device UUID: 32 hexadecimal characters without dashes, available via vulkaninfo. A wrong UUID filters out all devices and the game cannot create a D3D device — remove the variable in that case. Source: DXVK README (Device filter).",
+			},
+		},
+		{
 			Command:   "PROTON_FRAME_RATE=60 %command%",
 			CommandEN: "PROTON_FRAME_RATE=60 %command%",
 			Title: Localized{
@@ -2135,25 +2131,6 @@ func commands() []Command {
 			Description: Localized{
 				PT: "Desativa o ASLR apenas para as imagens executáveis, mantendo o relocation das DLLs ativo. Útil para aplicações 32-bit que armazenam dados em bits de ponteiro de código inutilizados, exigindo endereço base preferido. Fonte: README do GE (WINE_DISABLE_EXE_ASLR).",
 				EN: "Disables ASLR for executable images only, while leaving DLL relocation enabled. Useful for 32-bit applications that store data in otherwise unused code-pointer bits and need their preferred base address. Source: GE README (WINE_DISABLE_EXE_ASLR).",
-			},
-		},
-		{
-			Command: "WINE_FULLSCREEN_FSR_CUSTOM_MODE=1920x1080 %command%",
-			Title: Localized{
-				PT: "Resolução falsa do FSR (fullscreen)",
-				EN: "Fake fullscreen FSR resolution",
-			},
-			Category: Localized{
-				PT: "Upscaling",
-				EN: "Upscaling",
-			},
-			Compat: Localized{
-				PT: "GE",
-				EN: "GE",
-			},
-			Description: Localized{
-				PT: "Define uma resolução falsa da tela para o FSR em tela cheia. Útil em jogos que renderizam sempre na resolução nativa, independentemente do valor selecionado. Formato WIDTHxHEIGHT (ex.: 1920x1080). Fonte: README do GE (WINE_FULLSCREEN_FSR_CUSTOM_MODE).",
-				EN: "Sets a fake screen resolution for fullscreen FSR. Useful in games that always render at native resolution regardless of the selected option. Format WIDTHxHEIGHT (e.g. 1920x1080). Source: GE README (WINE_FULLSCREEN_FSR_CUSTOM_MODE).",
 			},
 		},
 		{
@@ -2440,45 +2417,6 @@ func commands() []Command {
 			Description: Localized{
 				PT: "0 desativa o raw input não acelerado e usa o acelerado; um valor real positivo (ex.: 0.5) ajusta a sensibilidade do raw input. Só faz sentido sob driver Wayland. Fonte: README do GE (WAYLANDDRV_RAWINPUT).",
 				EN: "0 disables unaccelerated input and uses accelerated input; a positive real value (e.g. 0.5) adjusts raw input sensitivity. Only meaningful under the Wayland driver. Source: GE README (WAYLANDDRV_RAWINPUT).",
-			},
-		},
-
-		{
-			Command: "PROTON_USE_HDR=1 %command%",
-			Title: Localized{
-				PT: "HDR legado (PROTON_USE_HDR)",
-				EN: "Legacy HDR override (PROTON_USE_HDR)",
-			},
-			Category: Localized{
-				PT: "Wayland",
-				EN: "Wayland",
-			},
-			Compat: Localized{
-				PT: "GE e CachyOS (legado)",
-				EN: "GE and CachyOS (legacy)",
-			},
-			Description: Localized{
-				PT: "Override legado de HDR. Não é mais necessário para detecção automática em DX11/DX12 e 1 não força mais o HDR no Wayland (use PROTON_FORCE_HDR para isso). Defina 0 para desligar a divulgação de HDR. Use apenas em builds antigos; PROTON_ENABLE_HDR tenta o mesmo e também está obsoleta. Fonte: README do GE (hdr).",
-				EN: "Legacy HDR override. No longer required for automatic detection on DX11/DX12, and 1 no longer forces HDR on Wayland (use PROTON_FORCE_HDR for that). Set to 0 to disable HDR reporting. Use only on old builds; PROTON_ENABLE_HDR tries the same thing and is also obsolete. Source: GE README (hdr).",
-			},
-		},
-		{
-			Command: "PROTON_ENABLE_MEDIACONV=1 %command%",
-			Title: Localized{
-				PT: "Media converter (depuração)",
-				EN: "Media converter (debug)",
-			},
-			Category: Localized{
-				PT: "Áudio",
-				EN: "Audio",
-			},
-			Compat: Localized{
-				PT: "CachyOS e GE",
-				EN: "CachyOS and GE",
-			},
-			Description: Localized{
-				PT: "Habilita o converter de mídia do winegstreamer. Marcado como depuração nos próprios READMEs: não use em jogo, só para diagnóstico de reprodução de cutscene. Fonte: README do CachyOS/GE (mediaconv).",
-				EN: "Enables the winegstreamer media converter. The READMEs mark it as debugging: not for in-game use, only for cutscene playback diagnosis. Source: CachyOS/GE README (mediaconv).",
 			},
 		},
 	}

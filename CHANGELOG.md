@@ -1,3 +1,38 @@
+# v0.8.0
+
+Catálogo enxugado e ampliado: saem 10 entradas legadas, de depuração ou removidas pelo upstream; entram 7 opções confirmadas nas fontes primárias atuais.
+
+**Novos comandos**
+
+- lsfg-vk: `DISABLE_LSFGVK=1`, `LSFGVK_MULTIPLIER=3`, `LSFGVK_FLOW_SCALE=0.85`, `LSFGVK_PERFORMANCE_MODE=1` e `LSFGVK_NO_FP16=1` (as quatro últimas com `LSFGVK_ENV=1`). Fonte: docs oficiais do lsfg-vk, Environment Variables e Configuration Options.
+- `DISABLE_LOW_LATENCY_LAYER=1` para isolar um jogo sem mexer no ambiente global. Fonte: README do low_latency_layer.
+- `DXVK_FILTER_DEVICE_UUID=...` para escolher a GPU por UUID quando há placas idênticas. Fonte: README do DXVK.
+
+**Removidos**
+
+- Removidas ou renomeadas pelo upstream: `DXVK_FRAME_RATE=60`, `PROTON_FSR3_UPGRADE=1`, `PROTON_FSR4_RDNA3_UPGRADE=1`.
+- Legadas ou de depuração, conforme critério do projeto: `WINE_FULLSCREEN_FSR=1` (e `WINE_FULLSCREEN_FSR_STRENGTH=2` / `WINE_FULLSCREEN_FSR_CUSTOM_MODE=1920x1080`, que só funcionavam com ela), `PROTON_USE_HDR=1`, `PROTON_WAIT_ATTACH=1`, `PROTON_ENABLE_MEDIACONV=1` e `RADV_DEBUG=nofastclears`.
+
+**Correções**
+
+- `game-performance` agora vem antes de `gamescope ... --` na linha gerada: depois do `--` o gamescope tratava o wrapper seguinte como o executável do jogo. Vale para Steam/Faugus e para os launchers sem `%command%`.
+- `PROTON_FFX4_UPGRADE=1` passa a acionar o aviso de conflito com `ENABLE_LAYER_MESA_ANTI_LAG=1`, o mesmo que `PROTON_FSR4_UPGRADE=1` já acionava.
+- `TestCommandsValid` agora exige `Compat` em PT e EN, como o auditor offline já exigia.
+- O download do `appimagetool` usa `curl -fsSL`: um HTTP de erro falha na hora, em vez de virar binário inválido no release.
+- O release só roda depois que o CI passa (`needs: check` chamando o workflow de CI), e o build falha se o `.zsync` não for gerado — antes o `mv ... || true` escondia isso.
+
+**Performance**
+
+- `applyFilter` só monta o texto de busca com título, categoria, descrição e compatibilidade no ramo que realmente compara. Buscas vazias e com prefixos (`cat:`, `compat:`, `cmd:`) não concatenam as descrições do catálogo a cada tecla.
+
+**Verificação**
+
+- 105 testes (`go test ./...`), `gofmt`, `go vet` e build verdes.
+- Catálogo com 124 entradas; `tools/auditar-catalogo.py --offline` e `--online` (15/15 fontes) limpos.
+- A fonte lsfg-vk da auditoria passou a apontar para a documentação oficial, que substituiu `LSFGVK_PACING`/`LSFGVK_GPU` por `LSFGVK_PACING_MODE`.
+
+---
+
 # v0.7.0
 
 Revisão ampla do catálogo: 21 comandos novos verificados nas fontes primárias (GE e CachyOS), descrições enriquecidas e fontes registradas.

@@ -40,7 +40,7 @@ DESTINO = [
     ("GAMEMODERUN", "README do GameMode"),
     ("GAMESCOPE", "README do gamescope"),
     ("LOW_LATENCY_LAYER", "README do Korthos-Software/low_latency_layer"),
-    ("LSFGVK", "docs/Configuration.md do PancakeTAS/lsfg-vk"),
+    ("LSFGVK", "docs oficiais do lsfg-vk (Environment Variables e Configuration Options)"),
     ("DXIL_", "DXIL-SPIR-V do vkd3d-proton"),
     ("FSR_", "patches de FSR do Proton"),
     ("MESA_", "fontes do Mesa (src/vulkan/wsi, src/amd/vulkan)"),
@@ -48,6 +48,7 @@ DESTINO = [
     ("DISABLE_LAYER_MESA_", "VkLayer_MESA_anti_lag.json.in no Mesa"),
     ("RADV_", "radv_instance.c (radv_debug_options) no Mesa"),
     ("ENABLE_HDR_WSI", "camada de HDR do driver Vulkan"),
+    ("DISABLE_", "docs da feature ou camada que desliga (lsfg-vk, low_latency_layer, Mesa)"),
     ("DRI_PRIME", "PRIME do Mesa, não é variável do Proton"),
     ("HOST_LC_ALL", "script do Proton e locale do Wine"),
     ("WINEDLLOVERRIDES", "Wine"),
@@ -63,7 +64,9 @@ FONTES = {
     "low_latency_layer": "https://raw.githubusercontent.com/Korthos-Software/low_latency_layer/main/README.md",
     "dxvk_low_latency": "https://raw.githubusercontent.com/netborg-afps/dxvk-low-latency/master/README.md",
     "vkd3d_low_latency": "https://raw.githubusercontent.com/netborg-afps/vkd3d-low-latency/master/README.md",
-    "lsfgvk": "https://raw.githubusercontent.com/xXJSONDeruloXx/lsfg-vk-arm64/v2-arm64-port/docs/Configuration.md",
+    # A doc antiga do fork cita LSFGVK_PACING/LSFGVK_GPU, que a doc oficial
+    # substituiu por LSFGVK_PACING_MODE; a fonte atual é o site oficial.
+    "lsfgvk_env": "https://lsfg-vk.dev/docs/configuration/environment-variables/",
     # O README do fork dxvk-low-latency é praticamente o do DXVK upstream: não
     # menciona DXVK_FRAME_PACE, nem o teto de 5%, nem o DXVK_HUD=latencydetails.
     # Tudo isso está nas release notes, então é delas que a auditoria precisa.
@@ -235,7 +238,6 @@ ANCORAS_APOS_ASPAS = {
     "PROTON_USE_OPTISCALER=1 %command%": "Upscalers.Dx12Upscaler=dlss",
     "LOW_LATENCY_LAYER_SPOOF_NVIDIA=1 %command%": "dxgi.hideAmdGpu",
     "PROTON_FORCE_NVAPI=1 %command%": "dxgi.hideAmdGpu",
-    "DXVK_FRAME_RATE=60 %command%": "d3d9.maxFrameRate",
 }
 
 # Resto de edição em texto: aspas órfãos e asterisco colado em letra.

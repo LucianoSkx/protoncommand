@@ -50,7 +50,7 @@ elif [ -x ./appimagetool ]; then
   TOOL="./appimagetool"
 else
   echo "appimagetool não encontrado. Baixando..."
-  curl -L -o appimagetool \
+  curl -fsSL -o appimagetool \
     https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
   chmod +x appimagetool
   TOOL="./appimagetool"
@@ -60,5 +60,10 @@ mkdir -p "$DIST"
 echo "==> Gerando AppImage com update info (zsync)..."
 APPIMAGE_EXTRACT_AND_RUN=1 "$TOOL" -u "$UPDATE" AppDir "$DIST/$ARTIFACT"
 # O .zsync sai no diretório atual com o nome-base do AppImage; move para dist/.
-mv -f "${ARTIFACT}.zsync" "$DIST/" 2>/dev/null || true
+# Sem ele o release sai sem update delta, então falha em vez de esconder.
+if [ ! -f "${ARTIFACT}.zsync" ]; then
+  echo "erro: appimagetool não gerou ${ARTIFACT}.zsync" >&2
+  exit 1
+fi
+mv -f "${ARTIFACT}.zsync" "$DIST/"
 echo "==> Pronto: $DIST/$ARTIFACT (+ .zsync para atualizações delta)"
